@@ -1,0 +1,10 @@
+digraph G {
+
+	
+	0[ label=""  ] ;
+	
+	
+	0[ label="START", shape=Msquare, color=green ] ;
+	0 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	
+}

@@ -1,0 +1,8 @@
+# dot file created at runtime
+
+digraph G {
+	start -> -1;
+
+	start [shape=Msquare, color=green];
+	exit [shape=Msquare, color=red];
+}
