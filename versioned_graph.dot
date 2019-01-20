@@ -3,7 +3,54 @@ digraph G {
 	
 	0[ label=""  ] ;
 	
+	0 -> 1 ;
+	
+	1[ label="ID0 IN VARCHAR "  ] ;
+	
+	1 -> 2 ;
+	
+	2[ label="PRICE0 NUMBER "  ] ;
+	
+	2 -> 3 ;
+	
+	3[ label="NOOFITEMS0 NUMBER ; "  ] ;
+	
+	3 -> 4 ;
+	
+	4[ label="PRICE0 <= 0 " , color=orange, shape=diamond ] ;
+	
+	4 -> 5 ;
+	4 -> 6 ;
+	
+	5[ label="NOOFITEMS1 := 0 "  ] ;
+	
+	5 -> 11 ;
+	
+	6[ label="PRICE0 > 1000 " , color=orange, shape=diamond ] ;
+	
+	6 -> 8 ;
+	6 -> 7 ;
+	
+	7[ label="NOOFITEMS5 := NOOFITEMS0 + 2 "  ] ;
+	
+	7 -> 11 ;
+	
+	8[ label="PRICE0 = 10 " , color=orange, shape=diamond ] ;
+	
+	8 -> 9 ;
+	8 -> 10 ;
+	
+	9[ label="NOOFITEMS3 := NOOFITEMS0 + 1 "  ] ;
+	
+	9 -> 11 ;
+	
+	10[ label="NOOFITEMS4 := 0 "  ] ;
+	
+	10 -> 11 ;
+	
+	11[ label="INSERT INTO ITEM_TABLE ( ITEM_ID1 , ITEM_PRICE1 , ITEM_COUNT1 ) VALUES ( ID0 , PRICE0 , NOOFITEMS2 ) "  ] ;
+	
 	0[ label="START", shape=Msquare, color=green ] ;
-	0 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	11 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
 	
 }

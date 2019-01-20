@@ -20,6 +20,7 @@ class MyNode():
         self.destructedPhi = dict()
         self.stringSsa = ""
         self.oldString = ""
+        self.branching = dict()         # format {'true': node number, 'false': another node number}
 
     def addChild(self, node):
         self.next.add(node)
@@ -48,6 +49,7 @@ class MyNode():
         print("versionedRHS : ", self.versionedRHS)
         print("versionedLHS : ", self.versionedLHS)
         print("destructedPhi : ", self.destructedPhi)
+        print("branching : ", self.branching)
 
         print("---oldString : ", self.oldString)
         print("---stringSsa : ", self.stringSsa)

@@ -31,6 +31,14 @@ class MyRawCfgToGraph():
             self.cfg.connect(int(x), int(y))
             self.dot_str = self.dot_str + "\n\t" + x + " -> " + y + " ;"
 
+    def makeTrueBranch(self, parent, child):
+        self.cfg.nodes[int(parent)].branching['true'] = int(child)
+
+
+
+    def makeFalseBranch(self, parent, child):
+        self.cfg.nodes[int(parent)].branching['false'] = int(child)
+
 
     def connectForDot(self, x, y, param=""):
         if not (x == y):
@@ -121,7 +129,8 @@ class MyRawCfgToGraph():
                 current = current + 1
                 curr2 = self.utilBracketMatcher(tokens, current)  # if_true
                 f1, l1 = self.cfgReader(tokens, current, curr2)
-                self.connect(temp, f1)  # ---connection
+                self.connect(temp, f1)  # ---connection     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< true
+                self.makeTrueBranch(temp, f1)
                 for i in l1:
                     to_merge_set.add(i)
                 current = curr2 + 1
@@ -130,12 +139,14 @@ class MyRawCfgToGraph():
                     current = current + 1
                     temp_i = tokens[current].split("_")[1]  # elsif_condition
                     self.reshapeNodeStyle(temp_i, "diamond", "orange")
-                    self.connect(temp, temp_i)  # connecting parent
+                    self.connect(temp, temp_i)  # connecting parent     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< false
+                    self.makeFalseBranch(temp, temp_i)
                     temp = temp_i  # making temp pseudo-parent
                     current = current + 1
                     curr2_i = self.utilBracketMatcher(tokens, current)  # -----elsif_true
                     f_i, l_i = self.cfgReader(tokens, current, curr2_i)
-                    self.connect(temp_i, f_i)  # ---connection
+                    self.connect(temp_i, f_i)  # ---connection      <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< true
+                    self.makeTrueBranch(temp_i, f_i)
                     for i in l_i:
                         to_merge_set.add(i)
                     current = curr2_i + 2  # ---[ elsif_x [ y x ] ]
@@ -143,7 +154,8 @@ class MyRawCfgToGraph():
                 # else handling...
                 curr2 = self.utilBracketMatcher(tokens, current)  # else_part
                 f2, l2 = self.cfgReader(tokens, current, curr2)
-                self.connect(temp, f2)  # ---connection
+                self.connect(temp, f2)  # ---connection     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< false
+                self.makeFalseBranch(temp, f2)
                 for i in l2:
                     to_merge_set.add(i)
                 # print (" rs = ", rs, " , re = ", re, " , a = ", a)
