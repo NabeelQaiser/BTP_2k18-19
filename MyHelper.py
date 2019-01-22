@@ -107,6 +107,11 @@ class MyHelper(PlSqlVisitor):
             self.visit(ctx.children[1])
             res = res.union(self.temp)
             self.temp = set()
+        elif ruleName == "assume_statement":
+            self.temp = set()
+            self.visit(ctx.children[1])
+            res = res.union(self.temp)
+            self.temp = set()
         return res
 
 
