@@ -43,7 +43,6 @@ unit_statement
     | alter_sequence
     | alter_trigger
     | alter_type
-
     | create_function_body
     | create_procedure_body
     | create_package
@@ -668,6 +667,17 @@ statement
     | case_statement/*[true]*/
     | sql_statement
     | function_call
+    | assume_statement
+    | assert_statement
+    ;
+
+
+assume_statement
+    : ASSUME expression
+    ;
+
+assert_statement
+    : ASSERT expression
     ;
 
 assignment_statement
@@ -2127,6 +2137,8 @@ regular_id
     | AFTER
     | AGENT
     | AGGREGATE
+    | ASSUME
+    | ASSERT
     //| ALL
     //| ALTER
     | ANALYZE
@@ -2612,6 +2624,8 @@ AND:                          A N D;
 ANY:                          A N Y;
 ARRAY:                        A R R A Y;
 AS:                           A S;
+ASSUME:                       A S S U M E;
+ASSERT:                       A S S E R T;
 ASC:                          A S C;
 ASSOCIATE:                    A S S O C I A T E;
 AT:                           A T;

@@ -30,6 +30,7 @@ class MyHelper(PlSqlVisitor):
             j = j+1
         return s[i+1:j]
 
+
     def getVariableSet(self, ctx):
         res = self.generateRHS(ctx)
         res = res.union(self.generateLHS(ctx))
@@ -86,7 +87,7 @@ class MyHelper(PlSqlVisitor):
             # res = res.union(self.temp)
             # self.temp = set()
             self.temp = set()
-            self.visit(ctx.children[2].children[1].children[2])     #TODO:  make it proper
+            self.visit(ctx.children[2].children[1].children[2])     #TODO: make it proper (it's temporary soln)
             self.visit(ctx.children[3])
             res = res.union(self.temp)
             self.temp = set()
@@ -101,6 +102,16 @@ class MyHelper(PlSqlVisitor):
         elif ruleName == "function_call":
             funName = ctx.children[0].getText()
             res = res.union(self.functionDict[funName][1])
+        elif ruleName == "assert_statement":
+            self.temp = set()
+            self.visit(ctx.children[1])
+            res = res.union(self.temp)
+            self.temp = set()
+        elif ruleName == "assume_statement":
+            self.temp = set()
+            self.visit(ctx.children[1])
+            res = res.union(self.temp)
+            self.temp = set()
         return res
 
 

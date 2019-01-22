@@ -16,7 +16,7 @@ class MyRawCfgToGraph():
             self.dot_str = self.dot_str + "\n\t" + i + " -> exit;"
         self.dot_str = "# dot file created at runtime\n" + "\ndigraph G {" + self.dot_str
         self.dot_str = self.dot_str + "\n\n\tstart [shape=Msquare, color=green];\n\texit [shape=Msquare, color=red];\n}"
-        print("\n\n", self.dot_str)
+        # print("\n\n", self.dot_str)
         self.cfg.dotGraph = self.dot_str
     
     
@@ -30,6 +30,7 @@ class MyRawCfgToGraph():
         if not x==y:
             self.cfg.connect(int(x), int(y))
             self.dot_str = self.dot_str + "\n\t" + x + " -> " + y + " ;"
+
 
     def makeTrueBranch(self, parent, child):
         self.cfg.nodes[int(parent)].branching['true'] = int(child)

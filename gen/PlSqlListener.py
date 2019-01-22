@@ -1,4 +1,4 @@
-# Generated from /home/nabeel/PycharmProjects/plsql_antlr/PlSql.g4 by ANTLR 4.7.2
+# Generated from /home/mridul/PycharmProjects/BTP_2k18-19/PlSql.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .PlSqlParser import PlSqlParser
@@ -1022,6 +1022,24 @@ class PlSqlListener(ParseTreeListener):
 
     # Exit a parse tree produced by PlSqlParser#statement.
     def exitStatement(self, ctx:PlSqlParser.StatementContext):
+        pass
+
+
+    # Enter a parse tree produced by PlSqlParser#assume_statement.
+    def enterAssume_statement(self, ctx:PlSqlParser.Assume_statementContext):
+        pass
+
+    # Exit a parse tree produced by PlSqlParser#assume_statement.
+    def exitAssume_statement(self, ctx:PlSqlParser.Assume_statementContext):
+        pass
+
+
+    # Enter a parse tree produced by PlSqlParser#assert_statement.
+    def enterAssert_statement(self, ctx:PlSqlParser.Assert_statementContext):
+        pass
+
+    # Exit a parse tree produced by PlSqlParser#assert_statement.
+    def exitAssert_statement(self, ctx:PlSqlParser.Assert_statementContext):
         pass
 
 
