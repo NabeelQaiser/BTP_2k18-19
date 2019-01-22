@@ -1,4 +1,4 @@
-# Generated from /home/nabeel/PycharmProjects/plsql_antlr/PlSql.g4 by ANTLR 4.7.2
+# Generated from /home/mridul/PycharmProjects/BTP_2k18-19/PlSql.g4 by ANTLR 4.7.2
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .PlSqlParser import PlSqlParser
@@ -571,6 +571,16 @@ class PlSqlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PlSqlParser#statement.
     def visitStatement(self, ctx:PlSqlParser.StatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PlSqlParser#assume_statement.
+    def visitAssume_statement(self, ctx:PlSqlParser.Assume_statementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PlSqlParser#assert_statement.
+    def visitAssert_statement(self, ctx:PlSqlParser.Assert_statementContext):
         return self.visitChildren(ctx)
 
 

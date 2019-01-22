@@ -14,15 +14,15 @@ from MyRawCfgToGraph import MyRawCfgToGraph
 
 
 def main(argv):
-    name = "gen/data/"+argv[1]
+    name = "se/data/"+argv[1]
     file = open(name, "r")
     content = file.read().upper()
     file.close()
-    file = open('upper_input.sql', "w")
+    file = open('se/upper_input.sql', "w")
     file.write(content)
     file.close()
 
-    input = FileStream('upper_input.sql')
+    input = FileStream('se/upper_input.sql')
     lexer = PlSqlLexer(input)
     stream = CommonTokenStream(lexer)
     parser = PlSqlParser(stream)
@@ -49,7 +49,7 @@ def main(argv):
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
     cfg.printPretty()
-    cfg.dotToPng(cfg.dotGraph, "raw_graph.dot")
+    cfg.dotToPng(cfg.dotGraph, "se/raw_graph")
     utility.generateDomSet(cfg)
     print("Dominator set ended----------->\n\n")
     utility.generateSDomSet(cfg)
@@ -74,20 +74,20 @@ def main(argv):
     #
     # hello = utility.generateFinalDotGraph(cfg)
     # print(hello)
-    # cfg.dotToPng(hello, "versioned_graph.dot")
+    # cfg.dotToPng(hello, "versioned_graph")
 
     hello2 = utility.generateVersionedDotFile(cfg)
     #print(hello2)
-    cfg.dotToPng(hello2, "versioned_graph.dot")
+    cfg.dotToPng(hello2, "se/versioned_graph")
 
     hello3 = utility.generateVersionedPhiNodeWalaDotFile(cfg)
     #print(hello3)
-    cfg.dotToPng(hello3, "versioned_phi_node_wala_graph.dot")
+    cfg.dotToPng(hello3, "se/versioned_phi_node_wala_graph")
 
     hello4 = utility.generateDestructedPhiNodeWalaDotFile(cfg)
     #print(hello4)
-    cfg.dotToPng(hello4, "destructed_phi_node_wala_graph.dot")
-    #just comment
+    cfg.dotToPng(hello4, "se/destructed_phi_node_wala_graph")
+
 
 
 if __name__ == '__main__':

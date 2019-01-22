@@ -50,6 +50,8 @@ class MySsaStringGenerator(PlSqlVisitor):
                 res = self.getAssignment_statement(nodeId, ctx)
             if ruleName == "function_call":
                 res = self.getFunction_call(nodeId, ctx)
+            if ruleName == "assert_statement":
+                res = self.getCondition(nodeId, ctx)
         return res
 
 

@@ -25,9 +25,9 @@ class MyCFG():
 
 
     def dotToPng(self, dotString, filename):
-        file = open(filename, 'w')
+        file = open(filename+".dot", 'w')
         file.write(dotString)
         file.close()
 
-        call(["dot", "-Tpng", "-o", filename + ".png", filename])
+        call(["dot", "-Tpng", "-o", filename + ".png", filename+".dot"])
         call(["eog", filename + ".png"])

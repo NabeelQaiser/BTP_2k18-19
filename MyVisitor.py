@@ -169,3 +169,21 @@ class MyVisitor(PlSqlVisitor):
         self.cfg.addNode(node)
         self.nodeIdCounter = self.nodeIdCounter + 1
         self.rawCFG = self.rawCFG + str(node.id) + ' '
+
+    def visitAssert_statement(self, ctx):
+        node = MyNode(self.nodeIdCounter, ctx)
+        self.cfg.addNode(node)
+        self.nodeIdCounter = self.nodeIdCounter + 1
+        self.rawCFG = self.rawCFG + str(node.id) + ' '
+
+    def visitAssume_statement(self, ctx):
+        node = MyNode(self.nodeIdCounter, ctx)
+        self.cfg.addNode(node)
+        self.nodeIdCounter = self.nodeIdCounter + 1
+        self.rawCFG = self.rawCFG + str(node.id) + ' '
+
+    def visitRaise_statement(self, ctx):
+        node = MyNode(self.nodeIdCounter, ctx)
+        self.cfg.addNode(node)
+        self.nodeIdCounter = self.nodeIdCounter + 1
+        self.rawCFG = self.rawCFG + str(node.id) + ' '
