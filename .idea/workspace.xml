@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0a756ab0-2c71-4135-968c-ccd7f235fa6f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/MyHelper.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyHelper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gen/MySsaStringGenerator.py" beforeDir="false" afterPath="$PROJECT_DIR$/gen/MySsaStringGenerator.py" afterDir="false" />
+    <list default="true" id="0a756ab0-2c71-4135-968c-ccd7f235fa6f" name="Default Changelist" comment="WpcGenerator Algorithm + Added property &quot;&quot; in MyNode">
+      <change afterPath="$PROJECT_DIR$/wpc/data/test3.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wpc/data/test4.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wpc/data/test5.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MyNode.py" beforeDir="false" afterPath="$PROJECT_DIR$/MyNode.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WpcGenerator.py" beforeDir="false" afterPath="$PROJECT_DIR$/WpcGenerator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulator_wpc.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulator_wpc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wpc/data/test2.sql" beforeDir="false" afterPath="$PROJECT_DIR$/wpc/data/test2.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wpc/raw_graph.dot" beforeDir="false" afterPath="$PROJECT_DIR$/wpc/raw_graph.dot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wpc/raw_graph.png" beforeDir="false" afterPath="$PROJECT_DIR$/wpc/raw_graph.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wpc/upper_input.sql" beforeDir="false" afterPath="$PROJECT_DIR$/wpc/upper_input.sql" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,52 +23,14 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/simulator_wpc.py">
+        <entry file="file://$PROJECT_DIR$/PlSql.g4">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="47" column="45" lean-forward="true" selection-start-line="47" selection-start-column="45" selection-end-line="47" selection-end-column="45" />
+            <state>
+              <caret line="33" column="7" selection-start-line="33" selection-start-column="7" selection-end-line="33" selection-end-column="7" />
               <folding>
-                <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#0#744#0" expanded="true" />
+                <element signature="e#0#85118#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/MyHelper.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="109" column="32" selection-start-line="109" selection-start-column="32" selection-end-line="109" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/MyCFG.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gen/MySsaStringGenerator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-839">
-              <caret line="54" column="34" selection-start-line="54" selection-start-column="34" selection-end-line="54" selection-end-column="34" />
-              <folding>
-                <element signature="e#0#29#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/WpcGenerator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="56" lean-forward="true" selection-start-line="10" selection-start-column="56" selection-end-line="10" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -68,8 +38,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MyVisitor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="781">
-              <caret line="189" selection-start-line="189" selection-end-line="189" />
+            <state relative-caret-position="-1020">
+              <caret line="19" column="51" lean-forward="true" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/simulator_wpc.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="676">
+              <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -78,31 +60,28 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/MyUtility.py">
+        <entry file="file://$PROJECT_DIR$/wpc/data/test5.sql">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="14" column="8" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="105">
+              <caret line="7" column="15" selection-start-line="7" selection-start-column="15" selection-end-line="7" selection-end-column="15" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/MyRawCfgToGraph.py">
+        <entry file="file://$PROJECT_DIR$/WpcGenerator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="18" column="37" lean-forward="true" selection-start-line="18" selection-start-column="37" selection-end-line="18" selection-end-column="37" />
+            <state relative-caret-position="225">
+              <caret line="15" column="58" selection-start-line="15" selection-start-column="58" selection-end-line="15" selection-end-column="58" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/wpc/data/test2.sql">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wpc/data/test4.sql">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
+            <state relative-caret-position="255">
+              <caret line="17" column="17" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -110,8 +89,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MyNode.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="36" lean-forward="true" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
+            <state relative-caret-position="345">
+              <caret line="23" column="127" lean-forward="true" selection-start-line="23" selection-start-column="127" selection-end-line="23" selection-end-column="127" />
             </state>
           </provider>
         </entry>
@@ -127,7 +106,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>gen.</find>
       <find>statement</find>
       <find>'A'</find>
       <find>'E'</find>
@@ -157,6 +135,7 @@
       <find>update_statement</find>
       <find>item_count</find>
       <find>v_type_id</find>
+      <find>varDict</find>
     </findStrings>
     <replaceStrings>
       <replace>4</replace>
@@ -185,25 +164,28 @@
         <option value="$PROJECT_DIR$/temp.py" />
         <option value="$PROJECT_DIR$/gen/data/update_warehouse.sql" />
         <option value="$PROJECT_DIR$/output.txt" />
-        <option value="$PROJECT_DIR$/MyNode.py" />
         <option value="$PROJECT_DIR$/MyUtility.py" />
         <option value="$PROJECT_DIR$/gen/data/my_test.sql" />
         <option value="$PROJECT_DIR$/gen/data/add_parcel_type.sql" />
         <option value="$PROJECT_DIR$/gen/data/discount.sql" />
         <option value="$PROJECT_DIR$/PlSql.g4" />
-        <option value="$PROJECT_DIR$/MyVisitor.py" />
         <option value="$PROJECT_DIR$/wpc/simulator_wpc.py" />
         <option value="$PROJECT_DIR$/MyRawCfgToGraph.py" />
         <option value="$PROJECT_DIR$/wpc/data/test1.sql" />
         <option value="$PROJECT_DIR$/gen/data/test.sql" />
-        <option value="$PROJECT_DIR$/WpcGenerator.py" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/simulator_wpc.py" />
         <option value="$PROJECT_DIR$/my_simulator.py" />
         <option value="$PROJECT_DIR$/MyCFG.py" />
         <option value="$PROJECT_DIR$/MyHelper.py" />
         <option value="$PROJECT_DIR$/gen/MySsaStringGenerator.py" />
         <option value="$PROJECT_DIR$/wpc/data/test2.sql" />
+        <option value="$PROJECT_DIR$/wpc/data/test3.sql" />
+        <option value="$PROJECT_DIR$/wpc/data/test4.sql" />
+        <option value="$PROJECT_DIR$/wpc/data/test5.sql" />
+        <option value="$PROJECT_DIR$/MyVisitor.py" />
+        <option value="$PROJECT_DIR$/MyNode.py" />
+        <option value="$PROJECT_DIR$/WpcGenerator.py" />
+        <option value="$PROJECT_DIR$/simulator_wpc.py" />
       </list>
     </option>
   </component>
@@ -218,23 +200,12 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="BTP_2k18-19" type="b2602c69:ProjectViewProjectNode" />
               <item name="BTP_2k18-19" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="BTP_2k18-19" type="b2602c69:ProjectViewProjectNode" />
-              <item name="BTP_2k18-19" type="462c0819:PsiDirectoryNode" />
-              <item name="gen" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="BTP_2k18-19" type="b2602c69:ProjectViewProjectNode" />
-              <item name="BTP_2k18-19" type="462c0819:PsiDirectoryNode" />
-              <item name="se" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="BTP_2k18-19" type="b2602c69:ProjectViewProjectNode" />
@@ -251,6 +222,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -300,7 +272,8 @@
       <workItem from="1547458443538" duration="6074000" />
       <workItem from="1547628178244" duration="2216000" />
       <workItem from="1547913125899" duration="248000" />
-      <workItem from="1548077812041" duration="34688000" />
+      <workItem from="1548077812041" duration="35444000" />
+      <workItem from="1548375137659" duration="18548000" />
     </task>
     <task id="LOCAL-00001" summary="Refactored repo, created se + wpc modules">
       <created>1548185796111</created>
@@ -309,11 +282,18 @@
       <option name="project" value="LOCAL" />
       <updated>1548185796111</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added ASSUME parsing">
+      <created>1548187907123</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1548187907123</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70597000" />
+    <option name="totallyTimeSpent" value="89901000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -327,10 +307,10 @@
   <component name="ToolWindowManager">
     <frame x="55" y="25" width="1865" height="1055" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19681144" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19901045" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="ANTLR Preview" order="0" sideWeight="0.4997233" weight="0.82181424" />
+      <window_info anchor="bottom" id="ANTLR Preview" order="0" sideWeight="0.4997233" weight="0.89200866" />
       <window_info anchor="bottom" id="Tool Output" order="1" />
       <window_info anchor="bottom" id="Message" order="2" />
       <window_info anchor="bottom" id="Find" order="3" weight="0.32937366" />
@@ -342,8 +322,8 @@
       <window_info anchor="bottom" id="Docker" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5002767" side_tool="true" weight="0.9084052" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="13" visible="true" weight="0.4384449" />
+      <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.5002767" side_tool="true" weight="0.90820736" />
+      <window_info anchor="bottom" id="Terminal" order="13" weight="0.46760258" />
       <window_info anchor="bottom" id="Python Console" order="14" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -357,14 +337,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Refactored repo, created se + wpc modules" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactored repo, created se + wpc modules" />
+    <MESSAGE value="Added ASSUME parsing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added ASSUME parsing" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/gen/temp.py" />
-    <entry file="file://$PROJECT_DIR$/gen/PlSqlVisitor.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gen/test_sql.py" />
     <entry file="file://$PROJECT_DIR$/gen/upper_input.sql" />
     <entry file="file://$PROJECT_DIR$/gen/rawCfgToGraph.py" />
     <entry file="file://$PROJECT_DIR$/gen/utility_testing.py" />
@@ -375,13 +351,7 @@
     <entry file="file://$PROJECT_DIR$/gen/MyHelper.py" />
     <entry file="file://$PROJECT_DIR$/gen/my_simulator.py" />
     <entry file="file://$PROJECT_DIR$/gen/MyCFG.py" />
-    <entry file="file://$PROJECT_DIR$/mygraph.dot">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="35" column="11" lean-forward="true" selection-start-line="35" selection-start-column="11" selection-end-line="35" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/mygraph.dot" />
     <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/antlr4/tree/Tree.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
@@ -389,13 +359,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/output.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1399">
-          <caret line="360" column="17" lean-forward="true" selection-start-line="360" selection-start-column="17" selection-end-line="360" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/output.txt" />
     <entry file="file://$PROJECT_DIR$/se/data/input.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4635">
@@ -403,22 +367,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mygraph.dot.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utility_testing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="25" lean-forward="true" selection-start-line="9" selection-start-column="25" selection-end-line="9" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wpc/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/mygraph.dot.png" />
+    <entry file="file://$PROJECT_DIR$/utility_testing.py" />
+    <entry file="file://$PROJECT_DIR$/wpc/__init__.py" />
     <entry file="file://$PROJECT_DIR$/gen/PlSqlLexer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-20190">
@@ -426,50 +377,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/upper_input.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" lean-forward="true" selection-end-line="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/raw_graph.dot">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/raw_graph.dot.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/PlSql.g4">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="40790">
-          <caret line="3373" selection-start-line="3373" selection-end-line="3373" />
-          <folding>
-            <element signature="e#0#744#0" expanded="true" />
-            <element signature="e#0#85118#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wpc/upper_input.sql">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="121" column="32" selection-start-line="121" selection-start-column="32" selection-end-line="121" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/se/data/my_test.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="33" selection-start-line="10" selection-start-column="33" selection-end-line="10" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/upper_input.sql" />
+    <entry file="file://$PROJECT_DIR$/raw_graph.dot" />
+    <entry file="file://$PROJECT_DIR$/raw_graph.dot.png" />
+    <entry file="file://$PROJECT_DIR$/temp.py" />
     <entry file="file://$PROJECT_DIR$/se/data/add_delivery_attempt.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -508,29 +419,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wpc/raw_graph.dot.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wpc/data/test1.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="6" lean-forward="true" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/rawCfgToGraph.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test_sql.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="30" lean-forward="true" selection-start-line="20" selection-start-column="30" selection-end-line="20" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/raw_graph.dot.png" />
+    <entry file="file://$PROJECT_DIR$/rawCfgToGraph.py" />
+    <entry file="file://$PROJECT_DIR$/test_sql.py" />
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -541,20 +432,131 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/simulator_wpc.py">
+    <entry file="file://$PROJECT_DIR$/gen/MySsaStringGenerator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="47" column="45" lean-forward="true" selection-start-line="47" selection-start-column="45" selection-end-line="47" selection-end-column="45" />
+        <state relative-caret-position="810">
+          <caret line="54" column="34" selection-start-line="54" selection-start-column="34" selection-end-line="54" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/se/data/my_test.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="33" selection-start-line="10" selection-start-column="33" selection-end-line="10" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/data/test1.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="6" lean-forward="true" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/data/test3.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="24" lean-forward="true" selection-end-line="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/data/test2.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="8" lean-forward="true" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/upper_input.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" lean-forward="true" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/data/test5.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="15" selection-start-line="7" selection-start-column="15" selection-end-line="7" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/raw_graph.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MyHelper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1635">
+          <caret line="109" column="32" selection-start-line="109" selection-start-column="32" selection-end-line="109" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PlSql.g4">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="33" column="7" selection-start-line="33" selection-start-column="7" selection-end-line="33" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#744#0" expanded="true" />
+            <element signature="e#0#85118#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MyNode.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="127" lean-forward="true" selection-start-line="23" selection-start-column="127" selection-end-line="23" selection-end-column="127" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MyUtility.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-208">
+          <caret line="198" lean-forward="true" selection-start-line="198" selection-end-line="198" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wpc/data/test4.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="17" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MyCFG.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MyRawCfgToGraph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-779">
+          <caret line="18" column="37" selection-start-line="18" selection-start-column="37" selection-end-line="18" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/my_simulator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="461">
+          <caret line="52" column="31" lean-forward="true" selection-start-line="52" selection-start-column="31" selection-end-line="52" selection-end-column="31" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/my_simulator.py">
+    <entry file="file://$PROJECT_DIR$/MyVisitor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1365">
-          <caret line="91" selection-start-line="91" selection-end-line="91" />
+        <state relative-caret-position="-1020">
+          <caret line="19" column="51" lean-forward="true" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -563,73 +565,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/WpcGenerator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="56" lean-forward="true" selection-start-line="10" selection-start-column="56" selection-end-line="10" selection-end-column="56" />
+        <state relative-caret-position="225">
+          <caret line="15" column="58" selection-start-line="15" selection-start-column="58" selection-end-line="15" selection-end-column="58" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MyVisitor.py">
+    <entry file="file://$PROJECT_DIR$/simulator_wpc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="781">
-          <caret line="189" selection-start-line="189" selection-end-line="189" />
+        <state relative-caret-position="676">
+          <caret line="95" lean-forward="true" selection-start-line="95" selection-end-line="95" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MyUtility.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="8" selection-start-line="14" selection-start-column="8" selection-end-line="14" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MyRawCfgToGraph.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="18" column="37" lean-forward="true" selection-start-line="18" selection-start-column="37" selection-end-line="18" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MyNode.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="36" lean-forward="true" selection-start-line="11" selection-start-column="36" selection-end-line="11" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MyHelper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="109" column="32" selection-start-line="109" selection-start-column="32" selection-end-line="109" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MyCFG.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gen/MySsaStringGenerator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-839">
-          <caret line="54" column="34" selection-start-line="54" selection-start-column="34" selection-end-line="54" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#29#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wpc/data/test2.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
         </state>
       </provider>
     </entry>

@@ -44,6 +44,7 @@ def main(argv):
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
     cfg.printPretty()
+    print("\n")
 
     cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
     utility.generateVariableSet(cfg)
@@ -51,39 +52,42 @@ def main(argv):
     ssaString = MySsaStringGenerator(cfg, parser)
     # ssaString.execute()
 
-    totalNodes = len(cfg.nodes.keys())
-    totalNodes = totalNodes-1
-    # print(totalNodes)
-    assertString = ""
-    while(totalNodes > 0):
-        if len(cfg.nodes[totalNodes].parent) < 1:
-            break
-        if helper.getRuleName(cfg.nodes[totalNodes].ctx) == "assert_statement":
-            # print("got it", totalNodes, ssaString.getTerminal(cfg.nodes[totalNodes].ctx.children[1]))
-            assertString = ssaString.getTerminal(cfg.nodes[totalNodes].ctx.children[1])
-        elif not assertString=="":
-            assertString = assertString.replace("  ", " ")
-            assertString = assertString.strip()
-            tokens = assertString.split(" ")
-            if len(cfg.nodes[totalNodes].variableLHS) > 0:
-                for i in cfg.nodes[totalNodes].variableLHS:
-                    # print(i)
-                    for j in range(len(tokens)):
-                        # print(tokens[j])
-                        if i==tokens[j] and helper.getRuleName(cfg.nodes[totalNodes].ctx) == "assignment_statement":
-                            tokens[j] = "( " + ssaString.getTerminal(cfg.nodes[totalNodes].ctx.children[2]) + " )"    # strictly assignment_statement
-            print(tokens)
-            assertString = ""
-            for j in range(len(tokens)):
-                assertString = assertString + tokens[j] + " "
-            print(assertString)
-        totalNodes = totalNodes - 1
+    ### approach for generating wpcString without any Conditional Node... too Naive to use...
 
-    print("\n\n\t", assertString, "\n")
+    # totalNodes = len(cfg.nodes.keys())
+    # totalNodes = totalNodes-1
+    # # print(totalNodes)
+    # assertString = ""
+    # while(totalNodes > 0):
+    #     if len(cfg.nodes[totalNodes].parent) < 1:
+    #         break
+    #     if helper.getRuleName(cfg.nodes[totalNodes].ctx) == "assert_statement":
+    #         # print("got it", totalNodes, ssaString.getTerminal(cfg.nodes[totalNodes].ctx.children[1]))
+    #         assertString = ssaString.getTerminal(cfg.nodes[totalNodes].ctx.children[1])
+    #     elif not assertString=="":
+    #         assertString = assertString.replace("  ", " ")
+    #         assertString = assertString.strip()
+    #         tokens = assertString.split(" ")
+    #         if len(cfg.nodes[totalNodes].variableLHS) > 0:
+    #             for i in cfg.nodes[totalNodes].variableLHS:
+    #                 # print(i)
+    #                 for j in range(len(tokens)):
+    #                     # print(tokens[j])
+    #                     if i==tokens[j] and helper.getRuleName(cfg.nodes[totalNodes].ctx) == "assignment_statement":
+    #                         tokens[j] = "( " + ssaString.getTerminal(cfg.nodes[totalNodes].ctx.children[2]) + " )"    # strictly assignment_statement
+    #         print(tokens)
+    #         assertString = ""
+    #         for j in range(len(tokens)):
+    #             assertString = assertString + tokens[j] + " "
+    #         print(assertString)
+    #     totalNodes = totalNodes - 1
+    #
+    # print("\n\n\t", assertString, "\n")
 
 
-    # algo = WpcGenerator(cfg)
-    # algo.execute()
+    algo = WpcGenerator(cfg)
+    algo.execute()
+    print("\n\n", algo.finalWpcString, "\n")
 
 
     # #all properties of each node
@@ -93,3 +97,7 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv)
+
+
+# TODO notes:
+#   1. if there is no 'else' after 'elsif' then *last elsif* not coming in RAW-CFG, BUT, if there is no 'else' after 'if' then *empty else block* coming in RAW-CFG & that's OK.

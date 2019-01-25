@@ -21,6 +21,7 @@ class MyNode():
         self.stringSsa = ""
         self.oldString = ""
         self.branching = dict()         # format {'true': node number, 'false': another node number}
+        self.wpcMakerHelper = dict()    # format {'true': 'true_branch_wpc', 'false': 'false_branch_wpc'}       #wpc    #mridul
 
     def addChild(self, node):
         self.next.add(node)
