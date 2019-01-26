@@ -1,9 +1,27 @@
-CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR, Y IN VARCHAR)
+CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR)
 IS
   BEGIN
-    X := Y-60;
-    Y := X-100;
-    X := (Y*X)/4-2;
-    Y := X-50;
-    ASSERT X>0;
+      X := X-100;
+
+      IF X>50 THEN
+          X := X-50;
+          X := X*9;
+      ELSIF X>100 THEN
+          X := X-100;
+
+          IF X > 10 THEN
+              X := X-10;
+          ELSIF X>20 THEN
+              X := X-20;
+          ELSE
+              X := X-1;
+          END IF;
+      ELSIF X>200 THEN
+          X := X-150;
+      ELSE
+          X := X+40;
+      END IF;
+
+      X := X-2;
+      ASSERT X>0;
   END;
