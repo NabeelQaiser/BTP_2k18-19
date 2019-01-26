@@ -1,7 +1,7 @@
 CREATE OR REPLACE PROCEDURE test(x IN VARCHAR, y IN VARCHAR)
 IS
   BEGIN
-
+    assume x>15;
     y := x-100;
     if x>y then
       x := x-50;
