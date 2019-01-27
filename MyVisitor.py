@@ -104,7 +104,7 @@ class MyVisitor(PlSqlVisitor):
         self.rawCFG = self.rawCFG + ' ] '
         childCount = ctx.getChildCount()
         i = 4
-        while i < childCount - 3:
+        while i <= childCount - 3:
             ruleName = self.utility.helper.getRuleName(ctx.children[i])
             if ruleName == 'elsif_part':
                 self.rawCFG = self.rawCFG + '[ elsif_'
