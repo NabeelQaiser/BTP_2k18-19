@@ -24,34 +24,38 @@ digraph G {
 	
 	5[ label="NOOFITEMS1 := 0 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS1" , color=green ] ;
 	
-	5 -> 11 ;
+	5 -> 12 ;
 	
 	6[ label="PRICE0 > 1000 " , color=orange, shape=diamond ] ;
 	
-	6 -> 8 ;
+	6 -> 9 ;
 	6 -> 7 ;
 	
-	7[ label="NOOFITEMS5 := NOOFITEMS0 + 2 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS5" , color=green ] ;
+	7[ label="NOOFITEMS5 := NOOFITEMS0 + 2 "  ] ;
 	
-	7 -> 11 ;
+	7 -> 8 ;
 	
-	8[ label="PRICE0 = 10 " , color=orange, shape=diamond ] ;
+	8[ label="NOOFITEMS6 := NOOFITEMS5 + 9 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS6" , color=green ] ;
 	
-	8 -> 9 ;
-	8 -> 10 ;
+	8 -> 12 ;
 	
-	9[ label="NOOFITEMS3 := NOOFITEMS0 + 1 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS3" , color=green ] ;
+	9[ label="PRICE0 = 10 " , color=orange, shape=diamond ] ;
 	
+	9 -> 10 ;
 	9 -> 11 ;
 	
-	10[ label="NOOFITEMS4 := 0 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS4" , color=green ] ;
+	10[ label="NOOFITEMS3 := NOOFITEMS0 + 1 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS3" , color=green ] ;
 	
-	10 -> 11 ;
+	10 -> 12 ;
 	
-	11[ label="INSERT INTO ITEM_TABLE ( ITEM_ID1 , ITEM_PRICE1 , ITEM_COUNT1 ) VALUES ( ID0 , PRICE0 , NOOFITEMS2 ) "  ] ;
+	11[ label="NOOFITEMS4 := 0 \nDestructed PhiNode(s)\nNOOFITEMS2 = NOOFITEMS4" , color=green ] ;
+	
+	11 -> 12 ;
+	
+	12[ label="INSERT INTO ITEM_TABLE ( ITEM_ID1 , ITEM_PRICE1 , ITEM_COUNT1 ) VALUES ( ID0 , PRICE0 , NOOFITEMS2 ) "  ] ;
 	
 	
 	0[ label="START", shape=Msquare, color=green ] ;
-	11 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	12 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
 	
 }

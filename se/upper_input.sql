@@ -9,6 +9,7 @@ IS
 
       ELSIF PRICE > 1000 THEN
         NOOFITEMS := NOOFITEMS+2;
+        NOOFITEMS := NOOFITEMS+9;
         
       ELSIF PRICE = 10 THEN
         NOOFITEMS := NOOFITEMS+1;

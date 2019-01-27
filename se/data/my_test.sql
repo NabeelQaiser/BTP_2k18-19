@@ -9,6 +9,7 @@ IS
 
       ELSIF price > 1000 THEN
         noOfItems := noOfItems+2;
+        noOfItems := noOfItems+9;
         
       ELSIF price = 10 THEN
         noOfItems := noOfItems+1;
