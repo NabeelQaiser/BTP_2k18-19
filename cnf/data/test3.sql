@@ -8,6 +8,7 @@ IS
 
           if x > 10 then
               x := x-10;
+              x:= 2 * 3;
           elsif x>20 then
               x := x-20;
           else
