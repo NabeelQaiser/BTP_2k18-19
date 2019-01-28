@@ -13,7 +13,7 @@ class WpcGenerator():
 
     def execute(self):
         self.totalNodeCount = len(self.cfg.nodes.keys())
-        self.cfgVisited = [0] * self.totalNodeCount
+        self.cfgVisited = [0] * self.totalNodeCount     # initialize visited list
         currentNodeId = self.totalNodeCount - 1
         # self.runner(currentNodeId)        # 1st approach
         # self.goodAlgo(currentNodeId, "")    # 2nd approach
@@ -25,7 +25,6 @@ class WpcGenerator():
     def wpcStringMakerAlgo(self, currentNodeId, wpcString):
         if self.cfgVisited[currentNodeId] == 1:
             return
-
         currentNode = self.cfg.nodes[currentNodeId]
         if len(currentNode.next) > 1:       # it's a condition! Yo!!!
             listOfNext = list(currentNode.next)
@@ -33,20 +32,17 @@ class WpcGenerator():
                 # Beware! first enrich wpcMakerHelper dict()
                 self.enrich_wpcMakerHelper(currentNodeId, wpcString)
                 # merge true and false part
-                print("-------", currentNode.wpcMakerHelper)
+                print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
                 conditionalString = "( " + self.ssaString.getTerminal(currentNode.ctx) + " )"
                 wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
             elif self.cfgVisited[listOfNext[0]]==1:
-                print("first")
                 self.addWpcString(currentNodeId, listOfNext[0], wpcString)
                 return
             elif self.cfgVisited[listOfNext[1]]==1:
-                print("second")
                 self.addWpcString(currentNodeId, listOfNext[1], wpcString)
                 return
-
-        self.cfgVisited[currentNodeId] = 1
-
+        self.cfgVisited[currentNodeId] = 1  # visit the node
+        # print(str(currentNodeId), "visited, wpc :", wpcString)
         if len(currentNode.next) <= 1:      # avoid conditional node for wpcString here
             if not currentNode.ctx == None:     # check if ctx is None
                 if self.helper.getRuleName(currentNode.ctx) == "assert_statement":
@@ -58,9 +54,9 @@ class WpcGenerator():
                     # self.finalWpcString = wpcString
                     # return
                 elif not wpcString == "":
-                    wpcString = self.updateWpcStringBySplitting(wpcString, currentNode)
-                    print(wpcString)
-        #..........
+                    wpcString = self.updateWpcStringByReplacing(wpcString, currentNode)
+                    # print(wpcString)
+        # go to parents...
         if len(currentNode.parent) < 1:
             self.finalWpcString = wpcString
             return
@@ -100,11 +96,20 @@ class WpcGenerator():
                     if i == tokens[j]:
                         if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
                             tokens[j] = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]) + " )"
-        # print(tokens)
         wpcString = ""
         for j in range(len(tokens)):
             wpcString = wpcString + tokens[j] + " "
         return wpcString
+
+    def updateWpcStringByReplacing(self, wpcString, currentNode):   # this is better than "updateWpcStringBySplitting" method
+        wpcString = wpcString.replace("  ", " ").strip()
+        if len(currentNode.variableLHS) > 0:
+            for i in currentNode.variableLHS:
+                if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
+                    replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]) + " )"
+                    wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
+        return wpcString
+
 
     def addWpcString(self, currentNodeId, myVisitedChildId, wpcString):
         if self.cfg.nodes[currentNodeId].branching['true'] == myVisitedChildId:

@@ -5,12 +5,15 @@ IS
 
       if x>50 then
           x := x-50;
+
           x := x*9;
       elsif x>100 then
           x := x-100;
 
           if x > 10 then
+              assert x>0;
               x := x-10;
+
           elsif x>20 then
               x := x-20;
           else
@@ -23,5 +26,5 @@ IS
       end if;
 
       x := x-2;
-      assert x>0;
+
   END;

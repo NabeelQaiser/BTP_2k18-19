@@ -87,8 +87,8 @@ def main(argv):
 
     algo = WpcGenerator(cfg, helper, ssaString)
     algo.execute()
-    # print("\n\n", algo.finalWpcString, "\n")
-    print("\n\n", algo.finalWpcString.replace(" ", ""), "\n")
+    print("\n\n", algo.finalWpcString, "\n")
+    # print("\n\n", algo.finalWpcString.replace(" ", ""), "\n")
 
 
     # #all properties of each node
