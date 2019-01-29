@@ -191,3 +191,14 @@ class CnfUtility(MyUtility):
         res = MyCFG()
         self.explore(iCnfCfg, iCnfCfg.nodes[0].id, branchingAncestor, res)
         return res
+
+    def reverseDictOrder(self, reverseCnfCfg):
+        temp = list(reverseCnfCfg.nodes.keys())
+        res = MyCFG()
+        for i in range(len(temp)-1, 0, -1):
+            res.addNode(reverseCnfCfg.nodes[temp[i]])
+        return res
+
+    def copyParentBranching(self, cnfCfg, iCnfCfg):
+        for nodeId in cnfCfg.nodes:
+            cnfCfg.nodes[nodeId].parentBranching = iCnfCfg.nodes[nodeId].parentBranching

@@ -75,10 +75,12 @@ def main(argv):
 
     cnfUtility = CnfUtility(helper)
     iCnfCfg = cnfUtility.copyCfg(cfg)
-    cnfCfg = cnfUtility.topologicalSort(iCnfCfg)
+    reverseCnfCfg = cnfUtility.topologicalSort(iCnfCfg)
     cnfUtility.unvisit(iCnfCfg)
     cnfUtility.setParentBranching(iCnfCfg)
 
+    cnfCfg = cnfUtility.reverseDictOrder(reverseCnfCfg)
+    cnfUtility.copyParentBranching(cnfCfg, iCnfCfg)
     print("\n\n\n\n\n\t\t\tThe intermediate CNF form is ------------------------------>\n\n\n\n")
 
     for nodeId in iCnfCfg.nodes:
