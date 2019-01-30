@@ -13,7 +13,7 @@ class WpcGenerator():
 
     def execute(self):
         self.totalNodeCount = len(self.cfg.nodes.keys())
-        self.cfgVisited = [0] * self.totalNodeCount
+        self.cfgVisited = [0] * self.totalNodeCount     # initialize visited list
         currentNodeId = self.totalNodeCount - 1
         # self.runner(currentNodeId)        # 1st approach
         # self.goodAlgo(currentNodeId, "")    # 2nd approach
@@ -25,7 +25,6 @@ class WpcGenerator():
     def wpcStringMakerAlgo(self, currentNodeId, wpcString):
         if self.cfgVisited[currentNodeId] == 1:
             return
-
         currentNode = self.cfg.nodes[currentNodeId]
         if len(currentNode.next) > 1:       # it's a condition! Yo!!!
             listOfNext = list(currentNode.next)
@@ -33,20 +32,17 @@ class WpcGenerator():
                 # Beware! first enrich wpcMakerHelper dict()
                 self.enrich_wpcMakerHelper(currentNodeId, wpcString)
                 # merge true and false part
-                print("-------", currentNode.wpcMakerHelper)
+                print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
                 conditionalString = "( " + self.ssaString.getTerminal(currentNode.ctx) + " )"
                 wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
             elif self.cfgVisited[listOfNext[0]]==1:
-                print("first")
                 self.addWpcString(currentNodeId, listOfNext[0], wpcString)
                 return
             elif self.cfgVisited[listOfNext[1]]==1:
-                print("second")
                 self.addWpcString(currentNodeId, listOfNext[1], wpcString)
                 return
-
-        self.cfgVisited[currentNodeId] = 1
-
+        self.cfgVisited[currentNodeId] = 1  # visit the node
+        # print(str(currentNodeId), "visited, wpc :", wpcString)
         if len(currentNode.next) <= 1:      # avoid conditional node for wpcString here
             if not currentNode.ctx == None:     # check if ctx is None
                 if self.helper.getRuleName(currentNode.ctx) == "assert_statement":
@@ -58,9 +54,9 @@ class WpcGenerator():
                     # self.finalWpcString = wpcString
                     # return
                 elif not wpcString == "":
-                    wpcString = self.updateWpcStringBySplitting(wpcString, currentNode)
-                    print(wpcString)
-        #..........
+                    wpcString = self.updateWpcStringByReplacing(wpcString, currentNode)
+                    # print(wpcString)
+        # go to parents...
         if len(currentNode.parent) < 1:
             self.finalWpcString = wpcString
             return
@@ -90,21 +86,74 @@ class WpcGenerator():
             wpcString = "( " + tempString1 + " v " + tempString2 + " )"
         return wpcString
 
-    def updateWpcStringBySplitting(self, wpcString, currentNode):
-        wpcString = wpcString.replace("  ", " ")
-        wpcString = wpcString.strip()
-        tokens = wpcString.split(" ")
+
+    # def updateWpcStringByReplacing(self, wpcString, currentNode):   # this is better than "updateWpcStringBySplitting" method
+    #     wpcString = wpcString.replace("  ", " ").strip()
+    #     if len(currentNode.variableLHS) > 0:
+    #         for i in currentNode.variableLHS:
+    #             if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
+    #                 replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]) + " )"
+    #                 wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
+    #     return wpcString
+
+    def updateWpcStringByReplacing(self, wpcString, currentNode):   # this is better than "updateWpcStringBySplitting" method
+        wpcString = wpcString.replace("  ", " ").strip()
         if len(currentNode.variableLHS) > 0:
-            for i in currentNode.variableLHS:
-                for j in range(len(tokens)):
-                    if i == tokens[j]:
-                        if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
-                            tokens[j] = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]) + " )"
-        # print(tokens)
-        wpcString = ""
-        for j in range(len(tokens)):
-            wpcString = wpcString + tokens[j] + " "
+            if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
+                for i in currentNode.variableLHS:
+                    replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]) + " )"
+                    wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
+            elif self.helper.getRuleName(currentNode.ctx) == "update_statement":    # Database UPDATE statement
+                whereClausePosition = -1
+                whereCondition = ""
+                for i in range(currentNode.ctx.getChildCount()):        # finding "where_clause"...
+                    if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
+                        whereClausePosition = i
+                        whereCondition = self.getWhereCondition(currentNode.ctx.children[i].children[1])
+                        print("@@@@@@@ whereCondition :", whereCondition)
+                        break
+                if not whereClausePosition == -1:   # whereCondition exists
+                    tempWpcString = wpcString
+                    updateSetCtx = currentNode.ctx.children[whereClausePosition-1]
+                    for i in range(updateSetCtx.getChildCount()):       # finding "column_based_update_set_clause"...
+                        if updateSetCtx.children[i].getChildCount() > 1 and self.helper.getRuleName(
+                                updateSetCtx.children[i]) == "column_based_update_set_clause":
+                            toBeReplaced = " " + updateSetCtx.children[i].children[0].getText().strip() + " "
+                            replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[i].children[2]).strip() + " ) "
+                            tempWpcString = tempWpcString.replace(toBeReplaced, replacedBy)
+                    # now join 'true' and 'false' like 'if' block...
+                    wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( !" + whereCondition + " ^ " + wpcString + " ) )"
+                else:       # whereCondition does not exist...so, no merging like 'if' block...
+                    for i in range(currentNode.ctx.getChildCount()):        # finding "update_set_clause"...
+                        if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
+                            updateSetCtx = currentNode.ctx.children[i]
+                            for j in range(updateSetCtx.getChildCount()):       # finding "column_based_update_set_clause"...
+                                if updateSetCtx.children[j].getChildCount() > 1 and self.helper.getRuleName(
+                                        updateSetCtx.children[j]) == "column_based_update_set_clause":
+                                    toBeReplaced = " " + updateSetCtx.children[j].children[0].getText().strip() + " "
+                                    replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip() + " ) "
+                                    wpcString = wpcString.replace(toBeReplaced, replacedBy)
+                            break
         return wpcString
+
+
+    def getWhereCondition(self, ctx):   # considering only AND, OR, NOT as 'word' separator
+        if ctx.getChildCount() == 1:
+            return self.getWhereCondition(ctx.children[0])
+        elif ctx.getChildCount() == 2:      # strictly for "NOT"
+            if ctx.children[0].getText().strip() == "NOT":
+                return "( !" + self.getWhereCondition(ctx.children[1]) + " )"
+        elif ctx.getChildCount() == 3:
+            operators = ['=', '>', '<', '>=', '<=', '!=', '<>', '^=', '~=']
+            if ctx.children[1].getText().strip() == "AND":  # conditions separated by "AND"
+                return "( " + self.getWhereCondition(ctx.children[0]) + " ^ " + self.getWhereCondition(ctx.children[2]) + " )"
+            elif ctx.children[1].getText().strip() == "OR":  # conditions separated by "OR"
+                return "( " + self.getWhereCondition(ctx.children[0]) + " v " + self.getWhereCondition(ctx.children[2]) + " )"
+            elif ctx.children[1].getText().strip() in operators:
+                return "( " + self.ssaString.getTerminal(ctx) + " )"
+            else:
+                return self.getWhereCondition(ctx.children[1])
+
 
     def addWpcString(self, currentNodeId, myVisitedChildId, wpcString):
         if self.cfg.nodes[currentNodeId].branching['true'] == myVisitedChildId:
