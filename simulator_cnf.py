@@ -3,6 +3,7 @@ import sys
 from antlr4 import *
 
 from CnfUtility import CnfUtility
+from CnfVcGenerator import CnfVcGenerator
 from MyCFG import MyCFG
 from MyHelper import MyHelper
 from MyUtility import MyUtility
@@ -91,6 +92,17 @@ def main(argv):
     for nodeId in cnfCfg.nodes:
         cnfCfg.nodes[nodeId].printPretty()
 
+    cnfVcGenerator = CnfVcGenerator(cnfCfg, parser)
+
+    cnfPath = []
+
+    for nodeId in cnfCfg.nodes:
+        cnfPath.append(nodeId)
+
+    cnfVcs = cnfVcGenerator.generateCnfVc(cnfPath)
+
+    print("\n\n\n\n\t\t\tThe CNF VCs are : ------------------------------->\n\n\n")
+    print(cnfVcs)
     #
     # hello = utility.generateFinalDotGraph(cfg)
     # print(hello)

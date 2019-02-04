@@ -1,30 +1,30 @@
 PROCEDURE TEMPORARY_WEEK_DISCOUNT(CUSTOMER IN CUSTOMERS.CUSTOMER_ID%TYPE, PERCENT INTEGER)
 IS
-	BIG_DISCOUNT EXCEPTION;
-	LOW_DISCOUNT EXCEPTION;
-	WRONG_DISCOUNT EXCEPTION;
-	SUM_WEIGHT NUMBER(5,3);
+	big_discount EXCEPTION;
+	low_discount EXCEPTION;
+	wrong_discount EXCEPTION;
+	sum_weight NUMBER(5,3);
 BEGIN
-	SELECT SUM_OF_MAX INTO SUM_WEIGHT FROM LOADS, ROUTES 
+	SELECT sum_of_max INTO sum_weight from LOADS, ROUTES 
 	WHERE LOADS.LOAD_ID IN (SELECT LOAD_ID FROM LOADS WHERE CUSTOMER_ID = CUSTOMER)
 	AND START_TIME >= SYSDATE AND START_TIME <= SYSDATE + 7;
 	
-	IF PERCENT < 0 OR PERCENT > 100 THEN
-		WRONG_DISCOUNT := 1;
+	if percent < 0 or percent > 100 then
+		wrong_discount := 1;
 		
-	ELSIF SUM_WEIGHT < 10 AND PERCENT > 50 THEN
+	elsif sum_weight < 10 and percent > 50 then
 	
-		 BIG_DISCOUNT := 1;
+		 big_discount := 1;
 		
-	ELSIF SUM_WEIGHT > 30 AND PERCENT < 10 THEN
-		LOW_DISCOUNT := 1;
+	elsif sum_weight > 30 and percent < 10 then
+		low_discount := 1;
           ELSE
-             WRONG_DISCOUNT := 0;
-             BIG_DISCOUNT := 0 ;
+             wrong_discount := 0;
+             big_discount := 0 ;
 
              
                      
-	END IF;
+	end if;
 	
 	UPDATE ROUTES
 	SET PRICE = PRICE*((100 - PERCENT)/100)
