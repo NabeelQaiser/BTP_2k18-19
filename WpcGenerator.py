@@ -73,9 +73,9 @@ class WpcGenerator():
     def mergeConditionalWpcStrings(self, currentNode, conditionalString):
         tempString1 = ""
         tempString2 = ""
-        if not currentNode.wpcMakerHelper['true'] == None:
+        if not currentNode.wpcMakerHelper['true'] == "":
             tempString1 = "( " + conditionalString + " ^ " + currentNode.wpcMakerHelper['true'] + " )"
-        if not currentNode.wpcMakerHelper['false'] == None:
+        if not currentNode.wpcMakerHelper['false'] == "":
             tempString2 = "( !" + conditionalString + " ^ " + currentNode.wpcMakerHelper['false'] + " )"
         wpcString = ""
         if tempString1 == "":
