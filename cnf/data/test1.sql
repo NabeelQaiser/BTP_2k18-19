@@ -5,7 +5,6 @@ IS
     y := x-100;
     if x > y then
       x := 2*y;
-      y := y + 2;
       else
         y := 2*x;
     end if;

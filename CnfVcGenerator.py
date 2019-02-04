@@ -54,9 +54,9 @@ class CnfVcGenerator(PlSqlVisitor):
         res = ""
         for ancestor in self.cnfCfg.nodes[nodeId].parentBranching:
             if self.cnfCfg.nodes[nodeId].parentBranching[ancestor] == "true":
-                res = "AND( " + res + ", " + self.getVersionedTerminalRHS(ancestor, self.cnfCfg.nodes[nodeId].ctx) + " )"
+                res = "AND( " + res + ", " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " )"
             else:
-                res = "AND( " + res + ", NOT( " + self.getVersionedTerminalRHS(ancestor, self.cnfCfg.nodes[nodeId].ctx) + " ))"
+                res = "AND( " + res + ", NOT( " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " ))"
         if res == "":
             return "True"
         else:
