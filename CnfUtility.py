@@ -195,7 +195,7 @@ class CnfUtility(MyUtility):
     def reverseDictOrder(self, reverseCnfCfg):
         temp = list(reverseCnfCfg.nodes.keys())
         res = MyCFG()
-        for i in range(len(temp)-1, 0, -1):
+        for i in range(len(temp)-1, -1, -1):
             res.addNode(reverseCnfCfg.nodes[temp[i]])
         return res
 
