@@ -19,46 +19,61 @@ class CnfVcGenerator(PlSqlVisitor):
         for node in path:
             context = self.cnfCfg.nodes[node].ctx
             nodeCondition = self.getNodeCondition(node)
+            self.cnfCfg.nodes[node].antecedent = nodeCondition
             if context is not None:
                 ruleName = self.helper.getRuleName(context)
                 if ruleName == "condition":
                     #vcs = "AND(" + vcs + ", " + self.getCondition(node, context) + ")"
                     pass
                 if ruleName == "assignment_statement":
-                    vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getAssignment_statement(node, context) + ")"
+                    #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getAssignment_statement(node, context) + ")"
+                    self.cnfCfg.nodes[node].consequent.append(self.getAssignment_statement(node, context))
                 if ruleName == "update_statement":
-                    vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getUpdate_statement(node, context) + ")"
+                    #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getUpdate_statement(node, context) + ")"
+                    self.cnfCfg.nodes[node].consequent.append(
+                        self.getUpdate_statement(node, context))
                 if ruleName == "insert_statement":
-                    vcs = self.getInsert_statement(node, context)
+                    self.cnfCfg.nodes[node].consequent = self.getInsert_statement(node, context)
                 if ruleName == "cursor_declaration":
-                    vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getCursor_declaration(node, context) + ")"
+                    #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getCursor_declaration(node, context) + ")"
+                    self.cnfCfg.nodes[node].consequent.append(
+                        self.getCursor_declaration(node, context))
                 if ruleName == "fetch_statement":
-                    vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getFetch_statement(node, context) + ")"
+                    #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getFetch_statement(node, context) + ")"
+                    self.cnfCfg.nodes[node].consequent.append(
+                        self.getFetch_statement(node, context))
                 if ruleName == "select_statement":
-                    vcs = self.getSelect_statement(node, context)
+                    self.cnfCfg.nodes[node].consequent = self.getSelect_statement(node, context)       #todo: alter the function in case of insert statement
                 if ruleName == "assume_statement":
-                    vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getAssume_statement(node, context) + ")"
+                    #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getAssume_statement(node, context) + ")"
+                    self.cnfCfg.nodes[node].consequent.append(
+                        self.getAssume_statement(node, context))
                 if ruleName == "assert_statement":
-                    vcs = "Implies(" + vcs + ", " + self.getAssert_statement(node, context) + ")"
+                    #vcs = "Implies(" + vcs + ", " + self.getAssert_statement(node, context) + ")"
+                    self.cnfCfg.nodes[node].consequent.append(
+                        self.getAssert_statement(node, context))
                 else:
                     pass
             if True:                                            #todo: rearrange it properly
                 if self.cnfCfg.nodes[node].destructedPhi:
                     for element in self.cnfCfg.nodes[node].destructedPhi:
                         values = self.cnfCfg.nodes[node].destructedPhi[element]
-                        vcs = "AND(" + vcs + ", " + values[0] + " == " + values[1] + ")"
+                        #vcs = "AND(" + vcs + ", " + values[0] + " == " + values[1] + ")"
+                        self.cnfCfg.nodes[node].consequent.append(values[0] + " == " + values[1])
         # print(vcs)
         return vcs
 
     def getNodeCondition(self, nodeId):
-        res = ""
+        res = []
         for ancestor in self.cnfCfg.nodes[nodeId].parentBranching:
             if self.cnfCfg.nodes[nodeId].parentBranching[ancestor] == "true":
-                res = "AND( " + res + ", " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " )"
+                #res = "AND( " + res + ", " +  + " )"
+                res.append(self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx))
             else:
-                res = "AND( " + res + ", NOT( " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " ))"
-        if res == "":
-            return "True"
+                #res = "AND( " + res + ", ""NOT( " +  + " ))"
+                res.append("NOT( " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " )")
+        if len(res) == 0:
+            return ["true"]
         else:
             return res
 
@@ -74,15 +89,17 @@ class CnfVcGenerator(PlSqlVisitor):
     def getSelect_statement(self, nodeId, ctx):
         global vcs
         nodeCondition = self.getNodeCondition(nodeId)
+        res = []
         # print(ctx.children[0].children[0].getChildCount())
         # print(self.helper.getRuleName(ctx.children[0]))
         # input("Hi")
-        vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getVersionedTerminalRHS(nodeId,
-                                                                 ctx.children[0].children[0].children[1]) + "==" + \
-              self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
-        vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
-
-        return vcs
+        # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getVersionedTerminalRHS(nodeId,
+        #                                                          ctx.children[0].children[0].children[1]) + "==" + \
+        #       self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
+        # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
+        res.append(self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + "==" + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]))
+        res.append(self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]))
+        return res
         # input("Wait")
 
     def getInto_clause(self, nodeId, ctx):
@@ -114,23 +131,28 @@ class CnfVcGenerator(PlSqlVisitor):
         # global vcs
         res = self.getVersionedTerminalLHS(node, ctx.children[0]) + ' == ' + \
               self.getVersionedTerminalRHS(node, ctx.children[2])
-        if self.cnfCfg.nodes[node].destructedPhi:
-            for element in self.cnfCfg.nodes[node].destructedPhi:
-                values = self.cnfCfg.nodes[node].destructedPhi[element]
-                res = "AND(" + res + ", " + values[0] + "==" + values[1] + ")"
+        # if self.cnfCfg.nodes[node].destructedPhi:
+        #     for element in self.cnfCfg.nodes[node].destructedPhi:
+        #         values = self.cnfCfg.nodes[node].destructedPhi[element]
+        #         res = "AND(" + res + ", " + values[0] + "==" + values[1] + ")"
         return res
         # print(vcs)
 
     def getUpdate_statement(self, nodeId, ctx):
         # global vcs
-        res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
+        res = []
+        # res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
+        #       + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
+        #       "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
+        #       self.getNotSetClause(nodeId, ctx.children[2]) + "))"
+        res.append("OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
               + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
               "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
-              self.getNotSetClause(nodeId, ctx.children[2]) + "))"
-        if self.cnfCfg.nodes[nodeId].destructedPhi:
-            for element in self.cnfCfg.nodes[nodeId].destructedPhi:
-                values = self.cnfCfg.nodes[nodeId].destructedPhi[element]
-                res = "AND(" + res + ", " + values[0] + "==" + values[1] + ")"
+              self.getNotSetClause(nodeId, ctx.children[2]) + "))")
+        # if self.cnfCfg.nodes[nodeId].destructedPhi:
+        #     for element in self.cnfCfg.nodes[nodeId].destructedPhi:
+        #         values = self.cnfCfg.nodes[nodeId].destructedPhi[element]
+        #         res = "AND(" + res + ", " + values[0] + "==" + values[1] + ")"
         return res
 
     def getSetClause(self, NodeId, ctx):
@@ -221,14 +243,15 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getInsert_statement(self, nodeId, ctx):
         global vcs
-        vcs = str(self.getInsertIntoandValueClause(nodeId, ctx.children[1]))
-        return vcs
+        return str(self.getInsertIntoandValueClause(nodeId, ctx.children[1]))
+        #return vcs
 
     def getInsertIntoandValueClause(self, nodeId, ctx):
         global vcs
         nodeCondition = self.getNodeCondition(nodeId)
         colmnlistinto = []
         colmnlistvalues = []
+        res = []
         c1 = ctx.children[0].getChildCount()
         for item in range(c1):
             if self.helper.getRuleName(ctx.children[0].children[item]) == "column_name":
@@ -244,8 +267,9 @@ class CnfVcGenerator(PlSqlVisitor):
                 pass
 
         for element in range(len(colmnlistinto)):
-            vcs = "AND(" + vcs + ", " + nodeCondition + ", " + colmnlistinto[element] + " == " + colmnlistvalues[element] + ")"
-        return vcs
+            #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + colmnlistinto[element] + " == " + colmnlistvalues[element] + ")"
+            res.append(colmnlistinto[element] + " == " + colmnlistvalues[element])
+        return res
 
         # c= str(c1) + " " + str(c2)
         # return colmnlistvalues

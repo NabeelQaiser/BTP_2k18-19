@@ -10,7 +10,11 @@ class CnfNode(MyNode):
         self.color = 'white'
         self.pre = 0
         self.post = 0
+        self.antecedent = []
+        self.consequent = []
 
     def printPretty(self):
         super().printPretty()
         print("parent branching info : ", self.parentBranching)
+        print("antecedent : ", self.antecedent)
+        print("consequent : ", self.consequent)

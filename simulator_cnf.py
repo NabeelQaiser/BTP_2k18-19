@@ -89,8 +89,7 @@ def main(argv):
 
     print("\n\n\n\n\n\t\t\tThe CNF form is ------------------------------>\n\n\n\n")
 
-    for nodeId in cnfCfg.nodes:
-        cnfCfg.nodes[nodeId].printPretty()
+
 
     cnfVcGenerator = CnfVcGenerator(cnfCfg, parser)
 
@@ -99,10 +98,13 @@ def main(argv):
     for nodeId in cnfCfg.nodes:
         cnfPath.append(nodeId)
 
-    cnfVcs = cnfVcGenerator.generateCnfVc(cnfPath)
+    cnfVcGenerator.generateCnfVc(cnfPath)
 
-    print("\n\n\n\n\t\t\tThe CNF VCs are : ------------------------------->\n\n\n")
-    print(cnfVcs)
+    # print("\n\n\n\n\t\t\tThe CNF VCs are : ------------------------------->\n\n\n")
+    # print(cnfVcs)
+
+    for nodeId in cnfCfg.nodes:
+        cnfCfg.nodes[nodeId].printPretty()
     #
     # hello = utility.generateFinalDotGraph(cfg)
     # print(hello)
