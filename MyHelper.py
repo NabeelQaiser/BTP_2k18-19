@@ -11,8 +11,13 @@ class MyHelper(PlSqlVisitor):
                                'ITEM_TABLE': {'ITEM_ID', 'ITEM_PRICE', 'ITEM_COUNT'},
                                'LOADS': {'SUM_OF_MAX', 'LOAD_ID', 'CUSTOMER_ID', 'START_TIME'},
                                'ROUTES': {'PRICE', 'SUM_OF_MAX'},
-                               'T': {"A", 'B'}}) #todo: complete attributes for DELETE_TABLE
-        self.functionDict = dict() #todo: complete attributes for FUNCTIONS......{"funName": ({LHS vars}, {RHS vars})}
+                               'STUDENT': {'STUDENT_ID', 'GPA'},                        # FOR PROCEDURE 'isEnrollable'
+                               'COURSES': {'COURSE_ID', 'MIN_GPA', 'SPECIAL_PERM'},     # FOR PROCEDURE 'isEnrollable'
+                               'PREREQ': {'COURSE_ID', 'PREREQ_CID'},                   # FOR PROCEDURE 'isEnrollable'
+                               'ENROLLMENT': {'COURSE_ID', 'STUDENT_ID'},               # FOR PROCEDURE 'isEnrollable'
+                               'PENDING_PERMISSIONS': {'COURSE_ID', 'STUDENT_ID'},      # FOR PROCEDURE 'isEnrollable'
+                               'T': {"A", 'B'}})        # TODO: complete attributes for DELETE_TABLE
+        self.functionDict = dict()      # TODO: complete attributes for FUNCTIONS......{"funName": ({LHS vars}, {RHS vars})}
 
 
     def getRuleName(self, ctx):
