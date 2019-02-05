@@ -26,14 +26,14 @@ class WpcGenerator():
         if self.cfgVisited[currentNodeId] == 1:
             return
         currentNode = self.cfg.nodes[currentNodeId]
-        if len(currentNode.next) > 1:       # it's a condition! Yo!!!
+        if len(currentNode.next) > 1:       # it's a conditional Node! Yo!!!
             listOfNext = list(currentNode.next)
             if self.cfgVisited[listOfNext[0]]==1 and self.cfgVisited[listOfNext[1]]==1:
                 # Beware! first enrich wpcMakerHelper dict()
                 self.enrich_wpcMakerHelper(currentNodeId, wpcString)
                 # merge true and false part
                 print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
-                conditionalString = "( " + self.ssaString.getTerminal(currentNode.ctx) + " )"
+                conditionalString = "( " + self.ssaString.getTerminal(currentNode.ctx) + " )"   # TODO: use getWhereCondition method here
                 wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
             elif self.cfgVisited[listOfNext[0]]==1:
                 self.addWpcString(currentNodeId, listOfNext[0], wpcString)
@@ -46,9 +46,9 @@ class WpcGenerator():
         if len(currentNode.next) <= 1:      # avoid conditional node for wpcString here
             if not currentNode.ctx == None:     # check if ctx is None
                 if self.helper.getRuleName(currentNode.ctx) == "assert_statement":
-                    wpcString = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]) + " )"         # start wpcString here.
+                    wpcString = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]) + " )"         # start wpcString here.   # TODO: use getWhereCondition method here
                 elif self.helper.getRuleName(currentNode.ctx) == "assume_statement":
-                    assumeCondition = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]) + " )"
+                    assumeCondition = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]) + " )"   # TODO: use getWhereCondition method here
                     wpcString = "( " + assumeCondition + " ==> " + wpcString + " )"
                     # one may want to finalize and return here...   # TODO: decide later, what to do here for ASSUME
                     # self.finalWpcString = wpcString
@@ -76,7 +76,7 @@ class WpcGenerator():
         if not currentNode.wpcMakerHelper['true'] == "":
             tempString1 = "( " + conditionalString + " ^ " + currentNode.wpcMakerHelper['true'] + " )"
         if not currentNode.wpcMakerHelper['false'] == "":
-            tempString2 = "( !" + conditionalString + " ^ " + currentNode.wpcMakerHelper['false'] + " )"
+            tempString2 = "( ( ! " + conditionalString + " ) ^ " + currentNode.wpcMakerHelper['false'] + " )"
         wpcString = ""
         if tempString1 == "":
             wpcString = tempString2
@@ -101,7 +101,7 @@ class WpcGenerator():
         if len(currentNode.variableLHS) > 0:
             if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
                 for i in currentNode.variableLHS:
-                    replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]) + " )"
+                    replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]).strip() + " )"
                     wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
             elif self.helper.getRuleName(currentNode.ctx) == "update_statement":    # Database UPDATE statement
                 whereClausePosition = -1
@@ -122,7 +122,7 @@ class WpcGenerator():
                             replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[i].children[2]).strip() + " ) "
                             tempWpcString = tempWpcString.replace(toBeReplaced, replacedBy)
                     # now join 'true' and 'false' like 'if' block...
-                    wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( !" + whereCondition + " ^ " + wpcString + " ) )"
+                    wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
                 else:       # whereCondition does not exist...so, no merging like 'if' block...
                     for i in range(currentNode.ctx.getChildCount()):        # finding "update_set_clause"...
                         if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
@@ -134,6 +134,10 @@ class WpcGenerator():
                                     replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip() + " ) "
                                     wpcString = wpcString.replace(toBeReplaced, replacedBy)
                             break
+            elif self.helper.getRuleName(currentNode.ctx) == "fetch_statement":    # Database FETCH statement
+                for i in currentNode.variableLHS:
+                    replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]).strip() + " )"      # see FETCH stmt structure for reference
+                    wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
         return wpcString
 
 
@@ -142,7 +146,7 @@ class WpcGenerator():
             return self.getWhereCondition(ctx.children[0])
         elif ctx.getChildCount() == 2:      # strictly for "NOT"
             if ctx.children[0].getText().strip() == "NOT":
-                return "( !" + self.getWhereCondition(ctx.children[1]) + " )"
+                return "( ! " + self.getWhereCondition(ctx.children[1]) + " )"
         elif ctx.getChildCount() == 3:
             operators = ['=', '>', '<', '>=', '<=', '!=', '<>', '^=', '~=']
             if ctx.children[1].getText().strip() == "AND":  # conditions separated by "AND"
@@ -150,9 +154,11 @@ class WpcGenerator():
             elif ctx.children[1].getText().strip() == "OR":  # conditions separated by "OR"
                 return "( " + self.getWhereCondition(ctx.children[0]) + " v " + self.getWhereCondition(ctx.children[2]) + " )"
             elif ctx.children[1].getText().strip() in operators:
-                return "( " + self.ssaString.getTerminal(ctx) + " )"
+                return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
             else:
                 return self.getWhereCondition(ctx.children[1])
+        elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
+            return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
 
 
     def addWpcString(self, currentNodeId, myVisitedChildId, wpcString):
@@ -192,7 +198,7 @@ class WpcGenerator():
     #             # merge true and false part
     #             print(listOfNext)
     #             print("-------", currentNode.wpcMakerHelper)
-    #             wpcString = "( ( " + str(currentNodeId) + " ^ " + currentNode.wpcMakerHelper['true'] + " ) v ( !" + str(currentNodeId) + " ^ " + currentNode.wpcMakerHelper['false'] + " ) )"
+    #             wpcString = "( ( " + str(currentNodeId) + " ^ " + currentNode.wpcMakerHelper['true'] + " ) v ( ( ! " + str(currentNodeId) + " ) ^ " + currentNode.wpcMakerHelper['false'] + " ) )"
     #         elif self.cfgVisited[listOfNext[0]]==1:
     #             print("first")
     #             self.addWpcString(currentNodeId, listOfNext[0], wpcString)

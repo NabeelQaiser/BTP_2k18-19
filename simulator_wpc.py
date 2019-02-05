@@ -8,6 +8,7 @@ from MyRawCfgToGraph import MyRawCfgToGraph
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
 from WpcGenerator import WpcGenerator
+from WpcStringConverter import WpcStringConverter
 from gen.MySsaStringGenerator import MySsaStringGenerator
 from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
@@ -60,9 +61,16 @@ def main(argv):
 
     algo = WpcGenerator(cfg, helper, ssaString)
     algo.execute()
-    # print("\n\n", algo.finalWpcString, "\n")
-    print("\n\n", algo.finalWpcString.replace(" ", ""), "\n")
+    algo.finalWpcString = algo.finalWpcString.replace("  ", " ")
+    # done: replace " = " with " == " in algo.finalWpcString
+    algo.finalWpcString = algo.finalWpcString.replace(" = ", " == ")
 
+    print("\n**** Final WPC String:\n", algo.finalWpcString, "\n")
+    # print("\n\n", algo.finalWpcString.replace(" ", ""), "\n")
+
+    z3StringConvertor = WpcStringConverter(algo.finalWpcString)
+    z3StringConvertor.execute()
+    print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
 
 
 
