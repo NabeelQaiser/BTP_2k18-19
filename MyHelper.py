@@ -157,12 +157,12 @@ class MyHelper(PlSqlVisitor):
                 funName = ctx.children[0].getText()
                 res = res.union(self.functionDict[funName][0])
             elif ruleName == "select_statement":
-                print("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4 entered in LHS select\n\n\n")
+                #print("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4 entered in LHS select\n\n\n")
                 tempCtx = ctx.children[0].children[0]
                 for i in range(tempCtx.getChildCount()):
-                    print("\n\t\t\t", self.getRuleName(tempCtx.children[i]), "\n\n")
+                    #print("\n\t\t\t", self.getRuleName(tempCtx.children[i]), "\n\n")
                     if self.getRuleName(tempCtx.children[i]) == "into_clause":
-                        print("\n\t\t\t", tempCtx.children[i].children[1].getText(), "\n\n")
+                        #print("\n\t\t\t", tempCtx.children[i].children[1].getText(), "\n\n")
                         res.add(tempCtx.children[i].children[1].getText())
             return res
 
