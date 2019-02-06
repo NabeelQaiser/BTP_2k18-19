@@ -33,7 +33,7 @@ class WpcGenerator():
                 self.enrich_wpcMakerHelper(currentNodeId, wpcString)
                 # merge true and false part
                 print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
-                conditionalString = "( " + self.ssaString.getTerminal(currentNode.ctx) + " )"   # TODO: use getWhereCondition method here
+                conditionalString = self.getConditionalString(currentNode.ctx)
                 wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
             elif self.cfgVisited[listOfNext[0]]==1:
                 self.addWpcString(currentNodeId, listOfNext[0], wpcString)
@@ -46,9 +46,9 @@ class WpcGenerator():
         if len(currentNode.next) <= 1:      # avoid conditional node for wpcString here
             if not currentNode.ctx == None:     # check if ctx is None
                 if self.helper.getRuleName(currentNode.ctx) == "assert_statement":
-                    wpcString = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]) + " )"         # start wpcString here.   # TODO: use getWhereCondition method here
+                    wpcString = self.getConditionalString(currentNode.ctx.children[1])         # start wpcString here
                 elif self.helper.getRuleName(currentNode.ctx) == "assume_statement":
-                    assumeCondition = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]) + " )"   # TODO: use getWhereCondition method here
+                    assumeCondition = self.getConditionalString(currentNode.ctx.children[1])
                     wpcString = "( " + assumeCondition + " ==> " + wpcString + " )"
                     # one may want to finalize and return here...   # TODO: decide later, what to do here for ASSUME
                     # self.finalWpcString = wpcString
@@ -109,7 +109,7 @@ class WpcGenerator():
                 for i in range(currentNode.ctx.getChildCount()):        # finding "where_clause"...
                     if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
                         whereClausePosition = i
-                        whereCondition = self.getWhereCondition(currentNode.ctx.children[i].children[1])
+                        whereCondition = self.getConditionalString(currentNode.ctx.children[i].children[1])
                         print("@@@@@@@ whereCondition :", whereCondition)
                         break
                 if not whereClausePosition == -1:   # whereCondition exists
@@ -140,23 +140,23 @@ class WpcGenerator():
                     wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
         return wpcString
 
-
-    def getWhereCondition(self, ctx):   # considering only AND, OR, NOT as 'word' separator
+    # TODO: condition not proper for conditions like "NAME LIKE 'RYAN'", discuss and improve(if possible) later
+    def getConditionalString(self, ctx):   # considering only AND, OR, NOT as 'word' separator
         if ctx.getChildCount() == 1:
-            return self.getWhereCondition(ctx.children[0])
+            return self.getConditionalString(ctx.children[0])
         elif ctx.getChildCount() == 2:      # strictly for "NOT"
             if ctx.children[0].getText().strip() == "NOT":
-                return "( ! " + self.getWhereCondition(ctx.children[1]) + " )"
+                return "( ! " + self.getConditionalString(ctx.children[1]) + " )"
         elif ctx.getChildCount() == 3:
             operators = ['=', '>', '<', '>=', '<=', '!=', '<>', '^=', '~=']
             if ctx.children[1].getText().strip() == "AND":  # conditions separated by "AND"
-                return "( " + self.getWhereCondition(ctx.children[0]) + " ^ " + self.getWhereCondition(ctx.children[2]) + " )"
+                return "( " + self.getConditionalString(ctx.children[0]) + " ^ " + self.getConditionalString(ctx.children[2]) + " )"
             elif ctx.children[1].getText().strip() == "OR":  # conditions separated by "OR"
-                return "( " + self.getWhereCondition(ctx.children[0]) + " v " + self.getWhereCondition(ctx.children[2]) + " )"
+                return "( " + self.getConditionalString(ctx.children[0]) + " v " + self.getConditionalString(ctx.children[2]) + " )"
             elif ctx.children[1].getText().strip() in operators:
                 return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
             else:
-                return self.getWhereCondition(ctx.children[1])
+                return self.getConditionalString(ctx.children[1])
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
 
