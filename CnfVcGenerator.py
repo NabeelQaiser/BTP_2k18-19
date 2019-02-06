@@ -103,7 +103,7 @@ class CnfVcGenerator(PlSqlVisitor):
         # input("Wait")
 
     def getInto_clause(self, nodeId, ctx):
-        return self.getVersionedTerminalRHS(nodeId, ctx.children[1])
+        return self.getVersionedTerminalLHS(nodeId, ctx.children[1])
 
     def getFetch_statement(self, nodeId, ctx):
         # global vcs

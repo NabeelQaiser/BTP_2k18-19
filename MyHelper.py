@@ -46,7 +46,7 @@ class MyHelper(PlSqlVisitor):
     def isAssignEq(self, ctx):
         ruleName = self.getRuleName(ctx)
         assignEqSet = {"cursor_declaration", "fetch_statement",
-                        "insert_statement", "delete_statement", "update_statement", "assignment_statement", "function_call"}
+                        "insert_statement", "delete_statement", "update_statement", "assignment_statement", "function_call", "select_statement"}
         if ruleName in assignEqSet:
             return True
         else:
@@ -97,6 +97,7 @@ class MyHelper(PlSqlVisitor):
             res = res.union(self.temp)
             self.temp = set()
         elif ruleName=="select_statement":
+            #print("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4 entered in RHS select\n\n\n")
             tempCtx = ctx.children[0].children[0]
             res = self.selectHandling(tempCtx, res)
         elif ruleName == "assignment_statement":
@@ -144,6 +145,7 @@ class MyHelper(PlSqlVisitor):
                 dTableName = ctx.children[2].getText()
                 res = res.union(self.tableDict[dTableName])
             elif ruleName == "update_statement":          #todo: need to hardcode
+                #print("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4 entered in LHS update\n\n\n")
                 dTableName = ctx.children[1].getText()
                 res = res.union(self.tableDict[dTableName])
             elif ruleName == "assignment_statement":
@@ -154,6 +156,14 @@ class MyHelper(PlSqlVisitor):
             elif ruleName == "function_call":
                 funName = ctx.children[0].getText()
                 res = res.union(self.functionDict[funName][0])
+            elif ruleName == "select_statement":
+                print("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4 entered in LHS select\n\n\n")
+                tempCtx = ctx.children[0].children[0]
+                for i in range(tempCtx.getChildCount()):
+                    print("\n\t\t\t", self.getRuleName(tempCtx.children[i]), "\n\n")
+                    if self.getRuleName(tempCtx.children[i]) == "into_clause":
+                        print("\n\t\t\t", tempCtx.children[i].children[1].getText(), "\n\n")
+                        res.add(tempCtx.children[i].children[1].getText())
             return res
 
 
