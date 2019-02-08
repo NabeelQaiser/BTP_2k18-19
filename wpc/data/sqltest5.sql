@@ -1,6 +1,7 @@
 CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR, Y IN VARCHAR)
 IS
 BEGIN
+  assume A + X > 12;
   A int;
   B varchar;
   CURSOR get_type_id IS

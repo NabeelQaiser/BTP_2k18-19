@@ -5,6 +5,7 @@ class WpcGenerator():
         self.cfg = cfg
         self.helper = helper
         self.ssaString = ssaString
+        self.variablesForZ3 = set()
 
         self.finalWpcString = ""
         self.totalNodeCount = -1
@@ -35,6 +36,8 @@ class WpcGenerator():
                 print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
                 conditionalString = self.getConditionalString(currentNode.ctx)
                 wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
+                # also add RHS vars of CONDITION to variablesForZ3 set
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
             elif self.cfgVisited[listOfNext[0]]==1:
                 self.addWpcString(currentNodeId, listOfNext[0], wpcString)
                 return
@@ -47,11 +50,15 @@ class WpcGenerator():
             if not currentNode.ctx == None:     # check if ctx is None
                 if self.helper.getRuleName(currentNode.ctx) == "assert_statement":
                     wpcString = self.getConditionalString(currentNode.ctx.children[1])         # start wpcString here
+                    # also add RHS vars to variablesForZ3 set
+                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
                 elif self.helper.getRuleName(currentNode.ctx) == "assume_statement":
                     assumeCondition = self.getConditionalString(currentNode.ctx.children[1])
                     wpcString = "( " + assumeCondition + " ==> " + wpcString + " )"
-                    # one may want to finalize and return here...   # TODO: decide later, what to do here for ASSUME
-                    # self.finalWpcString = wpcString
+                    # also add RHS vars to variablesForZ3 set
+                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
+                    # one may want to finalize and return here...   # TODO: decide later, what to do here for ASSUME,
+                    # self.finalWpcString = wpcString               # But nothing pre topmost ASSUME will be reflected in "z3FormatWpcFile.py", so our work is done!
                     # return
                 elif not wpcString == "":
                     wpcString = self.updateWpcStringByReplacing(wpcString, currentNode)
@@ -103,6 +110,8 @@ class WpcGenerator():
                 for i in currentNode.variableLHS:
                     replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]).strip() + " )"
                     wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
+                # also add RHS vars to variablesForZ3 set
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
             elif self.helper.getRuleName(currentNode.ctx) == "update_statement":    # Database UPDATE statement
                 whereClausePosition = -1
                 whereCondition = ""
@@ -134,10 +143,39 @@ class WpcGenerator():
                                     replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip() + " ) "
                                     wpcString = wpcString.replace(toBeReplaced, replacedBy)
                             break
+                # also add RHS vars to variablesForZ3 set
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
+            elif self.helper.getRuleName(currentNode.ctx) == "select_statement":  # Database SELECT statement
+                # Note: we will not enter here if currentNode.variableLHS set is empty. See outer if condition.
+                tempNode = currentNode.ctx.children[0].children[0]
+                myRHS = []
+                myLHS = []
+                # SELECT A, B, C INTO K, L, M FROM T WHERE A=X+3;
+                into_index = -1
+                for i in range(tempNode.getChildCount()):
+                    if tempNode.children[i].getChildCount() > 0:
+                        if self.helper.getRuleName(tempNode.children[i]) == "selected_element":
+                            myRHS.append(tempNode.children[i].getText().strip())                # <--- RHS
+                        elif self.helper.getRuleName(tempNode.children[i]) == "into_clause":
+                            into_index = i
+                            intoNode = tempNode.children[i]
+                            for x in range(intoNode.getChildCount()):
+                                if intoNode.children[x].getChildCount() > 0 and self.helper.getRuleName(intoNode.children[x]) == "variable_name":
+                                    myLHS.append(intoNode.children[x].getText().strip())        # <--- LHS
+                            break
+                if into_index > -1:
+                    # do update in wpcString here...
+                    for i in range(len(myLHS)):
+                        replacedBy = myRHS[i]
+                        wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + replacedBy + " ")
+                        # also add RHS vars to variablesForZ3 set
+                        self.variablesForZ3.add(myRHS[i])       # <<<-----------<<<---------------<<<-------------
             elif self.helper.getRuleName(currentNode.ctx) == "fetch_statement":    # Database FETCH statement
                 for i in currentNode.variableLHS:
                     replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]).strip() + " )"      # see FETCH stmt structure for reference
                     wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
+                # also add RHS vars to variablesForZ3 set
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
         return wpcString
 
     # TODO: condition not proper for conditions like "NAME LIKE 'RYAN'", discuss and improve(if possible) later
