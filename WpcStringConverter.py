@@ -15,6 +15,8 @@ class WpcStringConverter():
         self.wpcString = wpcString
         self.tokens = []
         self.convertedWpc = ""
+        self.implies_p = []
+        self.implies_p_q = []
 
 
     def execute(self):
@@ -56,7 +58,12 @@ class WpcStringConverter():
                         elif self.tokens[bracketMatchingIndex+1] == 'v':
                             return "Or( " + self.convert(start, bracketMatchingIndex) + ", " + self.convert(bracketMatchingIndex + 2, end) + " )"
                         elif self.tokens[bracketMatchingIndex+1] == '==>':
-                            return "Implies( " + self.convert(start, bracketMatchingIndex) + ", " + self.convert(bracketMatchingIndex + 2, end) + " )"
+                            p = self.convert(start, bracketMatchingIndex)
+                            q = self.convert(bracketMatchingIndex + 2, end)
+                            p_implies_q = "Implies( " + p + ", " + q + " )"
+                            self.implies_p.append(p)
+                            self.implies_p_q.append(p_implies_q)
+                            return p_implies_q
                         else:      # for strings like "( ! ( -- ) ) <= ( -- )"
                             return "( " + self.convert(start, bracketMatchingIndex) + " ) " + self.tokens[bracketMatchingIndex + 1] + " ( " + self.convert(
                                 bracketMatchingIndex + 2, end) + " )"
