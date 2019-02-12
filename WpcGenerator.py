@@ -170,12 +170,55 @@ class WpcGenerator():
                         wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + replacedBy + " ")
                         # also add RHS vars to variablesForZ3 set
                         self.variablesForZ3.add(myRHS[i])       # <<<-----------<<<---------------<<<-------------
+            elif self.helper.getRuleName(currentNode.ctx) == "insert_statement":  # Database INSERT statement
+                tempNode = currentNode.ctx.children[1]      # single_table_insert
+                myLHS = []
+                myRHS = []
+                count = tempNode.children[0].getChildCount()    # inset_into_clause
+                if count > 2:
+                    i = 2
+                    while i < count:
+                        if tempNode.children[0].children[i].getChildCount() > 0:
+                            myLHS.append(tempNode.children[0].children[i].getText().strip())
+                        i = i+1
+                count = tempNode.children[1].children[1].getChildCount()    # expression_list
+                i = 0
+                while i < count:
+                    node = tempNode.children[1].children[1].children[i]
+                    if node.getChildCount() > 0:
+                        myRHS.append(self.ssaString.getTerminal(node).strip())
+                    i = i+1
+                # do replacing in wpcString now...
+                if len(myLHS) > 0:
+                    for i in range(len(myLHS)):
+                        replacedBy = "( " + myRHS[i] + " )"
+                        wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + replacedBy + " ")
+                # else:
+                #     # get LHS vars from tableDict of MyHelper
+                #     # BUT, for that table attributes must be stored in order
+                #     # so, tableDict must be modified to Dictionary of List...
+                #     # this is a TODO
+                # also add RHS vars to variablesForZ3 set
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
             elif self.helper.getRuleName(currentNode.ctx) == "fetch_statement":    # Database FETCH statement
                 for i in currentNode.variableLHS:
                     replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[1]).strip() + " )"      # see FETCH stmt structure for reference
                     wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
                 # also add RHS vars to variablesForZ3 set
                 self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
+            elif self.helper.getRuleName(currentNode.ctx) == "cursor_declaration":  # Database CURSOR statement
+                lhsVar = ""
+                rhsVar = ""
+                for i in range(currentNode.ctx.getChildCount()):
+                    if self.helper.getRuleName(currentNode.ctx.children[i]) == "cursor_name":
+                        lhsVar = currentNode.ctx.children[i].getText().strip()
+                    elif self.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
+                        # BUT what to do if there are multiple SELECTION attributes here???
+                        rhsVar = currentNode.ctx.children[i].children[0].children[0].children[1].getText().strip()
+                if not(lhsVar == "") and not(rhsVar == ""):
+                    wpcString = wpcString.replace(" " + lhsVar + " ", " " + rhsVar + " ")
+                    # also add RHS var to variablesForZ3 set
+                    self.variablesForZ3.add(rhsVar)       # <<<-----------<<<---------------<<<-------------
         return wpcString
 
     # TODO: condition not proper for conditions like "NAME LIKE 'RYAN'", discuss and improve(if possible) later

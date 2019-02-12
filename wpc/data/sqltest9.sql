@@ -6,25 +6,25 @@ IS
               SELECT A
               FROM T
               WHERE B = 50;
-      CURSOR ID IS
+      CURSOR id IS
               SELECT B
               FROM T;
       BEGIN
-          OPEN ID;
-          FETCH ID INTO X;
-          CLOSE ID;
+          OPEN id;
+          FETCH id INTO X;
+          CLOSE id;
           INSERT INTO T(A, B, C) VALUES (X+5, X-5, Y*(Z-2));
-          IF X>Y THEN
-              X := X-50;
-              X := X*9;
-              DELETE FROM T WHERE A=X+8 AND B=Y-8;
-          ELSIF X<Y THEN
-              Y := X-5;
-              SELECT A, B INTO X, Y FROM T WHERE A=X+3 AND B=X-3;
-          ELSE
-              X := X+40;
+          if x>y then
+              x := x-50;
+              x := x*9;
+              delete from T where A=x+8 and B=y-8;
+          elsif x<y then
+              y := x-5;
+              select A, B into X, Y from T where A=x+3 and B=x-3;
+          else
+              x := x+40;
               UPDATE T SET A=A*(X-9*(Y-3)), B=Y-9 WHERE (A>10 AND B<=(X+Y)-50);
-          END IF;
+          end if;
       END;
       ASSERT A-B+C>0;
   END;
