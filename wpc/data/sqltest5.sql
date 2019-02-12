@@ -20,6 +20,7 @@ BEGIN
       CLOSE hello;
 
       UPDATE T SET A=A*(X-9*(Y-3)), B=Y-9 WHERE NOT A>10 AND B<=(X+Y)-50;
-      ASSERT A>0;
+
   END;
+  ASSERT A>0;
 END;
