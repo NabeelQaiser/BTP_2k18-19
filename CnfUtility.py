@@ -202,3 +202,24 @@ class CnfUtility(MyUtility):
     def copyParentBranching(self, cnfCfg, iCnfCfg):
         for nodeId in cnfCfg.nodes:
             cnfCfg.nodes[nodeId].parentBranching = iCnfCfg.nodes[nodeId].parentBranching
+
+    def cnfVc(self, cnfCfg):
+        res = []
+        for nodeId in cnfCfg.nodes:
+            antecedentStr = cnfCfg.nodes[nodeId].antecedent[0]
+            isFirst = True
+            for str in cnfCfg.nodes[nodeId].antecedent:
+                if isFirst:
+                    isFirst = False
+                    continue
+                antecedentStr = "AND( " + antecedentStr + ", " + str + " )"
+            # print("\n]t&&&&&&&&&&&&&&&\n\n")
+            # print(len(cnfCfg.nodes[nodeId].antecedent))
+            # print("\n\n)))))))))))))\n\n")
+            for i in range(len(cnfCfg.nodes[nodeId].consequent)):
+                if cnfCfg.nodes[nodeId].isAssertion:
+                    res.append("ASSERTION: " + cnfCfg.nodes[nodeId].consequent[i])
+                else:
+                    res.append("IMPLIES( " + antecedentStr + ", " + cnfCfg.nodes[nodeId].consequent[i] + " )")
+        return res
+

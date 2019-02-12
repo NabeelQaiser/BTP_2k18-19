@@ -52,6 +52,8 @@ class CnfVcGenerator(PlSqlVisitor):
                     #vcs = "Implies(" + vcs + ", " + self.getAssert_statement(node, context) + ")"
                     self.cnfCfg.nodes[node].consequent.append(
                         self.getAssert_statement(node, context))
+                    self.cnfCfg.nodes[node].isAssertion = True
+                    self.cnfCfg.nodes[node].antecedent = [""]
                 else:
                     pass
             if True:                                            #todo: rearrange it properly
@@ -140,15 +142,15 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getUpdate_statement(self, nodeId, ctx):
         # global vcs
-        res = []
-        # res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
-        #       + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
-        #       "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
-        #       self.getNotSetClause(nodeId, ctx.children[2]) + "))"
-        res.append("OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
+        # res = []
+        res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
               + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
               "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
-              self.getNotSetClause(nodeId, ctx.children[2]) + "))")
+              self.getNotSetClause(nodeId, ctx.children[2]) + "))"
+        # res.append("OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
+        #       + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
+        #       "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
+        #       self.getNotSetClause(nodeId, ctx.children[2]) + "))")
         # if self.cnfCfg.nodes[nodeId].destructedPhi:
         #     for element in self.cnfCfg.nodes[nodeId].destructedPhi:
         #         values = self.cnfCfg.nodes[nodeId].destructedPhi[element]
@@ -243,7 +245,7 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getInsert_statement(self, nodeId, ctx):
         global vcs
-        return str(self.getInsertIntoandValueClause(nodeId, ctx.children[1]))
+        return self.getInsertIntoandValueClause(nodeId, ctx.children[1])
         #return vcs
 
     def getInsertIntoandValueClause(self, nodeId, ctx):
@@ -268,7 +270,10 @@ class CnfVcGenerator(PlSqlVisitor):
 
         for element in range(len(colmnlistinto)):
             #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + colmnlistinto[element] + " == " + colmnlistvalues[element] + ")"
-            res.append(colmnlistinto[element] + " == " + colmnlistvalues[element])
+            res.append("" + colmnlistinto[element] + " == " + colmnlistvalues[element])
+        # print("\n\n^^^^^^^^^^^^^^^^^^Insert result^^^^^^^^^^")
+        # print(len(res))
+        # print("\n\n")
         return res
 
         # c= str(c1) + " " + str(c2)

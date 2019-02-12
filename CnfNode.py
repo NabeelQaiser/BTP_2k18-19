@@ -12,6 +12,7 @@ class CnfNode(MyNode):
         self.post = 0
         self.antecedent = []
         self.consequent = []
+        self.isAssertion = False
 
     def printPretty(self):
         super().printPretty()
