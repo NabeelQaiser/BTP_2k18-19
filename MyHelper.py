@@ -16,6 +16,7 @@ class MyHelper(PlSqlVisitor):
                                'PREREQ': {'COURSE_ID', 'PREREQ_CID'},                   # FOR PROCEDURE 'isEnrollable'
                                'ENROLLMENT': {'COURSE_ID', 'STUDENT_ID'},               # FOR PROCEDURE 'isEnrollable'
                                'PENDING_PERMISSIONS': {'COURSE_ID', 'STUDENT_ID'},      # FOR PROCEDURE 'isEnrollable'
+                               'BUDGET_TAB': {'TOTAL_AMT', 'DEPT_ID', 'MANPOWER', 'EQUIPMENT', 'CONTINGENCY', 'CONSUMABLE'},  # FOR PROCEDURE 'budget'
                                'T': {"A", 'B'}})        # TODO: complete attributes for DELETE_TABLE
         self.functionDict = dict()      # TODO: complete attributes for FUNCTIONS......{"funName": ({LHS vars}, {RHS vars})}
 
