@@ -13,8 +13,8 @@ digraph G {
 	7 -> 8 ;
 	7 -> 10 ;
 	6 -> 7 ;
-	9 -> 11 ;
 	10 -> 11 ;
+	9 -> 11 ;
 	11 -> exit;
 
 	start [shape=Msquare, color=green];

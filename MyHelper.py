@@ -95,6 +95,8 @@ class MyHelper(PlSqlVisitor):
             self.visit(ctx.children[2].children[1].children[2])     #TODO: make it proper (it's temporary soln)
             self.visit(ctx.children[3])
             res = res.union(self.temp)
+            dTableName = ctx.children[1].getText()
+            res = res.union(self.tableDict[dTableName])
             self.temp = set()
         elif ruleName=="select_statement":
             #print("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4 entered in RHS select\n\n\n")

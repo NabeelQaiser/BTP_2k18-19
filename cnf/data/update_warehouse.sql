@@ -9,7 +9,7 @@ IS
       v_time := current_date();
 
       UPDATE warehouse_parcel
-      SET left_warehouse = v_time
+      SET left_warehouse = v_time + left_warehouse
       WHERE WAREHOUSE_ID = a_old_warehouse_id AND WAREHOUSE_ID = v_time AND WAREHOUSE_ID = a_old_warehouse_id;
       COMMIT;
 
