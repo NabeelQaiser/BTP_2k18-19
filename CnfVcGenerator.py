@@ -99,7 +99,7 @@ class CnfVcGenerator(PlSqlVisitor):
         #                                                          ctx.children[0].children[0].children[1]) + "==" + \
         #       self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
         # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
-        temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getConditionalString(nodeId, ctx.children[0].children[0].children[4][1]) + " ) )"
+        temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + " ) )"
         # res.append( + "==" + )
         res.append(temp)
         return res
