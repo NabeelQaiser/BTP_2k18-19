@@ -70,12 +70,12 @@ class CnfVcGenerator(PlSqlVisitor):
         for ancestor in self.cnfCfg.nodes[nodeId].parentBranching:
             if self.cnfCfg.nodes[nodeId].parentBranching[ancestor] == "true":
                 #res = "AND( " + res + ", " +  + " )"
-                res.append(self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx))
+                res.append('( ' + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + ' )')
             else:
                 #res = "AND( " + res + ", ""NOT( " +  + " ))"
-                res.append("NOT( " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " )")
+                res.append("( ! ( " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " ) )")
         if len(res) == 0:
-            return ["true"]
+            return ["( True )"]
         else:
             return res
 
@@ -99,8 +99,9 @@ class CnfVcGenerator(PlSqlVisitor):
         #                                                          ctx.children[0].children[0].children[1]) + "==" + \
         #       self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
         # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
-        res.append(self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + "==" + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]))
-        res.append(self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]))
+        temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + " ) )"
+        # res.append( + "==" + )
+        res.append(temp)
         return res
         # input("Wait")
 
@@ -109,30 +110,28 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getFetch_statement(self, nodeId, ctx):
         # global vcs
-        res = self.getVersionedTerminalRHS(nodeId, ctx.children[1]) + " == " \
-              + self.getVersionedTerminalLHS(nodeId, ctx.children[3])
+        res = "( ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[3]) + " ) )"
         return res
 
     def getCursor_declaration(self, nodeId, ctx):
         # global vcs
         if ctx.children[3].children[0].children[0].getChildCount() == 4:
-            res = "AND(" + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " == " \
-                  + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + ", " + \
-                  self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + ")"
+            res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
         else:
-            res = self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " == " \
-                  + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1])
+            res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + " ) )"
         return res
 
     def getCondition(self, nodeId, ctx):
 
         res = self.getVersionedTerminalRHS(nodeId, ctx)
+        res = res.replace("  ", " ")
+        res = res.strip()
         return res
 
     def getAssignment_statement(self, node, ctx):
         # global vcs
-        res = self.getVersionedTerminalLHS(node, ctx.children[0]) + ' == ' + \
-              self.getVersionedTerminalRHS(node, ctx.children[2])
+        res = '( ' + self.getVersionedTerminalLHS(node, ctx.children[0]) + ' ) == ( ' + \
+              self.getVersionedTerminalRHS(node, ctx.children[2]) + ' )'
         # if self.cnfCfg.nodes[node].destructedPhi:
         #     for element in self.cnfCfg.nodes[node].destructedPhi:
         #         values = self.cnfCfg.nodes[node].destructedPhi[element]
@@ -143,10 +142,9 @@ class CnfVcGenerator(PlSqlVisitor):
     def getUpdate_statement(self, nodeId, ctx):
         # global vcs
         # res = []
-        res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
-              + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
-              "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
-              self.getNotSetClause(nodeId, ctx.children[2]) + "))"
+        # res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + self.getNotSetClause(nodeId, ctx.children[2]) + "))"
+        res = "( ( ( "+ self.getSetClause(nodeId, ctx.children[2]) + " ) ^ (" + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) v ( ( ! ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
+
         # res.append("OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
         #       + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
         #       "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
@@ -168,8 +166,7 @@ class CnfVcGenerator(PlSqlVisitor):
         return res
 
     def getColsetClause(self, nodeId, ctx):
-        res = self.getVersionedTerminalLHS(nodeId, ctx.children[0]) + ' == ' + \
-              self.getVersionedTerminalRHS(nodeId, ctx.children[2])
+        res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[0]) + ' ) == ( ' + self.getVersionedTerminalRHS(nodeId, ctx.children[2]) + " ) )"
         return res
 
     def getNotSetClause(self, nodeId, ctx):
@@ -177,8 +174,7 @@ class CnfVcGenerator(PlSqlVisitor):
         return res
 
     def getNotColsetClause(self, nodeId, ctx):
-        res = self.getVersionedTerminalLHS(nodeId, ctx.children[0]) + ' == ' + \
-              self.getVersionedTerminalRHS(nodeId, ctx.children[0])
+        res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[0]) + ' ) == ( ' + self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + " ) )"
         return res
 
     def getWhereClause(self, nodeId, ctx):
@@ -200,14 +196,12 @@ class CnfVcGenerator(PlSqlVisitor):
         # input("Wait") ctx.children[1].getText()
         if ctx.children[1].getText() == "AND":
             # print(self.helper.getRuleName(ctx.children[0]))
-            res = self.getWhereexpr(nodeId, ctx.children[0]) + " && " + \
-                  "(" + self.getWhereexpr(nodeId, ctx.children[2]) + ")"
+            res = "( ( " + self.getWhereexpr(nodeId, ctx.children[0]) + " ) ^ ( " + self.getWhereexpr(nodeId, ctx.children[2]) + " ) )"
             # input("wait")
 
         elif ctx.children[1].getText() == "IN":
-            res = self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + "==" + \
-                  self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[1]) + \
-                  "&&" + self.getWhereexpr(nodeId, ctx.children[3].children[0].children[3].children[1])
+            # res =  + "==" +  + "&&" +
+            res = "( ( ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[1]) + " ) ) ^ ( " + self.getWhereexpr(nodeId, ctx.children[3].children[0].children[3].children[1]) + " ) )"
             # print(res)
             # input("Wait")
             # input("HI")
@@ -215,8 +209,7 @@ class CnfVcGenerator(PlSqlVisitor):
         else:
             # print(self.helper.getRuleName(ctx.children[1]))
             # print(self.getTerminal(ctx.children[1]))
-            res = self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + self.getTerminal(ctx.children[1]) + \
-                  self.getVersionedTerminalRHS(nodeId, ctx.children[2])
+            res = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + self.getTerminal(ctx.children[1]) + self.getVersionedTerminalRHS(nodeId, ctx.children[2]) + " )"
         return res
         # c = ctx.getChildCount()
         # print(self.helper.getRuleName(ctx.children[1]))
@@ -270,7 +263,7 @@ class CnfVcGenerator(PlSqlVisitor):
 
         for element in range(len(colmnlistinto)):
             #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + colmnlistinto[element] + " == " + colmnlistvalues[element] + ")"
-            res.append("" + colmnlistinto[element] + " == " + colmnlistvalues[element])
+            res.append("( ( " + colmnlistinto[element] + " ) == ( " + colmnlistvalues[element] + " ) )")
         # print("\n\n^^^^^^^^^^^^^^^^^^Insert result^^^^^^^^^^")
         # print(len(res))
         # print("\n\n")

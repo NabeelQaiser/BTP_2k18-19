@@ -223,3 +223,17 @@ class CnfUtility(MyUtility):
                     res.append("IMPLIES( " + antecedentStr + ", " + cnfCfg.nodes[nodeId].consequent[i] + " )")
         return res
 
+    def iZ3format(self, cnfCfg):
+        varSet = set()
+        implies = []
+        for nodeId in cnfCfg.nodes:
+            antecedentStr = ""
+            isFirst = True
+            for str in cnfCfg.nodes[nodeId].antecedent:
+                str = str.replace("  ", " ")
+                str = str.strip()
+                if isFirst:
+                    isFirst = False
+
+                    continue
+                antecedentStr = "AND( " + antecedentStr + ", " + str + " )"
