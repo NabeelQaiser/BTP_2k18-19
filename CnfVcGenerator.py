@@ -70,10 +70,10 @@ class CnfVcGenerator(PlSqlVisitor):
         for ancestor in self.cnfCfg.nodes[nodeId].parentBranching:
             if self.cnfCfg.nodes[nodeId].parentBranching[ancestor] == "true":
                 #res = "AND( " + res + ", " +  + " )"
-                res.append('( ' + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + ' )')
+                res.append('( ' + self.getConditionalString(nodeId, self.cnfCfg.nodes[ancestor].ctx) + ' )')
             else:
                 #res = "AND( " + res + ", ""NOT( " +  + " ))"
-                res.append("( ! ( " + self.getCondition(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " ) )")
+                res.append("( ! ( " + self.getConditionalString(nodeId, self.cnfCfg.nodes[ancestor].ctx) + " ) )")
         if len(res) == 0:
             return ["( True )"]
         else:
@@ -99,7 +99,7 @@ class CnfVcGenerator(PlSqlVisitor):
         #                                                          ctx.children[0].children[0].children[1]) + "==" + \
         #       self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
         # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
-        temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + " ) )"
+        temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getConditionalString(nodeId, ctx.children[0].children[0].children[4][1]) + " ) )"
         # res.append( + "==" + )
         res.append(temp)
         return res
@@ -317,3 +317,21 @@ class CnfVcGenerator(PlSqlVisitor):
             return res
 
 
+    def getConditionalString(self, nodeId, ctx):   # considering only AND, OR, NOT as 'word' separator
+        if ctx.getChildCount() == 1:
+            return self.getConditionalString(ctx.children[0])
+        elif ctx.getChildCount() == 2:      # strictly for "NOT"
+            if ctx.children[0].getText().strip() == "NOT":
+                return "( ! " + self.getConditionalString(ctx.children[1]) + " )"
+        elif ctx.getChildCount() == 3:
+            operators = ['=', '>', '<', '>=', '<=', '!=', '<>', '^=', '~=']
+            if ctx.children[1].getText().strip() == "AND":  # conditions separated by "AND"
+                return "( " + self.getConditionalString(ctx.children[0]) + " ^ " + self.getConditionalString(ctx.children[2]) + " )"
+            elif ctx.children[1].getText().strip() == "OR":  # conditions separated by "OR"
+                return "( " + self.getConditionalString(ctx.children[0]) + " v " + self.getConditionalString(ctx.children[2]) + " )"
+            elif ctx.children[1].getText().strip() in operators:
+                return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
+            else:
+                return self.getConditionalString(ctx.children[1])
+        elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
+            return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
