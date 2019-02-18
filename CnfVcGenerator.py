@@ -319,19 +319,19 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getConditionalString(self, nodeId, ctx):   # considering only AND, OR, NOT as 'word' separator
         if ctx.getChildCount() == 1:
-            return self.getConditionalString(ctx.children[0])
+            return self.getConditionalString(nodeId, ctx.children[0])
         elif ctx.getChildCount() == 2:      # strictly for "NOT"
             if ctx.children[0].getText().strip() == "NOT":
-                return "( ! " + self.getConditionalString(ctx.children[1]) + " )"
+                return "( ! " + self.getConditionalString(nodeId, ctx.children[1]) + " )"
         elif ctx.getChildCount() == 3:
             operators = ['=', '>', '<', '>=', '<=', '!=', '<>', '^=', '~=']
             if ctx.children[1].getText().strip() == "AND":  # conditions separated by "AND"
-                return "( " + self.getConditionalString(ctx.children[0]) + " ^ " + self.getConditionalString(ctx.children[2]) + " )"
+                return "( " + self.getConditionalString(nodeId, ctx.children[0]) + " ^ " + self.getConditionalString(nodeId, ctx.children[2]) + " )"
             elif ctx.children[1].getText().strip() == "OR":  # conditions separated by "OR"
-                return "( " + self.getConditionalString(ctx.children[0]) + " v " + self.getConditionalString(ctx.children[2]) + " )"
+                return "( " + self.getConditionalString(nodeId, ctx.children[0]) + " v " + self.getConditionalString(nodeId, ctx.children[2]) + " )"
             elif ctx.children[1].getText().strip() in operators:
                 return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
             else:
-                return self.getConditionalString(ctx.children[1])
+                return self.getConditionalString(nodeId, ctx.children[1])
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
