@@ -234,6 +234,30 @@ class CnfUtility(MyUtility):
                 str = str.strip()
                 if isFirst:
                     isFirst = False
-
+                    antecedentStr = "( " + str + " )"
                     continue
-                antecedentStr = "AND( " + antecedentStr + ", " + str + " )"
+                antecedentStr = antecedentStr + " ^ ( " + str + " )"
+            antecedentStr = "( " + antecedentStr + " )"
+            for i in range(len(cnfCfg.nodes[nodeId].consequent)):
+                if cnfCfg.nodes[nodeId].isAssertion:
+                    implies.append("( " + cnfCfg.nodes[nodeId].consequent[i] + " )")
+                else:
+                    implies.append("( ( " + antecedentStr + " ) ==> ( " + cnfCfg.nodes[nodeId].consequent[i] + " ) )")
+            for x in cnfCfg.nodes[nodeId].versionedLHS:
+                varSet = varSet.union({cnfCfg.nodes[nodeId].versionedLHS[x]})
+            for x in cnfCfg.nodes[nodeId].versionedRHS:
+                varSet = varSet.union({cnfCfg.nodes[nodeId].versionedRHS[x]})
+            for x in cnfCfg.nodes[nodeId].destructedPhi:
+                varSet = varSet.union({cnfCfg.nodes[nodeId].destructedPhi[x][0], cnfCfg.nodes[nodeId].destructedPhi[x][1]})
+        res = ""
+        isFirst = True
+        for x in implies:
+            x = x.replace("  ", " ")
+            x = x.strip()
+            if isFirst:
+                res = "( " + x + " )"
+                isFirst = False
+                continue
+            res = res + " ^ ( " + x + " )"
+        res = "( " + res + " )"
+        return varSet, res
