@@ -106,12 +106,17 @@ def main(argv):
     for nodeId in cnfCfg.nodes:
         cnfCfg.nodes[nodeId].printPretty()
 
-    cnfVc = cnfUtility.cnfVc(cnfCfg)
+    # cnfVc = cnfUtility.cnfVc(cnfCfg)
+    #
+    # print("\n\n\t\tThe CNF VCs are ----------------->\n\n\n")
+    #
+    # for str in cnfVc:
+    #     print(str)
 
-    print("\n\n\t\tThe CNF VCs are ----------------->\n\n\n")
+    varSet, str = cnfUtility.iZ3format(cnfCfg)
 
-    for str in cnfVc:
-        print(str)
+    print("\n\n*******************\n\n", str, "\n\n--------------\n\n")
+    print(varSet)
 
     #
     # hello = utility.generateFinalDotGraph(cfg)
