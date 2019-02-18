@@ -151,13 +151,10 @@ class WpcGenerator():
                             replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[i].children[2]).strip() + " ) "
                             tempWpcString = tempWpcString.replace(toBeReplaced, replacedBy)
                     # now join 'true' and 'false' like 'if' block...
-                    # wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
-                    # if self.nullInCondition(currentNode.ctx.children[i].children[1]):  # NULL +nt in condition
-                    #     wpcString = "( " + tempWpcString + " v " + wpcString + " )"
-                    # else:  # NULL not +nt in condition
-                    #     wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
-                    #     # also add RHS vars to variablesForZ3 set
-                    #     self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
+                    if self.nullInCondition(currentNode.ctx.children[whereClausePosition].children[1]):  # NULL +nt in condition
+                        wpcString = "( " + tempWpcString + " v " + wpcString + " )"
+                    else:  # NULL not +nt in condition
+                        wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
                 else:       # whereCondition does not exist...so, no merging like 'if' block...
                     for i in range(currentNode.ctx.getChildCount()):        # finding "update_set_clause"...
                         if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
