@@ -135,6 +135,8 @@ class CnfVcGenerator(PlSqlVisitor):
         # if self.cnfCfg.nodes[node].destructedPhi:
         #     for element in self.cnfCfg.nodes[node].destructedPhi:
         #         values = self.cnfCfg.nodes[node].destructedPhi[element]
+
+        # this
         #         res = "AND(" + res + ", " + values[0] + "==" + values[1] + ")"
         return res
         # print(vcs)
