@@ -145,7 +145,7 @@ class CnfVcGenerator(PlSqlVisitor):
         # global vcs
         # res = []
         # res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + self.getNotSetClause(nodeId, ctx.children[2]) + "))"
-        res = "( ( ( "+ self.getSetClause(nodeId, ctx.children[2]) + " ) ^ (" + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) v ( ( ! ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
+        res = "( ( ( "+ self.getSetClause(nodeId, ctx.children[2]) + " ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) v ( ( ! ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
 
         # res.append("OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
         #       + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
