@@ -8,6 +8,7 @@ from MyCFG import MyCFG
 from MyHelper import MyHelper
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
+from WpcStringConverter import WpcStringConverter
 from gen.MySsaStringGenerator import MySsaStringGenerator
 from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
@@ -113,10 +114,48 @@ def main(argv):
     # for str in cnfVc:
     #     print(str)
 
-    varSet, str = cnfUtility.iZ3format(cnfCfg)
+    varSet, z3Str = cnfUtility.iZ3format(cnfCfg)
 
-    print("\n\n*******************\n\n", str, "\n\n--------------\n\n")
+    print("\n\n*******************\n\n", z3Str, "\n\n--------------\n\n")
     print(varSet)
+
+    print("\n\n")
+
+    z3StringConvertor = WpcStringConverter(z3Str)
+    z3StringConvertor.execute()
+    print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
+
+    z3FileString = "# This file was generated at runtime " + "\n"
+    z3FileString = z3FileString + "from z3 import *\n\n"
+    for i in varSet:
+        z3FileString = z3FileString + i + " = Real(\'" + i + "\')\n"
+    z3FileString = z3FileString + "\ns = Solver()\n"
+
+    if len(z3StringConvertor.implies_p) > 0:
+        for i in range(len(z3StringConvertor.implies_p)):
+            z3FileString = z3FileString + "s.add(" + z3StringConvertor.implies_p[i] + ")\n"
+            if not z3StringConvertor.convertedWpc == z3StringConvertor.implies_p_q[i]:
+                z3FileString = z3FileString + "s.add(" + z3StringConvertor.implies_p_q[i] + ")\n"
+    #     if z3StringConvertor.convertedWpc not in z3StringConvertor.implies_p_q:
+    #         z3FileString = z3FileString + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
+    # else:
+    #     z3FileString = z3FileString + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
+    z3FileString = z3FileString + "s.add( Not( " + z3StringConvertor.convertedWpc + " ) )\n"
+
+    z3FileString = z3FileString + "\nprint()\n"
+    z3FileString = z3FileString + "\nprint(\"------------------------------------------------------------------\\nRunning script in /wpc/z3FormatWpcFile.py ....\\n\")\n"
+    z3FileString = z3FileString + "\nprint(\"%%%%%%%%%% Aggregate Formula %%%%%%%%%%\\n\", s)\n"
+    z3FileString = z3FileString + "\nprint()\n"
+    z3FileString = z3FileString + "print(\"%%%%%%%%%% Satisfiability %%%%%%%%%%\\n\", s.check())\n"
+    z3FileString = z3FileString + "\nprint()\n"
+    z3FileString = z3FileString + "print(\"%%%%%%%%%% Satisfiable Model %%%%%%%%%%\\n\", s.model())\n"
+    z3FileString = z3FileString + "\nprint()\n"
+
+    file = open('cnf/z3FormatCnfFile.py', "w")
+    file.write(z3FileString)
+    file.close()
+
+    # call(["python3", "wpc/z3FormatWpcFile.py"])
 
     #
     # hello = utility.generateFinalDotGraph(cfg)
