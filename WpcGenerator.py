@@ -34,10 +34,14 @@ class WpcGenerator():
                 self.enrich_wpcMakerHelper(currentNodeId, wpcString)
                 # merge true and false part
                 print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
-                conditionalString = self.getConditionalString(currentNode.ctx)
-                wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
-                # also add RHS vars of CONDITION to variablesForZ3 set
-                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
+                if self.nullInCondition(currentNode.ctx):   # NULL +nt in condition
+                    wpcString = self.mergeConditionalWpcStringsIfConditionContainsNULL(currentNode)
+                    # no need to add anything to variablesForZ3 set
+                else:   # NULL not +nt in condition
+                    conditionalString = self.getConditionalString(currentNode.ctx)
+                    wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
+                    # also add RHS vars of CONDITION to variablesForZ3 set
+                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
             elif self.cfgVisited[listOfNext[0]]==1:
                 self.addWpcString(currentNodeId, listOfNext[0], wpcString)
                 return
@@ -93,6 +97,22 @@ class WpcGenerator():
             wpcString = "( " + tempString1 + " v " + tempString2 + " )"
         return wpcString
 
+    def mergeConditionalWpcStringsIfConditionContainsNULL(self, currentNode):
+        tempString1 = ""
+        tempString2 = ""
+        if not currentNode.wpcMakerHelper['true'] == "":
+            tempString1 = currentNode.wpcMakerHelper['true']
+        if not currentNode.wpcMakerHelper['false'] == "":
+            tempString2 = currentNode.wpcMakerHelper['false']
+        wpcString = ""
+        if tempString1 == "":
+            wpcString = tempString2
+        elif tempString2 == "":
+            wpcString = tempString1
+        else:
+            wpcString = "( " + tempString1 + " v " + tempString2 + " )"
+        return wpcString
+
 
     # def updateWpcStringByReplacing(self, wpcString, currentNode):   # this is better than "updateWpcStringBySplitting" method
     #     wpcString = wpcString.replace("  ", " ").strip()
@@ -119,7 +139,7 @@ class WpcGenerator():
                     if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
                         whereClausePosition = i
                         whereCondition = self.getConditionalString(currentNode.ctx.children[i].children[1])
-                        print("@@@@@@@ whereCondition :", whereCondition)
+                        print("@@@@@@@ update_statement whereCondition :", whereCondition)
                         break
                 if not whereClausePosition == -1:   # whereCondition exists
                     tempWpcString = wpcString
@@ -131,7 +151,13 @@ class WpcGenerator():
                             replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[i].children[2]).strip() + " ) "
                             tempWpcString = tempWpcString.replace(toBeReplaced, replacedBy)
                     # now join 'true' and 'false' like 'if' block...
-                    wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
+                    # wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
+                    # if self.nullInCondition(currentNode.ctx.children[i].children[1]):  # NULL +nt in condition
+                    #     wpcString = "( " + tempWpcString + " v " + wpcString + " )"
+                    # else:  # NULL not +nt in condition
+                    #     wpcString = "( ( " + whereCondition + " ^ " + tempWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
+                    #     # also add RHS vars to variablesForZ3 set
+                    #     self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
                 else:       # whereCondition does not exist...so, no merging like 'if' block...
                     for i in range(currentNode.ctx.getChildCount()):        # finding "update_set_clause"...
                         if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
@@ -151,23 +177,42 @@ class WpcGenerator():
                 myRHS = []
                 myLHS = []
                 # SELECT A, B, C INTO K, L, M FROM T WHERE A=X+3;
-                into_index = -1
+                trueWpcString = ""
+                into_flag = -1
+                whereHandled_flag = False
                 for i in range(tempNode.getChildCount()):
                     if tempNode.children[i].getChildCount() > 0:
                         if self.helper.getRuleName(tempNode.children[i]) == "selected_element":
                             myRHS.append(tempNode.children[i].getText().strip())                # <--- RHS
                         elif self.helper.getRuleName(tempNode.children[i]) == "into_clause":
-                            into_index = i
+                            into_flag = i
                             intoNode = tempNode.children[i]
                             for x in range(intoNode.getChildCount()):
                                 if intoNode.children[x].getChildCount() > 0 and self.helper.getRuleName(intoNode.children[x]) == "variable_name":
                                     myLHS.append(intoNode.children[x].getText().strip())        # <--- LHS
-                            break
-                if into_index > -1:
-                    # do update in wpcString here...
+                        elif self.helper.getRuleName(tempNode.children[i]) == "where_clause":
+                            # myLHS & myRHS will be already filled here if they should be
+                            whereCondition = self.getConditionalString(tempNode.children[i].children[1])
+                            print("@@@@@@@ select_statement whereCondition :", whereCondition)
+                            whereHandled_flag = True
+                            if into_flag > -1:
+                                # update wpcString for true part of where Condition
+                                trueWpcString = wpcString
+                                for j in range(len(myLHS)):
+                                    trueWpcString = trueWpcString.replace(" " + myLHS[j] + " ", " " + myRHS[j] + " ")
+                                    # also add RHS vars to variablesForZ3 set
+                                    self.variablesForZ3.add(myRHS[j])  # <<<-----------<<<---------------<<<-------------
+                                # now join 'true' and 'false' like 'if' block...
+                                if self.nullInCondition(tempNode.children[i].children[1]):   # NULL +nt in condition
+                                    wpcString = "( " + trueWpcString + " v " + wpcString + " )"
+                                else:   # NULL not +nt in condition
+                                    wpcString = "( ( " + whereCondition + " ^ " + trueWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
+                                    # also add RHS vars to variablesForZ3 set
+                                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
+                if whereHandled_flag is False and into_flag > -1:
+                    # do update in wpcString here becoz whereCondition do not exist in SELECT
                     for i in range(len(myLHS)):
-                        replacedBy = myRHS[i]
-                        wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + replacedBy + " ")
+                        wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + myRHS[i] + " ")
                         # also add RHS vars to variablesForZ3 set
                         self.variablesForZ3.add(myRHS[i])       # <<<-----------<<<---------------<<<-------------
             elif self.helper.getRuleName(currentNode.ctx) == "insert_statement":  # Database INSERT statement
@@ -240,6 +285,15 @@ class WpcGenerator():
                 return self.getConditionalString(ctx.children[1])
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
+
+
+    # Returns True if NULL is found in conditional String
+    def nullInCondition(self, conditionalCtx):
+        condition = self.ssaString.getTerminal(conditionalCtx).strip()
+        tokens = condition.split(" ")   # tokens will be a list
+        if "NULL" in tokens:
+            return True
+        return False
 
 
     def addWpcString(self, currentNodeId, myVisitedChildId, wpcString):

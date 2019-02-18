@@ -72,6 +72,10 @@ def main(argv):
     # print(algo.variablesForZ3)
 
     # algo.finalWpcString = "( ( z ) ^ ( ( ! ( y ) ) ==> ( ( ( 2 ) v ( x ) ) ==> ( y - 2 ) ) ) )"       # for testing! Don't UNCOMMENT...
+    # algo.finalWpcString = "( ( ( z ) ==> ( u ) ) ^ ( ( ! ( y ) ) ==> ( ( ( true ) ) ==> ( y - 2 ) ) ) )"       # for testing! Don't UNCOMMENT...
+    # algo.finalWpcString = "( ( ( z ) ==> ( u ) ) ^ ( ( ! ( y ) ) ==> ( true ) ) ^ ( ( a ) ==> ( b ) ) )"       # for testing! Don't UNCOMMENT...
+    # algo.finalWpcString = "( ( ( ! ( y ) ) ==> ( true ) ) )"       # for testing! Don't UNCOMMENT...
+    # algo.finalWpcString = "( ( ( ! ( y ) ) ^ ( true ) v ( g ) ) )"       # for testing! Don't UNCOMMENT...
     z3StringConvertor = WpcStringConverter(algo.finalWpcString)
     z3StringConvertor.execute()
     print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
@@ -81,12 +85,18 @@ def main(argv):
     for i in algo.variablesForZ3:
         z3FileString = z3FileString + i + " = Real(\'" + i + "\')\n"
     z3FileString = z3FileString + "\ns = Solver()\n"
+
     if len(z3StringConvertor.implies_p) > 0:
         for i in range(len(z3StringConvertor.implies_p)):
             z3FileString = z3FileString + "s.add(" + z3StringConvertor.implies_p[i] + ")\n"
-            z3FileString = z3FileString + "s.add(" + z3StringConvertor.implies_p_q[i] + ")\n"
-    else:
-        z3FileString = z3FileString + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
+            if not z3StringConvertor.convertedWpc == z3StringConvertor.implies_p_q[i]:
+                z3FileString = z3FileString + "s.add(" + z3StringConvertor.implies_p_q[i] + ")\n"
+    #     if z3StringConvertor.convertedWpc not in z3StringConvertor.implies_p_q:
+    #         z3FileString = z3FileString + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
+    # else:
+    #     z3FileString = z3FileString + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
+    z3FileString = z3FileString + "s.add( Not( " + z3StringConvertor.convertedWpc + " ) )\n"
+
     z3FileString = z3FileString + "\nprint()\n"
     z3FileString = z3FileString + "\nprint(\"------------------------------------------------------------------\\nRunning script in /wpc/z3FormatWpcFile.py ....\\n\")\n"
     z3FileString = z3FileString + "\nprint(\"%%%%%%%%%% Aggregate Formula %%%%%%%%%%\\n\", s)\n"
@@ -100,7 +110,7 @@ def main(argv):
     file.write(z3FileString)
     file.close()
 
-    call(["python3", "wpc/z3FormatWpcFile.py"])
+    # call(["python3", "wpc/z3FormatWpcFile.py"])
 
 
 
