@@ -1,7 +1,10 @@
 CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR, Y IN VARCHAR)
 IS
   BEGIN
-      ASSUME Z+Y > 10;
+  ASSUME v_type_id+Y > 10;
+    DECLARE
+      v_type_id NUMBER;
+
       CURSOR Y IS
               SELECT A
               FROM T

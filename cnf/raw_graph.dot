@@ -10,13 +10,21 @@ digraph G {
 	5 -> 6 ;
 	6 -> 7 ;
 	8 [shape=diamond, color=orange] ;
-	9 -> 10 ;
 	8 -> 9 ;
-	8 -> 11 ;
-	7 -> 8 ;
+	10 [shape=diamond, color=orange] ;
+	8 -> 10 ;
+	10 -> 11 ;
+	12 [shape=diamond, color=orange] ;
 	10 -> 12 ;
-	11 -> 12 ;
-	12 -> exit;
+	12 -> 13 ;
+	14 -> 15 ;
+	12 -> 14 ;
+	7 -> 8 ;
+	9 -> 16 ;
+	11 -> 16 ;
+	15 -> 16 ;
+	13 -> 16 ;
+	16 -> exit;
 
 	start [shape=Msquare, color=green];
 	exit [shape=Msquare, color=red];
