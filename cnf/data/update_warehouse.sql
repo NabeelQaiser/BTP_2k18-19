@@ -3,6 +3,7 @@ CREATE OR REPLACE PROCEDURE update_warehouse(a_parcel_id        IN NUMBER,
                                              a_new_warehouse_id IN NUMBER)
 IS
   BEGIN
+    assume parcel_id > 0;
     DECLARE
       v_time TIMESTAMP;
     BEGIN
