@@ -1,7 +1,7 @@
 CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR, Y IN VARCHAR)
 IS
   BEGIN
-  ASSUME v_type_id+Y > 10;
+
     DECLARE
       v_type_id NUMBER;
 
@@ -29,5 +29,5 @@ IS
               UPDATE T SET A=A*(X-9*(Y-3)), B=Y-9 WHERE (A>10 AND B<=(X+Y)-50);
           end if;
       END;
-      ASSERT A-B+C>0;
+
   END;

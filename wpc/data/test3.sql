@@ -24,5 +24,5 @@ IS
       end if;
 
       x := x-2;
-      assert x>0;
+
   END;
