@@ -9,6 +9,7 @@ from MyHelper import MyHelper
 from MyRawCfgToGraph import MyRawCfgToGraph
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
+from PreProcessor import PreProcessor
 from WpcGenerator import WpcGenerator
 from WpcStringConverter import WpcStringConverter
 from gen.MySsaStringGenerator import MySsaStringGenerator
@@ -17,12 +18,13 @@ from gen.PlSqlParser import PlSqlParser
 
 
 def main(argv):
-    name = "wpc/data/" + argv[1]
-    file = open(name, "r")
-    content = file.read().upper()
-    file.close()
+    data = "wpc/data/" + argv[1]
+    spec = "wpc/spec/" + argv[2]
+    processor = PreProcessor(spec, data)
+    tableInfo, constraints, resultString = processor.start()
+
     file = open('wpc/upper_input.sql', "w")
-    file.write(content)
+    file.write(resultString)
     file.close()
 
     input = FileStream('wpc/upper_input.sql')
@@ -33,6 +35,7 @@ def main(argv):
 
     cfg = MyCFG()
     helper = MyHelper(parser)
+    helper.updateTableDict(tableInfo)
     utility = MyUtility(helper)
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)

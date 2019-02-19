@@ -1,16 +1,19 @@
-# This file was generated at runtime on 2019-02-18 23:59:42.600761
+# This file was generated at runtime on 2019-02-19 14:02:04.770129
 from z3 import *
 
-Y = Real('Y')
-Z = Real('Z')
-B = Real('B')
 X = Real('X')
-C = Real('C')
+P = Real('P')
+Y = Real('Y')
 A = Real('A')
+D = Real('D')
+B = Real('B')
+Q = Real('Q')
+C = Real('C')
+R = Real('R')
 
 s = Solver()
-s.add(Z + Y > 10)
-s.add( Not( Implies( Z + Y > 10, Or( And( And( A == X + 3, IS ), A - B + C > 0 ), And( Not( And( A == X + 3, IS ) ), X - Y + Z > 0 ) ) ) ) )
+s.add(And( And( A + P >= 50, C + D == 100 ), Q + R < 54 ))
+s.add( Not( Implies( And( And( A + P >= 50, C + D == 100 ), Q + R < 54 ), Or( And( And( A == ( X - 50 ) + 3, B == ( X - 50 ) - 3 ), Or( And( ( ( X - 50 ) + 5 ) > 10, And( And( ( ( X - 50 ) - 9 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ), And( Not( ( ( X - 50 ) + 5 ) > 10 ), And( And( ( ( X - 50 ) + 5 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ) ) ), And( Not( And( A == ( X - 50 ) + 3, B == ( X - 50 ) - 3 ) ), Or( And( ( ( X - 50 ) + 5 ) > 10, And( And( ( ( X - 50 ) - 9 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ), And( Not( ( ( X - 50 ) + 5 ) > 10 ), And( And( ( ( X - 50 ) + 5 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ) ) ) ) ) ) )
 
 print()
 

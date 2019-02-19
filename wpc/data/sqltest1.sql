@@ -7,5 +7,5 @@ IS
       insert into T (A, B) values (x+5, y-5);
       delete from T where A=x+8 and B=y-8;
       update T set A=x-9 where A>10;
-      assert A>0;
+
   END;
