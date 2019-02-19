@@ -8,6 +8,7 @@ from MyCFG import MyCFG
 from MyHelper import MyHelper
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
+from PreProcessor import PreProcessor
 from WpcStringConverter import WpcStringConverter
 from gen.MySsaStringGenerator import MySsaStringGenerator
 from gen.PlSqlLexer import PlSqlLexer
@@ -17,12 +18,13 @@ from MyRawCfgToGraph import MyRawCfgToGraph
 
 
 def main(argv):
-    name = "cnf/data/"+argv[1]
-    file = open(name, "r")
-    content = file.read().upper()
-    file.close()
+    data = "cnf/data/" + argv[1]
+    spec = "cnf/spec/" + argv[2]
+    processor = PreProcessor(spec, data)
+    tableInfo, constraints, resultString = processor.start()
+
     file = open('cnf/upper_input.sql', "w")
-    file.write(content)
+    file.write(resultString)
     file.close()
 
     input = FileStream('cnf/upper_input.sql')
@@ -36,6 +38,7 @@ def main(argv):
 
     cfg = MyCFG()
     helper = MyHelper(parser)
+    helper.updateTableDict(tableInfo)
     utility = MyUtility(helper)
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
