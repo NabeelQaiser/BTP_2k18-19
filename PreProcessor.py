@@ -15,17 +15,18 @@ class PreProcessor:
                     line = line.upper()
                     line = line.strip()
                     tokens = line.split('::')
+                    tokens[0] = tokens[0].strip()
                     if len(tokens[0]) > 0:
                         if tokens[0] == 'CONSTRAINTS':
                             isEnd = True
-                            constraints = tokens[1].split(',')
+                            constraints = tokens[1].strip().split(',')
                             for i in range(len(constraints)):
                                 constraints[i] = constraints[i].strip()
                                 constraints[i] = constraints[i].strip('(')
                                 constraints[i] = constraints[i].strip(')')
                         else:
                             temp = []
-                            attr = tokens[1].split(',')
+                            attr = tokens[1].strip().split(',')
                             for i in range(len(attr)):
                                 pair = (attr[i].split(':')[0].strip(), attr[i].split(':')[1].strip())
                                 temp.append(pair)
@@ -39,9 +40,11 @@ class PreProcessor:
     def start(self):
         tableInfo, constraints = self.getSpec()
         constraintString = ""
-        for i in constraints:
-            constraintString = constraintString + i + " AND "
-        constraintString = constraintString.strip(" AND ")
+        for i in range(len(constraints)-1):
+            constraintString = constraintString + constraints[i] + " AND "
+        constraintString = constraintString + constraints[len(constraints)-1]
+        constraintString = constraintString.strip()
+
         f = open(self.fileData, "r")
         content = f.read().upper()
         f.close()

@@ -197,6 +197,12 @@ class MyHelper(PlSqlVisitor):
                 self.temp = set()
         return res
 
+    def updateTableDict(self, tableInfo):               #todo : solve insert issue for all the attributes
+        for table in tableInfo:
+            attr = set()
+            for pair in tableInfo[table]:
+                attr.add(pair[0])
+            self.tableDict[table] = attr
     
     '''
     def getVariableSet(self, ctx, id):  #TODO: remove id
