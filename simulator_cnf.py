@@ -123,7 +123,9 @@ def main(argv):
     print(varSet)
 
     print("\n\n")
-
+    z3Str = z3Str.replace("  ", " ")
+    z3Str = z3Str.replace(" == ", " = ")
+    z3Str = z3Str.replace(" = ", " == ")
     z3StringConvertor = WpcStringConverter(z3Str)
     z3StringConvertor.execute()
     print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
