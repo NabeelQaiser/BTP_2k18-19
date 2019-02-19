@@ -47,11 +47,11 @@ class CnfVcGenerator(PlSqlVisitor):
                 if ruleName == "assume_statement":
                     #vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getAssume_statement(node, context) + ")"
                     self.cnfCfg.nodes[node].consequent.append(
-                        self.getAssume_statement(node, context))
+                        self.getConditionalString(node, context.children[1]))
                 if ruleName == "assert_statement":
                     #vcs = "Implies(" + vcs + ", " + self.getAssert_statement(node, context) + ")"
                     self.cnfCfg.nodes[node].consequent.append(
-                        self.getAssert_statement(node, context))
+                        self.getConditionalString(node, context.children[1]))
                     self.cnfCfg.nodes[node].isAssertion = True
                     self.cnfCfg.nodes[node].antecedent = [""]
                 else:
