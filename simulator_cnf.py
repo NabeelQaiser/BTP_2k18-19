@@ -21,7 +21,7 @@ def main(argv):
     data = "cnf/data/" + argv[1]
     spec = "cnf/spec/" + argv[2]
     processor = PreProcessor(spec, data)
-    tableInfo, constraints, resultString = processor.start()
+    tableInfo, assumeConstraint, assertConstraint, resultString = processor.start()
 
     file = open('cnf/upper_input.sql', "w")
     file.write(resultString)
@@ -160,7 +160,7 @@ def main(argv):
     file.write(z3FileString)
     file.close()
 
-    # call(["python3", "wpc/z3FormatWpcFile.py"])
+    # call(["python3", "cnf/z3FormatWpcFile.py"])
 
     #
     # hello = utility.generateFinalDotGraph(cfg)

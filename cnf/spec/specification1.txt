@@ -1,10 +1,12 @@
 T :: A : not_null, B: null, C :null, D:not_null
 T2 :: P:null, Q:not_null, R:not_null
 
-constraints ::  c+d<0,  a>0, b > 0, c>0, d>0
+assume ::  c+d<0,  a>0, b > 0, c>0, d>0
+assert ::  c+d<0,  a>0, b > 0, d>0
 
 **** These lines will be ignored, but not above of this
 ####### Adhere to the STYLE STRICTLY
 ------------ '=' means comparison in constraints, don't put '==' for this, if done, will cause parsing ERROR
-@@@@@@@@@@@@@@@@@@ Always put EACH and EVERY table info before CONSTRAINTS
+@@@@@@@@@@@@@@@@@@ Always put EACH and EVERY table info before CONSTRAINTS (i.e., assume and assert)
+@@@@@@@@@@@@@@@@@@ assume and assert must be in the given order
 %%%%%%%%%%%%%%%%%%%%%%% EVERY table attribute must be present alongside tablename adhering to the STYLE
