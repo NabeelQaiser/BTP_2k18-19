@@ -8,5 +8,5 @@ assert ::  c+d<0,  a>0, b > 0, d>0
 ####### Adhere to the STYLE STRICTLY
 ------------ '=' means comparison in constraints, don't put '==' for this, if done, will cause parsing ERROR
 @@@@@@@@@@@@@@@@@@ Always put EACH and EVERY table info before CONSTRAINTS (i.e., assume and assert)
-@@@@@@@@@@@@@@@@@@ assume and assert must be in the given order
+@@@@@@@@@@@@@@@@@@ assume and assert must be in the given order.
 %%%%%%%%%%%%%%%%%%%%%%% EVERY table attribute must be present alongside tablename adhering to the STYLE
