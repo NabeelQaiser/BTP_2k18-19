@@ -8,5 +8,5 @@ IS
       x := x*9;
     end if;
     x := x-2;
-    assert x>0;
+
   END;

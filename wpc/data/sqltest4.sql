@@ -1,7 +1,7 @@
 CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR, Y IN VARCHAR)
 IS
   BEGIN
-      assume X+Y>15;
+
       x := x-36;
       y := x-100;
       if x>y then
@@ -17,5 +17,5 @@ IS
         x := x+40;
       end if;
 
-      ASSERT A>0;
+
   END;
