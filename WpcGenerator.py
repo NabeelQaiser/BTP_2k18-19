@@ -62,7 +62,7 @@ class WpcGenerator():
                     # also add RHS vars to variablesForZ3 set
                     self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
                     # one may want to finalize and return here...   # TODO: decide later, what to do here for ASSUME,
-                    # self.finalWpcString = wpcString               # But nothing pre topmost ASSUME will be reflected in "z3FormatWpcFile.py", so our work is done!
+                    # self.finalWpcString = wpcString               # But nothing pre topmost ASSUME will be reflected in "Z3RuntimeWpcFile.py", so our work is done!
                     # return
                 elif not wpcString == "":
                     wpcString = self.updateWpcStringByReplacing(wpcString, currentNode)
