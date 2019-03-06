@@ -92,16 +92,43 @@ class CnfVcGenerator(PlSqlVisitor):
         global vcs
         nodeCondition = self.getNodeCondition(nodeId)
         res = []
-        # print(ctx.children[0].children[0].getChildCount())
-        # print(self.helper.getRuleName(ctx.children[0]))
-        # input("Hi")
-        # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getVersionedTerminalRHS(nodeId,
-        #                                                          ctx.children[0].children[0].children[1]) + "==" + \
-        #       self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
-        # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
-        temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + " ) )"
-        # res.append( + "==" + )
-        res.append(temp)
+        whereIndex = -1
+        tempCtx = ctx.children[0].children[0]
+        rhsList = []
+        lhsList = []
+        for i in range(tempCtx.getChildCount()):
+            if self.helper.getRuleName(tempCtx.children[i]) == 'where_clause':
+                whereIndex = i
+                break
+            elif self.helper.getRuleName(tempCtx.children[i]) == 'selected_element':
+                rhsList.append(self.getVersionedTerminalRHS(nodeId,tempCtx.children[i]).strip())
+            elif self.helper.getRuleName(tempCtx.children[i]) == 'into_clause':
+                for j in range(tempCtx.children[i].getChildCount()):
+                    if self.helper.getRuleName(tempCtx.children[i].children[j]) == 'variable_name':
+                        lhsList.append(self.getVersionedTerminalLHS(nodeId, tempCtx.children[i].children[j]).strip())
+        if whereIndex > -1:
+            whereStr = self.getConditionalString(nodeId, tempCtx.children[whereIndex].children[1])
+            if len(rhsList) != len(lhsList):
+                print("\n\n\t*********************************************************    wrong select statement****************\n\n")
+            else:
+                for i in range(len(rhsList)):
+                    res.append('( ( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) ) ^ ( ' + whereStr + ' ) )')
+        else:
+            if len(rhsList) != len(lhsList):
+                print("\n\n\t*********************************************************    wrong select statement****************\n\n")
+            else:
+                for i in range(len(rhsList)):
+                    res.append('( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) )')
+        # # print(ctx.children[0].children[0].getChildCount())
+        # # print(self.helper.getRuleName(ctx.children[0]))
+        # # input("Hi")
+        # # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getVersionedTerminalRHS(nodeId,
+        # #                                                          ctx.children[0].children[0].children[1]) + "==" + \
+        # #       self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + ")"
+        # # vcs = "AND(" + vcs + ", " + nodeCondition + ", " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + ")"
+        # temp = "( ( ( " + self.getVersionedTerminalRHS(nodeId,ctx.children[0].children[0].children[1]) + " ) == ( " + self.getInto_clause(nodeId, ctx.children[0].children[0].children[2]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[0].children[0].children[4]) + " ) )"
+        # # res.append( + "==" + )
+        # res.append(temp)
         return res
         # input("Wait")
 
@@ -142,10 +169,22 @@ class CnfVcGenerator(PlSqlVisitor):
         # print(vcs)
 
     def getUpdate_statement(self, nodeId, ctx):
-        # global vcs
-        # res = []
-        # res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + self.getNotSetClause(nodeId, ctx.children[2]) + "))"
-        res = "( ( ( "+ self.getSetClause(nodeId, ctx.children[2]) + " ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) v ( ( ! ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
+        whereFlag = -1
+        for i in range(ctx.getChildCount()):
+            if self.helper.getRuleName(ctx.children[i]) == 'where_clause':
+                whereFlag = i
+                break
+
+        if whereFlag > -1:
+            res = "( ( ( " + self.getSetClause(nodeId, ctx.children[2]) + " ) ^ ( " + self.getConditionalString(nodeId, ctx.children[whereFlag].children[1]) + " ) ) v ( ( ! ( " + self.getConditionalString(nodeId, ctx.children[whereFlag].children[1]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
+        else:
+            res = self.getSetClause(nodeId, ctx.children[2])
+
+
+        # # global vcs
+        # # res = []
+        # # res = "OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + "AND(" + "NOT(" + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + self.getNotSetClause(nodeId, ctx.children[2]) + "))"
+        # res = "( ( ( "+ self.getSetClause(nodeId, ctx.children[2]) + " ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) v ( ( ! ( " + self.getWhereClause(nodeId, ctx.children[3]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
 
         # res.append("OR(" + "AND(" + self.getSetClause(nodeId, ctx.children[2]) + "," \
         #       + self.getWhereClause(nodeId, ctx.children[3]) + ")" + ", " + \
@@ -159,24 +198,29 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getSetClause(self, NodeId, ctx):
         child = ctx.getChildCount()
-        for i in range(child):
-            if self.helper.getRuleName(ctx.children[i]) == "column_based_update_set_clause":
-                print(i)
-        # print(child)
-        # input("wait")
         res = self.getColsetClause(NodeId, ctx.children[1])
+        for i in range(2, child):
+            if self.helper.getRuleName(ctx.children[i]) == "column_based_update_set_clause":
+                res = '( ' + res + ' ^ ' + self.getColsetClause(NodeId, ctx.children[i]) + ' )'
+        # # print(child)
+        # # input("wait")
+        # res = self.getColsetClause(NodeId, ctx.children[1])
         return res
 
     def getColsetClause(self, nodeId, ctx):
-        res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[0]) + ' ) == ( ' + self.getVersionedTerminalRHS(nodeId, ctx.children[2]) + " ) )"
+        res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[0]).strip() + ' ) == ( ' + self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() + " ) )"
         return res
 
     def getNotSetClause(self, nodeId, ctx):
+        child = ctx.getChildCount()
         res = self.getNotColsetClause(nodeId, ctx.children[1])
+        for i in range(2, child):
+            if self.helper.getRuleName(ctx.children[i]) == "column_based_update_set_clause":
+                res = '( ' + res + ' ^ ' + self.getNotColsetClause(nodeId, ctx.children[i]) + ' )'
         return res
 
     def getNotColsetClause(self, nodeId, ctx):
-        res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[0]) + ' ) == ( ' + self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + " ) )"
+        res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[0]).strip() + ' ) == ( ' + self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip() + " ) )"
         return res
 
     def getWhereClause(self, nodeId, ctx):
@@ -203,7 +247,7 @@ class CnfVcGenerator(PlSqlVisitor):
 
         elif ctx.children[1].getText() == "IN":
             # res =  + "==" +  + "&&" +
-            res = "( ( ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[1]) + " ) ) ^ ( " + self.getWhereexpr(nodeId, ctx.children[3].children[0].children[3].children[1]) + " ) )"
+            res = "( ( ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip() + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[1]).strip() + " ) ) ^ ( " + self.getWhereexpr(nodeId, ctx.children[3].children[0].children[3].children[1]) + " ) )"
             # print(res)
             # input("Wait")
             # input("HI")

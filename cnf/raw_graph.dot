@@ -7,7 +7,11 @@ digraph G {
 	2 -> 3 ;
 	3 -> 4 ;
 	4 -> 5 ;
-	5 -> exit;
+	5 -> 6 ;
+	6 -> 7 ;
+	7 -> 8 ;
+	8 -> 9 ;
+	9 -> exit;
 
 	start [shape=Msquare, color=green];
 	exit [shape=Msquare, color=red];
