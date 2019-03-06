@@ -88,10 +88,10 @@ def main(argv):
     cnfUtility.copyParentBranching(cnfCfg, iCnfCfg)
     print("\n\n\n\n\n\t\t\tThe intermediate CNF form is ------------------------------>\n\n\n\n")
 
-    # for nodeId in iCnfCfg.nodes:
-    #     iCnfCfg.nodes[nodeId].printPretty()
-    #
-    # print("\n\n\n\n\n\t\t\tThe CNF form is ------------------------------>\n\n\n\n")
+    for nodeId in iCnfCfg.nodes:
+        iCnfCfg.nodes[nodeId].printPretty()
+
+    print("\n\n\n\n\n\t\t\tThe CNF form is ------------------------------>\n\n\n\n")
 
 
 
