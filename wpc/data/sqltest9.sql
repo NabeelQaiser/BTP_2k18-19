@@ -28,6 +28,12 @@ IS
               x := x+40;
               UPDATE T SET A=A*(X-9*(Y-3)), B=Y-9 WHERE (A>10 AND B<=(X+Y)-50);
           end if;
+
+          IF K+L<55 OR (J>=66 AND A+B BETWEEN (X+10) AND Y+20) OR U>=60
+          THEN
+              SELECT A INTO GG FROM T WHERE A+C<55 AND (A+B BETWEEN (X+10) AND Y+20) OR Z>=60;
+          END IF;
+
       END;
 
   END;
