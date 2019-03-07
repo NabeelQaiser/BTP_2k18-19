@@ -1,6 +1,7 @@
 import datetime
 import os
 import sys
+from importlib import reload
 
 from antlr4 import *
 
@@ -12,7 +13,6 @@ from MyUtility import MyUtility
 from MyVisitor import MyVisitor
 from PreProcessor import PreProcessor
 from WpcStringConverter import WpcStringConverter
-from cnf.Z3RuntimeCnfFile import Z3RuntimeCnfFile
 from gen.MySsaStringGenerator import MySsaStringGenerator
 from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
@@ -91,8 +91,8 @@ def executeSinglePlSqlFile(data, spec):
     cnfUtility.copyParentBranching(cnfCfg, iCnfCfg)
     print("\n\n\n\n\n\t\t\tThe intermediate CNF form is ------------------------------>\n\n\n\n")
 
-    for nodeId in iCnfCfg.nodes:
-        iCnfCfg.nodes[nodeId].printPretty()
+    # for nodeId in iCnfCfg.nodes:
+    #     iCnfCfg.nodes[nodeId].printPretty()
 
     print("\n\n\n\n\n\t\t\tThe CNF form is ------------------------------>\n\n\n\n")
 
@@ -108,8 +108,8 @@ def executeSinglePlSqlFile(data, spec):
     # print("\n\n\n\n\t\t\tThe CNF VCs are : ------------------------------->\n\n\n")
     # print(cnfVcs)
 
-    for nodeId in cnfCfg.nodes:
-        cnfCfg.nodes[nodeId].printPretty()
+    # for nodeId in cnfCfg.nodes:
+    #     cnfCfg.nodes[nodeId].printPretty()
 
     # cnfVc = cnfUtility.cnfVc(cnfCfg)
     #
@@ -181,6 +181,11 @@ def executeSinglePlSqlFile(data, spec):
     file.write(z3FileString)
     file.close()
 
+    import cnf.Z3RuntimeCnfFile
+    from cnf.Z3RuntimeCnfFile import Z3RuntimeCnfFile
+    # Reload after module's creation to avoid old module remain imported from disk...VVI...
+    cnf.Z3RuntimeCnfFile = reload(cnf.Z3RuntimeCnfFile)
+
     z3Runtime = Z3RuntimeCnfFile()
     z3Runtime.execute()
 
@@ -220,6 +225,9 @@ def main(argv):
                     temp.append(satisfiability)
                     temp.append(modelForViolation)
                     mat.append(temp)
+                    file = open('wpc/Z3RuntimeWpcFile.py', "w")
+                    file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tprint('+++++++++++++++++++++++++++++%%%%%^^^^^^^^####')\n")
+                    file.close()
                 else:
                     print(specFile + " do not exist!!!")
                 counter = counter + 1
