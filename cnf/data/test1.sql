@@ -1,39 +1,59 @@
-CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR, Y IN VARCHAR)
+-- requires get_country_id procedure
+CREATE OR REPLACE PROCEDURE add_client(a_name             IN VARCHAR,
+                                       a_surname          IN VARCHAR,
+                                       a_street           IN VARCHAR,
+                                       a_house_number     IN NUMBER,
+                                       a_apartment_number IN NUMBER,
+                                       a_postal_code      IN VARCHAR,
+                                       a_city             IN VARCHAR,
+                                       a_province         IN VARCHAR,
+                                       a_country          IN VARCHAR,
+                                       a_phone_number     IN NUMBER)
 IS
   BEGIN
-
     DECLARE
-      v_type_id NUMBER;
+      v_country_id NUMBER;
+      v_client_id  NUMBER;
+      CURSOR get_max_client_id IS
+        SELECT MAX(id)
+        FROM client;
+    BEGIN
+      OPEN get_max_client_id;
+      FETCH get_max_client_id INTO v_client_id;
+      CLOSE get_max_client_id;
 
-      CURSOR Y IS
-              SELECT A
-              FROM T
-              WHERE B = 50;
-      CURSOR id IS
-              SELECT B
-              FROM T;
-      BEGIN
-          OPEN id;
-          FETCH id INTO X;
-          CLOSE id;
-          INSERT INTO T(A, B, C) VALUES (X+5, X-5, Y*(Z-2));
-          if x>y then
-              x := x-50;
-              x := x*9;
-              delete from T where A=x+8 and B=y-8;
-          elsif x<y then
-              y := x-5;
-              select A, B into X, Y from T where A=x+3 and B=x-3;
-          else
-              x := x+40;
-              UPDATE T SET A=A*(X-9*(Y-3)), B=Y-9 WHERE (A>10 AND B<=(X+Y)-50);
-          end if;
+      IF v_client_id IS NULL
+      THEN
+        v_client_id := 1;
+      ELSE
+        v_client_id := v_client_id + 1;
+      END IF;
 
-          IF K+L<55 OR (J>=66 AND A+B BETWEEN (X+10) AND Y+20) OR U>=60
-          THEN
-              SELECT A INTO GG FROM T WHERE A+C<55 AND (A+B BETWEEN (X+10) AND Y+20) OR Z>=60;
-          END IF;
+      --get_country_id(a_country, v_country_id);
+      NOTHING := -1;
 
-      END;
-
+      INSERT INTO client
+      (id,
+       name,
+       surname,
+       street,
+       house_number,
+       apartment_number,
+       postal_code,
+       city,
+       province,
+       country_id,
+       phone_number)
+      VALUES (v_client_id,
+        a_name,
+        a_surname,
+        a_street,
+        a_house_number,
+        a_apartment_number,
+        a_postal_code,
+        a_city,
+        a_province,
+        v_country_id,
+        a_phone_number);
+    END;
   END;

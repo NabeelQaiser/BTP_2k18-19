@@ -150,10 +150,15 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getCursor_declaration(self, nodeId, ctx):
         # global vcs
+
+        varStr = self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]).strip()
+        varStr = self.getVariableForAggregateFunctionInSelect(varStr)
+        self.cnfCfg.nodes[nodeId].versionedRHS[varStr] = varStr
+
         if ctx.children[3].children[0].children[0].getChildCount() == 4:
-            res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
+            res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
         else:
-            res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + " ) )"
+            res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) )"
         return res
 
     def getCondition(self, nodeId, ctx):
