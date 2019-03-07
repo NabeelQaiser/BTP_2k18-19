@@ -1,6 +1,8 @@
 import os
 import sys
 import datetime
+import time
+from importlib import reload
 from subprocess import call
 
 from antlr4 import *
@@ -16,7 +18,7 @@ from WpcStringConverter import WpcStringConverter
 from gen.MySsaStringGenerator import MySsaStringGenerator
 from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
-from wpc.Z3RuntimeWpcFile import Z3RuntimeWpcFile
+
 
 
 def executeSinglePlSqlFile(data, spec):
@@ -25,7 +27,7 @@ def executeSinglePlSqlFile(data, spec):
     f.close()
 
     processor = PreProcessor(spec, data)
-    tableInfo, constraints, resultString = processor.start()
+    tableInfo, assumeConstraintList, assertConstraintList, resultString = processor.start()
 
     file = open('wpc/upper_input.sql', "w")
     file.write(resultString)
@@ -141,6 +143,12 @@ def executeSinglePlSqlFile(data, spec):
     file.write(z3FileString)
     file.close()
 
+    # import file created on Runtime...
+    import wpc.Z3RuntimeWpcFile
+    from wpc.Z3RuntimeWpcFile import Z3RuntimeWpcFile
+    # Reload after module's creation to avoid old module remain imported from disk...VVI...
+    wpc.Z3RuntimeWpcFile = reload(wpc.Z3RuntimeWpcFile)
+
     z3Runtime = Z3RuntimeWpcFile()
     z3Runtime.execute()
     # print(z3Runtime.finalFormula)
@@ -161,7 +169,8 @@ def main(argv):
     elif len(argv) == 3:
         data = "wpc/data/" + argv[1]
         spec = "wpc/spec/" + argv[2]
-        executeSinglePlSqlFile(data, spec)
+        linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(data, spec)
+        print(satisfiability)
     elif len(argv) == 4:
         if argv[1] == "-dataset":
             dataList = os.listdir(argv[2])
@@ -188,7 +197,7 @@ def main(argv):
                 counter = counter + 1
                 print("Counter =", counter)
             # file = open('wpc/Z3RuntimeWpcFile.py', "w")
-            # file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tpass\n\n\tdef execute(self):\n\t\tpass\n")
+            # file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tpass\n")
             # file.close()
 
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

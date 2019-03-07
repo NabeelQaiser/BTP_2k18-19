@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-03-05 19:52:44.186194
+# This file was generated at runtime on 2019-03-07 13:57:36.694218
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -8,20 +8,16 @@ class Z3RuntimeWpcFile():
 		self.modelForViolation = ""
 
 	def execute(self):
-		EMP_NUMBER = Real('EMP_NUMBER')
-		MGR = Real('MGR')
-		JOB = Real('JOB')
-		SAL = Real('SAL')
-		EMP_RET = Real('EMP_RET')
-		HIREDATE = Real('HIREDATE')
-		COMM = Real('COMM')
-		ENAME = Real('ENAME')
-		DEPTNO = Real('DEPTNO')
-		EMPNO = Real('EMPNO')
+		EMPLOYEE_ID = Real('EMPLOYEE_ID')
+		SALARY = Real('SALARY')
+		COMMISSION = Real('COMMISSION')
+		COMMISSION_PCT = Real('COMMISSION_PCT')
+		SALES_AMT = Real('SALES_AMT')
+		EMP_ID = Real('EMP_ID')
 
 		s = Solver()
-		s.add(EMP_RET > 0)
-		s.add( Not( Implies( EMP_RET > 0, Or( And( EMPNO == EMP_NUMBER, EMPNO > 0 ), And( Not( EMPNO == EMP_NUMBER ), EMP_RET > 0 ) ) ) ) )
+		s.add(And( SALARY > 0, SALARY < 90000 ))
+		s.add( Not( Implies( And( SALARY > 0, SALARY < 90000 ), Or( And( EMPLOYEE_ID == EMP_ID, Or( And( SALARY > 0, SALARY < 90000 ), Or( And( EMPLOYEE_ID == EMP_ID, And( ( SALARY + SALES_AMT * COMMISSION_PCT ) > 0, ( SALARY + SALES_AMT * COMMISSION_PCT ) < 90000 ) ), And( Not( EMPLOYEE_ID == EMP_ID ), And( SALARY > 0, SALARY < 90000 ) ) ) ) ), And( Not( EMPLOYEE_ID == EMP_ID ), Or( And( SALARY > 0, SALARY < 90000 ), Or( And( EMPLOYEE_ID == EMP_ID, And( ( SALARY + SALES_AMT * COMMISSION ) > 0, ( SALARY + SALES_AMT * COMMISSION ) < 90000 ) ), And( Not( EMPLOYEE_ID == EMP_ID ), And( SALARY > 0, SALARY < 90000 ) ) ) ) ) ) ) ) )
 
 		print()
 		print("%%%%%%%%%% Aggregate Formula %%%%%%%%%%\n", s)
