@@ -39,6 +39,7 @@ class WpcGenerator():
                     # no need to add anything to variablesForZ3 set
                 else:   # NULL not +nt in condition
                     conditionalString = self.getConditionalString(currentNode.ctx)
+                    print("&&&&&&&&&&&&&& if_condition:", conditionalString)
                     wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
                     # also add RHS vars of CONDITION to variablesForZ3 set
                     self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
@@ -129,7 +130,7 @@ class WpcGenerator():
             if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
                 for i in currentNode.variableLHS:
                     # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
-                    # DON'T expect more... TODO: need to do same for UPDATE, INSERT rhs...
+                    # DON'T expect more... do same for UPDATE, INSERT rhs...
                     varString = self.ssaString.getTerminal(currentNode.ctx.children[2]).strip()
                     varString = varString.replace("( )", "")
                     varString = varString.replace("  ", " ").strip()
@@ -153,7 +154,12 @@ class WpcGenerator():
                         if updateSetCtx.children[i].getChildCount() > 1 and self.helper.getRuleName(
                                 updateSetCtx.children[i]) == "column_based_update_set_clause":
                             toBeReplaced = " " + updateSetCtx.children[i].children[0].getText().strip() + " "
-                            replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[i].children[2]).strip() + " ) "
+                            # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                            # DON'T expect more...
+                            varString = self.ssaString.getTerminal(updateSetCtx.children[i].children[2]).strip()
+                            varString = varString.replace("( )", "")
+                            varString = varString.replace("  ", " ").strip()
+                            replacedBy = " ( " + varString + " ) "
                             tempWpcString = tempWpcString.replace(toBeReplaced, replacedBy)
                     # now join 'true' and 'false' like 'if' block...
                     if self.nullInCondition(currentNode.ctx.children[whereClausePosition].children[1]):  # NULL +nt in condition
@@ -168,7 +174,12 @@ class WpcGenerator():
                                 if updateSetCtx.children[j].getChildCount() > 1 and self.helper.getRuleName(
                                         updateSetCtx.children[j]) == "column_based_update_set_clause":
                                     toBeReplaced = " " + updateSetCtx.children[j].children[0].getText().strip() + " "
-                                    replacedBy = " ( " + self.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip() + " ) "
+                                    # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                                    # DON'T expect more...
+                                    varString = self.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip()
+                                    varString = varString.replace("( )", "")
+                                    varString = varString.replace("  ", " ").strip()
+                                    replacedBy = " ( " + varString + " ) "
                                     wpcString = wpcString.replace(toBeReplaced, replacedBy)
                             break
                 # also add RHS vars to variablesForZ3 set
@@ -239,7 +250,12 @@ class WpcGenerator():
                 # do replacing in wpcString now...
                 if len(myLHS) > 0:
                     for i in range(len(myLHS)):
-                        replacedBy = "( " + myRHS[i] + " )"
+                        # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                        # DON'T expect more...
+                        varString = myRHS[i]
+                        varString = varString.replace("( )", "")
+                        varString = varString.replace("  ", " ").strip()
+                        replacedBy = "( " + varString + " )"
                         wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + replacedBy + " ")
                 # else:
                 #     # get LHS vars from tableDict of MyHelper
@@ -287,6 +303,20 @@ class WpcGenerator():
                 return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
             else:
                 return self.getConditionalString(ctx.children[1])
+        elif ctx.getChildCount() == 5:  # For "XX BETWEEN 10 AND 50"
+            if self.ssaString.getTerminal(ctx.children[1]).strip() == "BETWEEN":
+                referenceVar = "( " + self.ssaString.getTerminal(ctx.children[0]).strip() + " )"
+                leftBoundary = "( " + self.ssaString.getTerminal(ctx.children[2]).strip() + " )"
+                rightBoundary = "( " + self.ssaString.getTerminal(ctx.children[4]).strip() + " )"
+                return "( ( " + referenceVar + " > " + leftBoundary + " ) ^ ( " + referenceVar + " < " + rightBoundary + " ) )"
+            return ""
+        elif ctx.getChildCount() == 6:  # For "XX NOT BETWEEN 10 AND 50"
+            if self.ssaString.getTerminal(ctx.children[2]).strip() == "BETWEEN":
+                referenceVar = "( " + self.ssaString.getTerminal(ctx.children[0]).strip() + " )"
+                leftBoundary = "( " + self.ssaString.getTerminal(ctx.children[3]).strip() + " )"
+                rightBoundary = "( " + self.ssaString.getTerminal(ctx.children[5]).strip() + " )"
+                return "( ( " + referenceVar + " < " + leftBoundary +" ) v ( " + referenceVar + " > " + rightBoundary +" ) )"
+            return ""
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
 
