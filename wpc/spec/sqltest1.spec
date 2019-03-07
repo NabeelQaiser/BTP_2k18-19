@@ -1,7 +1,8 @@
 T :: A : not_null, B: null, C :null, D:not_null
 T2 :: P:null, Q:not_null, R:not_null
 
-constraints :: A+p>=50, c+d=100, q+R<54
+assume :: A+p>=50, c+d=100, q+R<54
+assert :: A+p>=50, c+d=100, q+R<54
 
 **** These lines will be ignored, but not above of this
 ####### Adhere to the STYLE STRICTLY, Attribute info must be EITHER <null> OR <not_null>

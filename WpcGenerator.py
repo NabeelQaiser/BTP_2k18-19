@@ -128,7 +128,12 @@ class WpcGenerator():
         if len(currentNode.variableLHS) > 0:
             if self.helper.getRuleName(currentNode.ctx) == "assignment_statement":  # strictly assignment_statement
                 for i in currentNode.variableLHS:
-                    replacedBy = "( " + self.ssaString.getTerminal(currentNode.ctx.children[2]).strip() + " )"
+                    # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                    # DON'T expect more... TODO: need to do same for UPDATE, INSERT rhs...
+                    varString = self.ssaString.getTerminal(currentNode.ctx.children[2]).strip()
+                    varString = varString.replace("( )", "")
+                    varString = varString.replace("  ", " ").strip()
+                    replacedBy = "( " + varString + " )"
                     wpcString = wpcString.replace(" "+i.strip()+" ", " "+replacedBy+" ")
                 # also add RHS vars to variablesForZ3 set
                 self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
@@ -180,7 +185,8 @@ class WpcGenerator():
                 for i in range(tempNode.getChildCount()):
                     if tempNode.children[i].getChildCount() > 0:
                         if self.helper.getRuleName(tempNode.children[i]) == "selected_element":
-                            myRHS.append(tempNode.children[i].getText().strip())                # <--- RHS
+                            varString = self.ssaString.getTerminal(tempNode.children[i]).strip()
+                            myRHS.append(self.getVariableForAggregateFunctionInSelect(varString))                # <--- RHS
                         elif self.helper.getRuleName(tempNode.children[i]) == "into_clause":
                             into_flag = i
                             intoNode = tempNode.children[i]
@@ -255,8 +261,9 @@ class WpcGenerator():
                     if self.helper.getRuleName(currentNode.ctx.children[i]) == "cursor_name":
                         lhsVar = currentNode.ctx.children[i].getText().strip()
                     elif self.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
-                        # BUT what to do if there are multiple SELECTION attributes here???
-                        rhsVar = currentNode.ctx.children[i].children[0].children[0].children[1].getText().strip()
+                        # BUT what to do if there are multiple SELECTION attributes here???...as per datasets assuming single attribute...
+                        varString = self.ssaString.getTerminal(currentNode.ctx.children[i].children[0].children[0].children[1]).strip()
+                        rhsVar = self.getVariableForAggregateFunctionInSelect(varString)
                 if not(lhsVar == "") and not(rhsVar == ""):
                     wpcString = wpcString.replace(" " + lhsVar + " ", " " + rhsVar + " ")
                     # also add RHS var to variablesForZ3 set
@@ -291,6 +298,16 @@ class WpcGenerator():
         if "NULL" in tokens:
             return True
         return False
+
+    def getVariableForAggregateFunctionInSelect(self, varString):
+        varString = varString.replace("(", "")
+        varString = varString.replace(")", "")
+        varString = varString.replace(",", "")
+        varString = varString.strip()
+        varString = varString.replace("  ", " ")
+        varString = varString.replace(" ", "_")
+        varString = varString.replace("*", "STAR")
+        return varString
 
 
     def addWpcString(self, currentNodeId, myVisitedChildId, wpcString):
