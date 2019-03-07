@@ -388,6 +388,22 @@ class CnfVcGenerator(PlSqlVisitor):
                 return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
             else:
                 return self.getConditionalString(nodeId, ctx.children[1])
+
+        elif ctx.getChildCount() == 5:  # For "XX BETWEEN 10 AND 50"
+            if self.getVersionedTerminalRHS(nodeId, ctx.children[1]).strip() == "BETWEEN":
+                referenceVar = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip() + " )"
+                leftBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() + " )"
+                rightBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[4]).strip() + " )"
+                return "( ( " + referenceVar + " > " + leftBoundary + " ) ^ ( " + referenceVar + " < " + rightBoundary + " ) )"
+            return ""
+        elif ctx.getChildCount() == 6:  # For "XX NOT BETWEEN 10 AND 50"
+            if self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() == "BETWEEN":
+                referenceVar = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip() + " )"
+                leftBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3]).strip() + " )"
+                rightBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[5]).strip() + " )"
+                return "( ( " + referenceVar + " < " + leftBoundary + " ) v ( " + referenceVar + " > " + rightBoundary + " ) )"
+            return ""
+
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
 

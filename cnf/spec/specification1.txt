@@ -1,14 +1,3 @@
-Budget_Tab:: Dept_ID:NOT_NULL, Manpower:NULL, Equipment:NULL, Contingency:NULL, CONSUMABLE:NULL
-
-assume:: Manpower > 0 , Contingency > 0 , Total_Amt > 0
-assert:: Manpower > 0 , Contingency > 0 , Total_Amt > 0
-
-
-
-
-
-
-
 T :: A : not_null, B: null, C :null, D:not_null
 T2 :: P:null, Q:not_null, R:not_null
 
