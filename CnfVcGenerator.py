@@ -68,12 +68,17 @@ class CnfVcGenerator(PlSqlVisitor):
     def getNodeCondition(self, nodeId):
         res = []
         for ancestor in self.cnfCfg.nodes[nodeId].parentBranching:
+            if self.nullInCondition(self.cnfCfg.nodes[ancestor].ctx):
+                continue
             if self.cnfCfg.nodes[nodeId].parentBranching[ancestor] == "true":
                 #res = "AND( " + res + ", " +  + " )"
-                res.append('( ' + self.getConditionalString(nodeId, self.cnfCfg.nodes[ancestor].ctx) + ' )')
+
+
+
+                res.append('( ' + self.getConditionalString(ancestor, self.cnfCfg.nodes[ancestor].ctx) + ' )')
             else:
                 #res = "AND( " + res + ", ""NOT( " +  + " ))"
-                res.append("( ! ( " + self.getConditionalString(nodeId, self.cnfCfg.nodes[ancestor].ctx) + " ) )")
+                res.append("( ! ( " + self.getConditionalString(ancestor, self.cnfCfg.nodes[ancestor].ctx) + " ) )")
         if len(res) == 0:
             return ["( True )"]
         else:
@@ -101,12 +106,15 @@ class CnfVcGenerator(PlSqlVisitor):
                 whereIndex = i
                 break
             elif self.helper.getRuleName(tempCtx.children[i]) == 'selected_element':
-                rhsList.append(self.getVersionedTerminalRHS(nodeId,tempCtx.children[i]).strip())
+                varStr = self.getVersionedTerminalRHS(nodeId,tempCtx.children[i]).strip()
+                varStr = self.getVariableForAggregateFunctionInSelect(varStr)
+                self.cnfCfg.nodes[nodeId].versionedRHS[varStr] = varStr
+                rhsList.append(varStr)
             elif self.helper.getRuleName(tempCtx.children[i]) == 'into_clause':
                 for j in range(tempCtx.children[i].getChildCount()):
                     if self.helper.getRuleName(tempCtx.children[i].children[j]) == 'variable_name':
                         lhsList.append(self.getVersionedTerminalLHS(nodeId, tempCtx.children[i].children[j]).strip())
-        if whereIndex > -1:
+        if whereIndex > -1 and not self.nullInCondition(tempCtx.children[whereIndex].children[1]):
             whereStr = self.getConditionalString(nodeId, tempCtx.children[whereIndex].children[1])
             if len(rhsList) != len(lhsList):
                 print("\n\n\t*********************************************************    wrong select statement****************\n\n")
@@ -175,7 +183,7 @@ class CnfVcGenerator(PlSqlVisitor):
                 whereFlag = i
                 break
 
-        if whereFlag > -1:
+        if whereFlag > -1 and not self.nullInCondition(ctx.children[whereFlag].children[1]):
             res = "( ( ( " + self.getSetClause(nodeId, ctx.children[2]) + " ) ^ ( " + self.getConditionalString(nodeId, ctx.children[whereFlag].children[1]) + " ) ) v ( ( ! ( " + self.getConditionalString(nodeId, ctx.children[whereFlag].children[1]) + " ) ) ^ ( " + self.getNotSetClause(nodeId, ctx.children[2]) + " ) ) )"
         else:
             res = self.getSetClause(nodeId, ctx.children[2])
@@ -325,8 +333,11 @@ class CnfVcGenerator(PlSqlVisitor):
     def getVersionedTerminalRHS(self, nodeId, ctx):
         c = ctx.getChildCount()
         if c == 0:
-            if str(ctx) in self.cnfCfg.nodes[nodeId].versionedRHS.keys():
-                return self.cnfCfg.nodes[nodeId].versionedRHS[str(ctx)] + " "
+
+
+
+            if ctx.getText() in self.cnfCfg.nodes[nodeId].versionedRHS.keys():
+                return self.cnfCfg.nodes[nodeId].versionedRHS[ctx.getText()] + " "
             else:
                 return str(ctx) + " "
         else:
@@ -379,3 +390,20 @@ class CnfVcGenerator(PlSqlVisitor):
                 return self.getConditionalString(nodeId, ctx.children[1])
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
+
+    def nullInCondition(self, conditionalCtx):
+        condition = self.getTerminal(conditionalCtx).strip()
+        tokens = condition.split(" ")   # tokens will be a list
+        if "NULL" in tokens:
+            return True
+        return False
+
+    def getVariableForAggregateFunctionInSelect(self, varString):
+        varString = varString.replace("(", "")
+        varString = varString.replace(")", "")
+        varString = varString.replace(",", "")
+        varString = varString.strip()
+        varString = varString.replace("  ", " ")
+        varString = varString.replace(" ", "_")
+        varString = varString.replace("*", "STAR")
+        return varString

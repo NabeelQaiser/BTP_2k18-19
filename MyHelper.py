@@ -190,7 +190,17 @@ class MyHelper(PlSqlVisitor):
                 res = res.union(self.tableDict[tableName])
             elif self.getRuleName(tempCtx.children[i]) == "selected_element":
                 #print("**************************************************************", "\n\n\n\n\n\n\n\n\n")
-                res.add(tempCtx.children[i].getText())
+                varStr = tempCtx.children[i].getText().strip()
+                tempList = varStr.split('(')
+                if len(tempList) > 1:
+                    varStr2 = tempList[1].strip(')').strip()
+                    if varStr2 == '*':      # for count(*)
+                        continue
+                    else:
+                        res.add(varStr2)
+                else:
+                    res.add(tempCtx.children[i].getText())
+                #res.add(tempCtx.children[i].getText())
             elif self.getRuleName(tempCtx.children[i]) == "from_clause":
                 tableName = tempCtx.children[i].children[1].getText()
                 #print("**************************************************************", tableName, "\n\n\n\n\n\n\n\n\n")
