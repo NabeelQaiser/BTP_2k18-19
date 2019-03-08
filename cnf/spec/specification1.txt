@@ -1,16 +1,3 @@
-client :: id: NOT_NULL, name:NULL, surname:NULL, street:NULL, house_number:NULL, apartment_number:NULL, postal_code:NULL, city:NULL, province:NULL, country_id:NULL, phone_number:NULL
-
-
-assume:: max_id > 0,  id > 0
-assert:: max_id > 0,  id > 0
-
-
-
-
-
-
-
-
 T :: A : not_null, B: null, C :null, D:not_null
 T2 :: P:null, Q:not_null, R:not_null
 

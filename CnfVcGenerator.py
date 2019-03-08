@@ -150,15 +150,39 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getCursor_declaration(self, nodeId, ctx):
         # global vcs
+        lhsVar = ""
+        rhsVar = ""
+        whereCondition = ""
+        isWherePresent = False
+        isNullPresentInWhere = False
+        res = ""
+        for i in range(ctx.getChildCount()):
+            if self.helper.getRuleName(ctx.children[i]) == "cursor_name":
+                #lhsVar = ctx.children[i].getText().strip()
+                lhsVar = self.getVersionedTerminalLHS(nodeId, ctx.children[i]).strip()
+            elif self.helper.getRuleName(ctx.children[i]) == "select_statement":
+                tempCtx = ctx.children[i].children[0].children[0]
+                for j in range(tempCtx.getChildCount()):
+                    if self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
+                        isWherePresent = True
+                        if self.nullInCondition(tempCtx.children[j].children[1]):
+                            isNullPresentInWhere = True
+                        else:
+                            whereCondition = self.getConditionalString(nodeId, tempCtx.children[j].children[1])
+                varStr = self.getVersionedTerminalRHS(nodeId, tempCtx.children[1]).strip()
+                rhsVar = self.getVariableForAggregateFunctionInSelect(varStr)
 
-        varStr = self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]).strip()
-        varStr = self.getVariableForAggregateFunctionInSelect(varStr)
-        self.cnfCfg.nodes[nodeId].versionedRHS[varStr] = varStr
+        self.cnfCfg.nodes[nodeId].versionedRHS[rhsVar] = rhsVar
 
-        if ctx.children[3].children[0].children[0].getChildCount() == 4:
-            res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
-        else:
-            res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) )"
+        if not (lhsVar == "") and not (rhsVar == ""):
+            if isWherePresent and not isNullPresentInWhere:
+                res = "( ( ( " + lhsVar + " ) == ( " + rhsVar + " ) ) ^ ( " + whereCondition + " ) )"
+            else:
+                res = "( ( " + lhsVar + " ) == ( " + rhsVar + " ) )"
+        # if ctx.children[3].children[0].children[0].getChildCount() == 4:
+        #     res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
+        # else:
+        #     res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) )"
         return res
 
     def getCondition(self, nodeId, ctx):
