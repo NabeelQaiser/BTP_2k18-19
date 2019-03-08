@@ -1,0 +1,6 @@
+ROUTES :: PRICE:NOT_NULL
+LOADS:: load_id:NULL, CUSTOMER_ID:NOT_NULL, WEIGHT:NOT_NULL, START_TIME:NULL
+
+
+assume:: price > 0, SYSDATE > 0
+assert:: price > 0, SYSDATE > 0

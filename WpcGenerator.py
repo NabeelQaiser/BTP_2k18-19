@@ -322,12 +322,33 @@ class WpcGenerator():
                 return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
             else:
                 return self.getConditionalString(ctx.children[1])
-        elif ctx.getChildCount() == 5:  # For "XX BETWEEN 10 AND 50"
-            if self.ssaString.getTerminal(ctx.children[1]).strip() == "BETWEEN":
+        elif ctx.getChildCount() == 5:
+            if self.ssaString.getTerminal(ctx.children[1]).strip() == "BETWEEN":  # For "XX BETWEEN 10 AND 50"
                 referenceVar = "( " + self.ssaString.getTerminal(ctx.children[0]).strip() + " )"
                 leftBoundary = "( " + self.ssaString.getTerminal(ctx.children[2]).strip() + " )"
                 rightBoundary = "( " + self.ssaString.getTerminal(ctx.children[4]).strip() + " )"
                 return "( ( " + referenceVar + " > " + leftBoundary + " ) ^ ( " + referenceVar + " < " + rightBoundary + " ) )"
+            elif self.ssaString.getTerminal(ctx.children[1]).strip() == "IN":  # For "XX IN ( select_subquery )"
+                leftVar = self.ssaString.getTerminal(ctx.children[0]).strip()
+                selectQueryCtx = ctx.children[3].children[0]
+                rightVar = self.ssaString.getTerminal(selectQueryCtx.children[1]).strip()
+                isWhereCondition = False
+                isNullInCondition = False
+                condition = ""
+                for m in range(selectQueryCtx.getChildCount()):
+                    if self.helper.getRuleName(selectQueryCtx.children[m]) == "where_clause":
+                        isWhereCondition = True
+                        if self.nullInCondition(selectQueryCtx.children[m].children[1]):
+                            isNullInCondition = True
+                        else:
+                            condition = self.getConditionalString(selectQueryCtx.children[m].children[1])
+                if isWhereCondition:
+                    if isNullInCondition:
+                        return "( " + leftVar + " = " + rightVar + " )"
+                    else:
+                        return "( ( " + leftVar + " = " + rightVar + " ) ^ ( " + condition + " ) )"
+                else:
+                    return "( " + leftVar + " = " + rightVar + " )"
             return ""
         elif ctx.getChildCount() == 6:  # For "XX NOT BETWEEN 10 AND 50"
             if self.ssaString.getTerminal(ctx.children[2]).strip() == "BETWEEN":
@@ -335,6 +356,27 @@ class WpcGenerator():
                 leftBoundary = "( " + self.ssaString.getTerminal(ctx.children[3]).strip() + " )"
                 rightBoundary = "( " + self.ssaString.getTerminal(ctx.children[5]).strip() + " )"
                 return "( ( " + referenceVar + " < " + leftBoundary +" ) v ( " + referenceVar + " > " + rightBoundary +" ) )"
+            elif self.ssaString.getTerminal(ctx.children[2]).strip() == "IN":  # For "XX NOT IN ( select_subquery )"
+                leftVar = self.ssaString.getTerminal(ctx.children[0]).strip()
+                selectQueryCtx = ctx.children[4].children[0]
+                rightVar = self.ssaString.getTerminal(selectQueryCtx.children[1]).strip()
+                isWhereCondition = False
+                isNullInCondition = False
+                condition = ""
+                for m in range(selectQueryCtx.getChildCount()):
+                    if self.helper.getRuleName(selectQueryCtx.children[m]) == "where_clause":
+                        isWhereCondition = True
+                        if self.nullInCondition(selectQueryCtx.children[m].children[1]):
+                            isNullInCondition = True
+                        else:
+                            condition = self.getConditionalString(selectQueryCtx.children[m].children[1])
+                if isWhereCondition:
+                    if isNullInCondition:
+                        return "( ! ( " + leftVar + " = " + rightVar + " ) )"
+                    else:
+                        return "( ( ! ( " + leftVar + " = " + rightVar + " ) ) ^ ( " + condition + " ) )"
+                else:
+                    return "( ! ( " + leftVar + " = " + rightVar + " ) )"
             return ""
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.ssaString.getTerminal(ctx).strip() + " )"
