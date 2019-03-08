@@ -273,17 +273,36 @@ class WpcGenerator():
             elif self.helper.getRuleName(currentNode.ctx) == "cursor_declaration":  # Database CURSOR statement
                 lhsVar = ""
                 rhsVar = ""
+                whereCondition = ""
+                isWherePresent = False
+                isNullPresentInWhere = False
                 for i in range(currentNode.ctx.getChildCount()):
                     if self.helper.getRuleName(currentNode.ctx.children[i]) == "cursor_name":
                         lhsVar = currentNode.ctx.children[i].getText().strip()
                     elif self.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
+                        tempCtx = currentNode.ctx.children[i].children[0].children[0]
+                        for j in range(tempCtx.getChildCount()):
+                            if self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
+                                isWherePresent = True
+                                if self.nullInCondition(tempCtx.children[j].children[1]):
+                                    isNullPresentInWhere = True
+                                else:
+                                    whereCondition = self.getConditionalString(tempCtx.children[j].children[1])
                         # BUT what to do if there are multiple SELECTION attributes here???...as per datasets assuming single attribute...
-                        varString = self.ssaString.getTerminal(currentNode.ctx.children[i].children[0].children[0].children[1]).strip()
+                        varString = self.ssaString.getTerminal(tempCtx.children[1]).strip()
                         rhsVar = self.getVariableForAggregateFunctionInSelect(varString)
                 if not(lhsVar == "") and not(rhsVar == ""):
-                    wpcString = wpcString.replace(" " + lhsVar + " ", " " + rhsVar + " ")
-                    # also add RHS var to variablesForZ3 set
-                    self.variablesForZ3.add(rhsVar)       # <<<-----------<<<---------------<<<-------------
+                    newWpcString = wpcString
+                    newWpcString = newWpcString.replace(" " + lhsVar + " ", " " + rhsVar + " ")
+                    if isWherePresent:
+                        if isNullPresentInWhere:
+                            wpcString = "( " + newWpcString + " v " + wpcString + " )"
+                        else:
+                            wpcString = "( ( " + whereCondition + " ^ " + newWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
+                    else:
+                        wpcString = newWpcString
+                    # also add every RHS var to variablesForZ3 set
+                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)       # <<<-----------<<<---------------<<<-------------
         return wpcString
 
     # TODO: condition not proper for conditions like "NAME LIKE 'RYAN'", discuss and improve(if possible) later
