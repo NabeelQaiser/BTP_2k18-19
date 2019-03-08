@@ -1,7 +1,9 @@
-Budget_Tab:: Dept_ID:NOT_NULL, Manpower:NULL, Equipment:NULL, Contingency:NULL, CONSUMABLE:NULL
+client :: id: NOT_NULL, name:NULL, surname:NULL, street:NULL, house_number:NULL, apartment_number:NULL, postal_code:NULL, city:NULL, province:NULL, country_id:NULL, phone_number:NULL
 
-assume:: Manpower > 0 , Contingency > 0 , Total_Amt > 0
-assert:: Manpower > 0 , Contingency > 0 , Total_Amt > 0
+
+assume:: max_id > 0,  id > 0
+assert:: max_id > 0,  id > 0
+
 
 
 

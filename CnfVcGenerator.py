@@ -150,10 +150,15 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getCursor_declaration(self, nodeId, ctx):
         # global vcs
+
+        varStr = self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]).strip()
+        varStr = self.getVariableForAggregateFunctionInSelect(varStr)
+        self.cnfCfg.nodes[nodeId].versionedRHS[varStr] = varStr
+
         if ctx.children[3].children[0].children[0].getChildCount() == 4:
-            res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
+            res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
         else:
-            res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3].children[0].children[0].children[1]) + " ) )"
+            res = "( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) )"
         return res
 
     def getCondition(self, nodeId, ctx):
@@ -165,8 +170,11 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getAssignment_statement(self, node, ctx):
         # global vcs
-        res = '( ' + self.getVersionedTerminalLHS(node, ctx.children[0]) + ' ) == ( ' + \
-              self.getVersionedTerminalRHS(node, ctx.children[2]) + ' )'
+        varString = self.getVersionedTerminalRHS(node, ctx.children[2])
+        varString = varString.replace("( )", "")
+        varString = varString.replace("  ", " ").strip()
+        replacedBy = "( " + varString + " )"
+        res = '( ' + self.getVersionedTerminalLHS(node, ctx.children[0]) + ' ) == ( ' + replacedBy + ' )'
         # if self.cnfCfg.nodes[node].destructedPhi:
         #     for element in self.cnfCfg.nodes[node].destructedPhi:
         #         values = self.cnfCfg.nodes[node].destructedPhi[element]
@@ -388,6 +396,22 @@ class CnfVcGenerator(PlSqlVisitor):
                 return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
             else:
                 return self.getConditionalString(nodeId, ctx.children[1])
+
+        elif ctx.getChildCount() == 5:  # For "XX BETWEEN 10 AND 50"
+            if self.getVersionedTerminalRHS(nodeId, ctx.children[1]).strip() == "BETWEEN":
+                referenceVar = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip() + " )"
+                leftBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() + " )"
+                rightBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[4]).strip() + " )"
+                return "( ( " + referenceVar + " > " + leftBoundary + " ) ^ ( " + referenceVar + " < " + rightBoundary + " ) )"
+            return ""
+        elif ctx.getChildCount() == 6:  # For "XX NOT BETWEEN 10 AND 50"
+            if self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() == "BETWEEN":
+                referenceVar = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip() + " )"
+                leftBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3]).strip() + " )"
+                rightBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[5]).strip() + " )"
+                return "( ( " + referenceVar + " < " + leftBoundary + " ) v ( " + referenceVar + " > " + rightBoundary + " ) )"
+            return ""
+
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
             return "( " + self.getVersionedTerminalRHS(nodeId, ctx).strip() + " )"
 
