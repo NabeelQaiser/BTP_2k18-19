@@ -170,8 +170,11 @@ class CnfVcGenerator(PlSqlVisitor):
 
     def getAssignment_statement(self, node, ctx):
         # global vcs
-        res = '( ' + self.getVersionedTerminalLHS(node, ctx.children[0]) + ' ) == ( ' + \
-              self.getVersionedTerminalRHS(node, ctx.children[2]) + ' )'
+        varString = self.getVersionedTerminalRHS(node, ctx.children[2])
+        varString = varString.replace("( )", "")
+        varString = varString.replace("  ", " ").strip()
+        replacedBy = "( " + varString + " )"
+        res = '( ' + self.getVersionedTerminalLHS(node, ctx.children[0]) + ' ) == ( ' + replacedBy + ' )'
         # if self.cnfCfg.nodes[node].destructedPhi:
         #     for element in self.cnfCfg.nodes[node].destructedPhi:
         #         values = self.cnfCfg.nodes[node].destructedPhi[element]
