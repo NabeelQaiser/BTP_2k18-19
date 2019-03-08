@@ -225,8 +225,8 @@ def main(argv):
                     temp.append(satisfiability)
                     temp.append(modelForViolation)
                     mat.append(temp)
-                    file = open('cnf/Z3RuntimeWpcFile.py', "w")
-                    file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tprint('+++++++++++++++++++++++++++++%%%%%^^^^^^^^####')\n")
+                    file = open('cnf/Z3RuntimeCnfFile.py', "w")
+                    file.write("# Cleared content of this File...\n\nclass Z3RuntimeCnfFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tprint('+++++++++++++++++++++++++++++%%%%%^^^^^^^^####')\n")
                     file.close()
                 else:
                     print(specFile + " do not exist!!!")

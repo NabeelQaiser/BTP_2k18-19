@@ -427,6 +427,27 @@ class CnfVcGenerator(PlSqlVisitor):
                 leftBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() + " )"
                 rightBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[4]).strip() + " )"
                 return "( ( " + referenceVar + " > " + leftBoundary + " ) ^ ( " + referenceVar + " < " + rightBoundary + " ) )"
+            elif self.getVersionedTerminalRHS(nodeId, ctx.children[1]).strip() == "IN":  # For "XX IN ( select_subquery )"
+                leftVar = self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip()
+                selectQueryCtx = ctx.children[3].children[0]
+                rightVar = self.getVersionedTerminalRHS(nodeId, selectQueryCtx.children[1]).strip()
+                isWhereCondition = False
+                isNullInCondition = False
+                condition = ""
+                for m in range(selectQueryCtx.getChildCount()):
+                    if self.helper.getRuleName(selectQueryCtx.children[m]) == "where_clause":
+                        isWhereCondition = True
+                        if self.nullInCondition(selectQueryCtx.children[m].children[1]):
+                            isNullInCondition = True
+                        else:
+                            condition = self.getConditionalString(nodeId, selectQueryCtx.children[m].children[1])
+                if isWhereCondition:
+                    if isNullInCondition:
+                        return "( " + leftVar + " = " + rightVar + " )"
+                    else:
+                        return "( ( " + leftVar + " = " + rightVar + " ) ^ ( " + condition + " ) )"
+                else:
+                    return "( " + leftVar + " = " + rightVar + " )"
             return ""
         elif ctx.getChildCount() == 6:  # For "XX NOT BETWEEN 10 AND 50"
             if self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() == "BETWEEN":
@@ -434,6 +455,27 @@ class CnfVcGenerator(PlSqlVisitor):
                 leftBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[3]).strip() + " )"
                 rightBoundary = "( " + self.getVersionedTerminalRHS(nodeId, ctx.children[5]).strip() + " )"
                 return "( ( " + referenceVar + " < " + leftBoundary + " ) v ( " + referenceVar + " > " + rightBoundary + " ) )"
+            elif self.getVersionedTerminalRHS(nodeId, ctx.children[2]).strip() == "IN":  # For "XX NOT IN ( select_subquery )"
+                leftVar = self.getVersionedTerminalRHS(nodeId, ctx.children[0]).strip()
+                selectQueryCtx = ctx.children[4].children[0]
+                rightVar = self.getVersionedTerminalRHS(nodeId, selectQueryCtx.children[1]).strip()
+                isWhereCondition = False
+                isNullInCondition = False
+                condition = ""
+                for m in range(selectQueryCtx.getChildCount()):
+                    if self.helper.getRuleName(selectQueryCtx.children[m]) == "where_clause":
+                        isWhereCondition = True
+                        if self.nullInCondition(selectQueryCtx.children[m].children[1]):
+                            isNullInCondition = True
+                        else:
+                            condition = self.getConditionalString(nodeId, selectQueryCtx.children[m].children[1])
+                if isWhereCondition:
+                    if isNullInCondition:
+                        return "( ! ( " + leftVar + " = " + rightVar + " ) )"
+                    else:
+                        return "( ( ! ( " + leftVar + " = " + rightVar + " ) ) ^ ( " + condition + " ) )"
+                else:
+                    return "( ! ( " + leftVar + " = " + rightVar + " ) )"
             return ""
 
         elif ctx.getChildCount() == 0:      # for stmts like "UPDATE --blah blah-- WHERE SingleWord;"
