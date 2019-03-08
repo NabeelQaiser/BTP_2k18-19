@@ -44,6 +44,8 @@ def executeSinglePlSqlFile(data, spec):
 
     cfg = MyCFG()
     helper = MyHelper(parser)
+    # tableInfo["TJOINT2ONB=B2JOINT3ONC2=C3"] = [('A', 'NOT_NULL'), ('B', 'NULL'), ('C', 'NULL'), ('D', 'NOT_NULL')]
+    # print(tableInfo)
     helper.updateTableDict(tableInfo)
     utility = MyUtility(helper)
     v = MyVisitor(parser, cfg, utility)

@@ -189,7 +189,8 @@ class WpcGenerator():
                 tempNode = currentNode.ctx.children[0].children[0]
                 myRHS = []
                 myLHS = []
-                # SELECT A, B, C INTO K, L, M FROM T WHERE A=X+3;
+                conditionInFromClause = ""
+                # SELECT A, B, C2 INTO K, L, M   FROM T JOIN T2 ON B=B2 JOIN T3 ON A2=A3   WHERE A2=X+3;
                 trueWpcString = ""
                 into_flag = -1
                 whereHandled_flag = False
@@ -204,10 +205,15 @@ class WpcGenerator():
                             for x in range(intoNode.getChildCount()):
                                 if intoNode.children[x].getChildCount() > 0 and self.helper.getRuleName(intoNode.children[x]) == "variable_name":
                                     myLHS.append(intoNode.children[x].getText().strip())        # <--- LHS
+                        elif self.helper.getRuleName(tempNode.children[i]) == "from_clause":
+                            conditionInFromClause = self.extractConditionsInFromClause(tempNode.children[i].children[1])
+                            print("@@@@@@@ select_statement conditionInFromClause :", conditionInFromClause)
                         elif self.helper.getRuleName(tempNode.children[i]) == "where_clause":
-                            # myLHS & myRHS will be already filled here if they should be
+                            # myLHS & myRHS & conditionInFromClause will be already filled here if they should be
                             whereCondition = self.getConditionalString(tempNode.children[i].children[1])
                             print("@@@@@@@ select_statement whereCondition :", whereCondition)
+                            if not conditionInFromClause == "":     # merging condition from WHERE and FROM_CLAUSE
+                                whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
                             whereHandled_flag = True
                             if into_flag > -1:
                                 # update wpcString for true part of where Condition
@@ -218,17 +224,23 @@ class WpcGenerator():
                                     self.variablesForZ3.add(myRHS[j])  # <<<-----------<<<---------------<<<-------------
                                 # now join 'true' and 'false' like 'if' block...
                                 if self.nullInCondition(tempNode.children[i].children[1]):   # NULL +nt in condition
-                                    wpcString = "( " + trueWpcString + " v " + wpcString + " )"
+                                    if conditionInFromClause == "":
+                                        wpcString = "( " + trueWpcString + " v " + wpcString + " )"
+                                    else:       # if FROM_CLAUSE is not empty, we have to treat it as condition
+                                        wpcString = "( ( " + conditionInFromClause + " ^ " + trueWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
                                 else:   # NULL not +nt in condition
                                     wpcString = "( ( " + whereCondition + " ^ " + trueWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
-                                    # also add RHS vars to variablesForZ3 set
-                                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
                 if whereHandled_flag is False and into_flag > -1:
                     # do update in wpcString here becoz whereCondition do not exist in SELECT
                     for i in range(len(myLHS)):
                         wpcString = wpcString.replace(" " + myLHS[i] + " ", " " + myRHS[i] + " ")
                         # also add RHS vars to variablesForZ3 set
                         self.variablesForZ3.add(myRHS[i])       # <<<-----------<<<---------------<<<-------------
+                    # BUT, don't relax, condition from FROM_CLAUSE may not be empty!!!
+                    if not conditionInFromClause == "":
+                        wpcString = "( ( " + conditionInFromClause + " ^ " + trueWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
+                # also add every RHS var to variablesForZ3 set, be tension free...
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
             elif self.helper.getRuleName(currentNode.ctx) == "insert_statement":  # Database INSERT statement
                 tempNode = currentNode.ctx.children[1]      # single_table_insert
                 myLHS = []
@@ -274,6 +286,7 @@ class WpcGenerator():
                 lhsVar = ""
                 rhsVar = ""
                 whereCondition = ""
+                conditionInFromClause = ""
                 isWherePresent = False
                 isNullPresentInWhere = False
                 for i in range(currentNode.ctx.getChildCount()):
@@ -282,12 +295,16 @@ class WpcGenerator():
                     elif self.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
                         tempCtx = currentNode.ctx.children[i].children[0].children[0]
                         for j in range(tempCtx.getChildCount()):
-                            if self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
+                            if self.helper.getRuleName(tempCtx.children[j]) == "from_clause":
+                                conditionInFromClause = self.extractConditionsInFromClause(tempCtx.children[j].children[1])
+                                print("@@@@@@@ cursor_statement conditionInFromClause :", conditionInFromClause)
+                            elif self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
                                 isWherePresent = True
                                 if self.nullInCondition(tempCtx.children[j].children[1]):
                                     isNullPresentInWhere = True
                                 else:
                                     whereCondition = self.getConditionalString(tempCtx.children[j].children[1])
+                                    print("@@@@@@@ cursor_statement whereCondition :", whereCondition)
                         # BUT what to do if there are multiple SELECTION attributes here???...as per datasets assuming single attribute...
                         varString = self.ssaString.getTerminal(tempCtx.children[1]).strip()
                         rhsVar = self.getVariableForAggregateFunctionInSelect(varString)
@@ -296,17 +313,55 @@ class WpcGenerator():
                     newWpcString = newWpcString.replace(" " + lhsVar + " ", " " + rhsVar + " ")
                     if isWherePresent:
                         if isNullPresentInWhere:
-                            wpcString = "( " + newWpcString + " v " + wpcString + " )"
+                            if conditionInFromClause == "":
+                                wpcString = "( " + newWpcString + " v " + wpcString + " )"
+                            else:
+                                wpcString = "( ( " + conditionInFromClause + " ^ " + newWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
                         else:
+                            if not conditionInFromClause == "":
+                                whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
                             wpcString = "( ( " + whereCondition + " ^ " + newWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
                     else:
-                        wpcString = newWpcString
-                    # also add every RHS var to variablesForZ3 set
-                    self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)       # <<<-----------<<<---------------<<<-------------
+                        if conditionInFromClause == "":
+                            wpcString = newWpcString
+                        else:
+                            wpcString = "( ( " + conditionInFromClause + " ^ " + newWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
+                # also add every RHS var to variablesForZ3 set
+                self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)       # <<<-----------<<<---------------<<<-------------
         return wpcString
 
-    # TODO: condition not proper for conditions like "NAME LIKE 'RYAN'", discuss and improve(if possible) later
-    def getConditionalString(self, ctx):   # considering only AND, OR, NOT as 'word' separator
+
+    # Recursive method to extract Conditions In From_Clause (SELECT, SELECT-IN-CURSOR)
+    def extractConditionsInFromClause(self, ctx):       # ctx ~ from_clause.children[1]
+        if self.helper.getRuleName(ctx) == "table_ref":
+            if ctx.getChildCount() == 2:
+                leftCondition = self.extractConditionsInFromClause(ctx.children[0])
+                rightCondition = self.extractConditionsInFromClause(ctx.children[1])
+                if leftCondition == "" and rightCondition == "":
+                    return ""
+                elif leftCondition == "":
+                    return rightCondition
+                elif rightCondition == "":
+                    return leftCondition
+                else:
+                    return "( " + leftCondition + " ^ " + rightCondition + " )"
+            elif ctx.getChildCount() == 1:
+                # one can get Table Name from here...
+                notImportant = "notImportant"
+                return ""
+        elif self.helper.getRuleName(ctx) == "join_clause":
+            condition = ""
+            for i in range(ctx.getChildCount()):
+                if self.helper.getRuleName(ctx.children[i]) == "table_ref":
+                    # one can get Table Name from here...
+                    notImportant = "notImportant"
+                elif self.helper.getRuleName(ctx.children[i]) == "join_on_part":
+                    condition = self.getConditionalString(ctx.children[i].children[1].children[0])
+            return condition
+
+
+    # TODO: condition not proper for conditions like "NAME LIKE 'RYAN'" or "NAME IS VAR_NAME", avoid datasets having keywords IS, LIKE etc.
+    def getConditionalString(self, ctx):   # considering only AND, OR, NOT, IN, BETWEEN as 'word' separator
         if ctx.getChildCount() == 1:
             return self.getConditionalString(ctx.children[0])
         elif ctx.getChildCount() == 2:      # strictly for "NOT"

@@ -8,4 +8,9 @@ PROCEDURE bill(p_reservation_id IN NUMBER) IS
 
         nothing := 6;
 
+        UPDATE ROUTES
+            SET PRICE = PRICE*((100 - PERCENT)/100)
+            WHERE LOAD_ID IN (SELECT LOAD_ID FROM LOADS WHERE CUSTOMER_ID = CUSTOMER)
+                  AND START_TIME >= SYSDATE AND START_TIME <= SYSDATE + 7;
+
     END;
