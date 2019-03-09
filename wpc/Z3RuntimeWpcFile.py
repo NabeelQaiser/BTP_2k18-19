@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-03-09 16:18:13.102722
+# This file was generated at runtime on 2019-03-09 19:20:25.096248
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -8,30 +8,30 @@ class Z3RuntimeWpcFile():
 		self.modelForViolation = ""
 
 	def execute(self):
-		FIRST_NAME = Real('FIRST_NAME')
-		PRICE_PER_DAY = Real('PRICE_PER_DAY')
-		CAPACITY = Real('CAPACITY')
-		LAST_NAME = Real('LAST_NAME')
-		P_RESERVATION_ID = Real('P_RESERVATION_ID')
-		PESEL_C = Real('PESEL_C')
-		SUM_PRICE_PER_DAY = Real('SUM_PRICE_PER_DAY')
 		COMPLETED = Real('COMPLETED')
+		TO_PAY = Real('TO_PAY')
+		DATE_OF_PURCHASE = Real('DATE_OF_PURCHASE')
+		N_O_VISITS = Real('N_O_VISITS')
+		ROOM_ID = Real('ROOM_ID')
+		P_RESERVATION_ID = Real('P_RESERVATION_ID')
+		COUNT_STAR = Real('COUNT_STAR')
+		STATUS = Real('STATUS')
+		ENDING = Real('ENDING')
+		FIRST_NAME = Real('FIRST_NAME')
+		FINAL_COST = Real('FINAL_COST')
+		CAPACITY = Real('CAPACITY')
+		SUM_PRICE_PER_DAY = Real('SUM_PRICE_PER_DAY')
+		LAST_NAME = Real('LAST_NAME')
+		PRICE_PER_DAY = Real('PRICE_PER_DAY')
+		BEGINNING = Real('BEGINNING')
+		PESEL = Real('PESEL')
+		PESEL_C = Real('PESEL_C')
+		RESERVATION_ID = Real('RESERVATION_ID')
+		ROOM_ID_R = Real('ROOM_ID_R')
+		RESERVATION_ID_R = Real('RESERVATION_ID_R')
 		DISCOUNT = Real('DISCOUNT')
 		DATE_OF_RESERVATION = Real('DATE_OF_RESERVATION')
 		TELEPHONE = Real('TELEPHONE')
-		PESEL = Real('PESEL')
-		STATUS = Real('STATUS')
-		TO_PAY = Real('TO_PAY')
-		ROOM_ID_R = Real('ROOM_ID_R')
-		ROOM_ID = Real('ROOM_ID')
-		COUNT_STAR = Real('COUNT_STAR')
-		RESERVATION_ID = Real('RESERVATION_ID')
-		DATE_OF_PURCHASE = Real('DATE_OF_PURCHASE')
-		FINAL_COST = Real('FINAL_COST')
-		N_O_VISITS = Real('N_O_VISITS')
-		BEGINNING = Real('BEGINNING')
-		RESERVATION_ID_R = Real('RESERVATION_ID_R')
-		ENDING = Real('ENDING')
 
 		s = Solver()
 		s.add(TO_PAY > 0)
