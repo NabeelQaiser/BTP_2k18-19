@@ -1,20 +1,44 @@
-PROCEDURE TEST(M IN NUMBER) IS
+-- HTTPS://GITHUB.COM/LEWAN110/HOTEL-ROOM-RESERVATION-DATABASE/BLOB/MASTER/PROC.SQL
+
+
+PROCEDURE BILL (P_RESERVATION_ID IN NUMBER) IS
         N_O_VISITS   NUMBER;
-        CURSOR G IS
-        SELECT A
-            FROM T
-                JOIN T2 ON B=B2
-                JOIN T3 ON C2=C3
-            WHERE A2>=M+5 AND C<99;
+        FINAL_COST   NUMBER;
+        TO_PAY      NUMBER;
+        DISCOUNT     NUMBER;
     BEGIN
-	ASSUME A>0 ;
+	ASSUME TO_PAY > 0 ;
+
+        SELECT
+            COUNT(*)
+        INTO N_O_VISITS
+        FROM
+            CLIENTS
+            JOIN CLIENT_RESERVATION ON PESEL_C = PESEL
+            JOIN RESERVATIONS ON RESERVATION_ID = RESERVATION_ID_R
+        WHERE
+            STATUS = COMPLETED;
+
+        IF
+            ( N_O_VISITS > 10 )
+        THEN
+            DISCOUNT := 10;
+        ELSE
+            DISCOUNT := 0;
+        END IF;
 
 
-        SELECT A, B3 INTO X, Y
-            FROM T;
+        SELECT
+            SUM(PRICE_PER_DAY)
+        INTO FINAL_COST
+        FROM
+            ROOMS
+            JOIN RESERVATIONS ON ROOM_ID = ROOM_ID_R
+        WHERE
+            RESERVATION_ID_R = P_RESERVATION_ID;
 
-        NOTHING := 6;
+        TO_PAY:=FINAL_COST-FINAL_COST*(DISCOUNT/100);
 
 
-    ASSERT A>0 ;
+ASSERT TO_PAY > 0 ;
 	END;

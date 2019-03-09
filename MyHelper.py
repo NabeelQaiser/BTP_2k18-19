@@ -203,11 +203,13 @@ class MyHelper(PlSqlVisitor):
                 #res.add(tempCtx.children[i].getText())
             elif self.getRuleName(tempCtx.children[i]) == "from_clause":
                 # tableName = tempCtx.children[i].children[1].getText()
-                tableSet = set()
-                self.extractConditionsInFromClause(tempCtx.children[i].children[1], tableSet)
-                # print("**************************************************************", tableSet, "\n\n\n\n\n\n\n\n\n")
-                for tableName in tableSet:
-                    res = res.union(self.tableDict[tableName])
+                for k in range(tempCtx.children[i].getChildCount()):
+                    if self.getRuleName(tempCtx.children[i].children[k]) == "table_ref":
+                        tableSet = set()
+                        self.extractConditionsInFromClause(tempCtx.children[i].children[k], tableSet)
+                        # print("**************************************************************", tableSet, "\n\n\n\n\n\n\n\n\n")
+                        for tableName in tableSet:
+                            res = res.union(self.tableDict[tableName])
                 # res = res.union(self.tableDict[tableName])
             elif self.getRuleName(tempCtx.children[i]) == "where_clause":
                 #print("*****************************************where*********************", "\n\n\n\n\n\n\n\n\n")

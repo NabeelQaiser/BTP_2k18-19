@@ -33,13 +33,13 @@ class WpcGenerator():
                 # Beware! first enrich wpcMakerHelper dict()
                 self.enrich_wpcMakerHelper(currentNodeId, wpcString)
                 # merge true and false part
-                print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
+                # print("----", str(currentNodeId), "---", currentNode.wpcMakerHelper)
                 if self.nullInCondition(currentNode.ctx):   # NULL +nt in condition
                     wpcString = self.mergeConditionalWpcStringsIfConditionContainsNULL(currentNode)
                     # no need to add anything to variablesForZ3 set
                 else:   # NULL not +nt in condition
                     conditionalString = self.getConditionalString(currentNode.ctx)
-                    print("&&&&&&&&&&&&&& if_condition:", conditionalString)
+                    # print("&&&&&&&&&&&&&& if_condition:", conditionalString)
                     wpcString = self.mergeConditionalWpcStrings(currentNode, conditionalString)
                     # also add RHS vars of CONDITION to variablesForZ3 set
                     self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)  # <<<-----------<<<---------------<<<-------------
@@ -145,7 +145,7 @@ class WpcGenerator():
                     if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
                         whereClausePosition = i
                         whereCondition = self.getConditionalString(currentNode.ctx.children[i].children[1])
-                        print("@@@@@@@ update_statement whereCondition :", whereCondition)
+                        # print("@@@@@@@ update_statement whereCondition :", whereCondition)
                         break
                 if not whereClausePosition == -1:   # whereCondition exists
                     tempWpcString = wpcString
@@ -207,11 +207,11 @@ class WpcGenerator():
                                     myLHS.append(intoNode.children[x].getText().strip())        # <--- LHS
                         elif self.helper.getRuleName(tempNode.children[i]) == "from_clause":
                             conditionInFromClause = self.extractConditionsInFromClause(tempNode.children[i].children[1])
-                            print("@@@@@@@ select_statement conditionInFromClause :", conditionInFromClause)
+                            # print("@@@@@@@ select_statement conditionInFromClause :", conditionInFromClause)
                         elif self.helper.getRuleName(tempNode.children[i]) == "where_clause":
                             # myLHS & myRHS & conditionInFromClause will be already filled here if they should be
                             whereCondition = self.getConditionalString(tempNode.children[i].children[1])
-                            print("@@@@@@@ select_statement whereCondition :", whereCondition)
+                            # print("@@@@@@@ select_statement whereCondition :", whereCondition)
                             if not conditionInFromClause == "":     # merging condition from WHERE and FROM_CLAUSE
                                 whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
                             whereHandled_flag = True
@@ -297,14 +297,14 @@ class WpcGenerator():
                         for j in range(tempCtx.getChildCount()):
                             if self.helper.getRuleName(tempCtx.children[j]) == "from_clause":
                                 conditionInFromClause = self.extractConditionsInFromClause(tempCtx.children[j].children[1])
-                                print("@@@@@@@ cursor_statement conditionInFromClause :", conditionInFromClause)
+                                # print("@@@@@@@ cursor_statement conditionInFromClause :", conditionInFromClause)
                             elif self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
                                 isWherePresent = True
                                 if self.nullInCondition(tempCtx.children[j].children[1]):
                                     isNullPresentInWhere = True
                                 else:
                                     whereCondition = self.getConditionalString(tempCtx.children[j].children[1])
-                                    print("@@@@@@@ cursor_statement whereCondition :", whereCondition)
+                                    # print("@@@@@@@ cursor_statement whereCondition :", whereCondition)
                         # BUT what to do if there are multiple SELECTION attributes here???...as per datasets assuming single attribute...
                         varString = self.ssaString.getTerminal(tempCtx.children[1]).strip()
                         rhsVar = self.getVariableForAggregateFunctionInSelect(varString)

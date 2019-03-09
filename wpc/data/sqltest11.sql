@@ -6,7 +6,7 @@ PROCEDURE test(M IN NUMBER) IS
             FROM T
                 JOIN T2 ON B=B2
                 JOIN T3 ON C2=C3
-            WHERE A2>=M+5 AND C<99;
+            WHERE A2>=M+5 AND C in (SELECT C2 FROM T2 WHERE B2>=50);
     BEGIN
 
         SELECT A, B3 INTO X, Y
