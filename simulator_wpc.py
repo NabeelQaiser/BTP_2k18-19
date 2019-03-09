@@ -44,14 +44,12 @@ def executeSinglePlSqlFile(data, spec):
 
     cfg = MyCFG()
     helper = MyHelper(parser)
-    # tableInfo["TJOINT2ONB=B2JOINT3ONC2=C3"] = [('A', 'NOT_NULL'), ('B', 'NULL'), ('C', 'NULL'), ('D', 'NOT_NULL')]
-    # print(tableInfo)
     helper.updateTableDict(tableInfo)
     utility = MyUtility(helper)
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-    print(v.rawCFG, "\n")
+    # print(v.rawCFG, "\n")
 
     # for key in v.cfg.nodes:
     #     if v.cfg.nodes[key].ctx != None:
@@ -60,8 +58,8 @@ def executeSinglePlSqlFile(data, spec):
 
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
-    cfg.printPretty()
-    print("\n")
+    # cfg.printPretty()
+    # print("\n")
 
     # cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
     utility.generateVariableSet(cfg)
@@ -81,7 +79,7 @@ def executeSinglePlSqlFile(data, spec):
     # done: replace " = " with " == " in algo.finalWpcString
     algo.finalWpcString = algo.finalWpcString.replace(" = ", " == ")
 
-    print("\n**** Final WPC String:\n", algo.finalWpcString, "\n")
+    # print("\n**** Final WPC String:\n", algo.finalWpcString, "\n")
 
     # print(algo.variablesForZ3)
 
@@ -93,7 +91,7 @@ def executeSinglePlSqlFile(data, spec):
     z3StringConvertor = WpcStringConverter(algo.finalWpcString)
     z3StringConvertor.execute()
     # z3StringConvertor.convertedWpc is the FINAL VC Generated...
-    print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
+    # print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
 
     z3FileString = "# This file was generated at runtime on " + str(datetime.datetime.now()) + "\n"
     z3FileString = z3FileString + "from z3 import *\n\n"
@@ -129,7 +127,7 @@ def executeSinglePlSqlFile(data, spec):
     z3FileString = z3FileString + "\n\t\t" + "if self.satisfiability == \"sat\":"
     z3FileString = z3FileString + "\n\t\t\t" + "print()"
     z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> Violation Occurred...\")"
-    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"Unsatisfiable\""
+    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"violation\""
     z3FileString = z3FileString + "\n\t\t\t" + "print()"
     z3FileString = z3FileString + "\n\t\t\t" + "print(\"%%%%%%%%%% An Instance for which Violation Occurred %%%%%%%%%%\\n\", s.model())"
     z3FileString = z3FileString + "\n\t\t\t" + "self.modelForViolation = str(s.model())"
@@ -137,7 +135,7 @@ def executeSinglePlSqlFile(data, spec):
     z3FileString = z3FileString + "\n\t\t" + "elif self.satisfiability == \"unsat\":"
     z3FileString = z3FileString + "\n\t\t\t" + "print()"
     z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> NO Violation Detected so far...\")"
-    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"Satisfiable\""
+    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"sat\""
     z3FileString = z3FileString + "\n\t\t\t" + "print()"
     z3FileString = z3FileString + "\n\t\t" + "print()\n"
 
@@ -145,10 +143,13 @@ def executeSinglePlSqlFile(data, spec):
     file.write(z3FileString)
     file.close()
 
+    # time.sleep(2)
+
     # import file created on Runtime...
     import wpc.Z3RuntimeWpcFile
     from wpc.Z3RuntimeWpcFile import Z3RuntimeWpcFile
     # Reload after module's creation to avoid old module remain imported from disk...VVI...
+    wpc.Z3RuntimeWpcFile = reload(wpc.Z3RuntimeWpcFile)
     wpc.Z3RuntimeWpcFile = reload(wpc.Z3RuntimeWpcFile)
 
     z3Runtime = Z3RuntimeWpcFile()
@@ -194,12 +195,18 @@ def main(argv):
                     temp.append(satisfiability)
                     temp.append(modelForViolation)
                     mat.append(temp)
+                    file = open('wpc/Z3RuntimeWpcFile.py', "w")
+                    file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tprint('##########@@@@@@@@@@@@%%%%%%%%%%%%%%**************')\n")
+                    file.close()
                 else:
                     print(specFile + " do not exist!!!")
                 counter = counter + 1
                 print("Counter =", counter)
+
+                time.sleep(2)
+
             # file = open('wpc/Z3RuntimeWpcFile.py', "w")
-            # file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tpass\n")
+            # file.write("# Cleared content of this File...\n\nclass Z3RuntimeWpcFile():\n\tdef __init__(self):\n\t\tself.finalFormula = \"\"\n\t\tself.satisfiability = \"\"\n\t\tself.modelForViolation = \"\"\n\n\tdef execute(self):\n\t\tprint('##########@@@@@@@@@@@@%%%%%%%%%%%%%%**************')\n")
             # file.close()
 
             print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -207,6 +214,16 @@ def main(argv):
             for i in range(len(mat)):
                 for j in range(len(mat[i])):
                     print(mat[i][j], end="\t\t")
+                print()
+            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
+            print("Filename\t\t\tLinesOfCode\t\tExecutionTime\t\tNoOfVc\t\tSatisfiability\t\tViolatingInstance\n")
+            for i in range(len(mat)):
+                print(mat[i][0], end="\t\t")
+                print(mat[i][1], end="\t\t")
+                print(mat[i][2], end="\t\t")
+                print("1", end="\t\t")
+                print(mat[i][3], end="\t\t")
+                print(mat[i][4].replace("\n", " ")[0:50], end="")
                 print()
 
 
