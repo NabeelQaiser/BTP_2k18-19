@@ -51,22 +51,22 @@ def executeSinglePlSqlFile(data, spec):
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-    print(v.rawCFG)
+    # print(v.rawCFG)
 
-    for key in v.cfg.nodes:
-        if v.cfg.nodes[key].ctx != None:
-            print(key, " --> ", v.cfg.nodes[key].ctx.getText())
+    # for key in v.cfg.nodes:
+    #     if v.cfg.nodes[key].ctx != None:
+    #         print(key, " --> ", v.cfg.nodes[key].ctx.getText())
 
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
-    cfg.printPretty()
-    cfg.dotToPng(cfg.dotGraph, "cnf/raw_graph")  # TODO: make dot file in cnf form
+    # cfg.printPretty()
+    # cfg.dotToPng(cfg.dotGraph, "cnf/raw_graph")  # TODO: make dot file in cnf form
     utility.generateDomSet(cfg)
-    print("Dominator set ended----------->\n\n")
+    # print("Dominator set ended----------->\n\n")
     utility.generateSDomSet(cfg)
-    print("Strictly Dominator set ended ----------->\n\n")
+    # print("Strictly Dominator set ended ----------->\n\n")
     utility.generatIDom(cfg)
-    print("Immediate Dominator ended ----------->\n\n")
+    # print("Immediate Dominator ended ----------->\n\n")
     utility.generateDFSet(cfg)
     utility.insertPhiNode(cfg)
 
@@ -89,12 +89,12 @@ def executeSinglePlSqlFile(data, spec):
 
     cnfCfg = cnfUtility.reverseDictOrder(reverseCnfCfg)
     cnfUtility.copyParentBranching(cnfCfg, iCnfCfg)
-    print("\n\n\n\n\n\t\t\tThe intermediate CNF form is ------------------------------>\n\n\n\n")
+    # print("\n\n\n\n\n\t\t\tThe intermediate CNF form is ------------------------------>\n\n\n\n")
 
     # for nodeId in iCnfCfg.nodes:
     #     iCnfCfg.nodes[nodeId].printPretty()
 
-    print("\n\n\n\n\n\t\t\tThe CNF form is ------------------------------>\n\n\n\n")
+    # print("\n\n\n\n\n\t\t\tThe CNF form is ------------------------------>\n\n\n\n")
 
     cnfVcGenerator = CnfVcGenerator(cnfCfg, parser)
 
@@ -120,16 +120,16 @@ def executeSinglePlSqlFile(data, spec):
 
     varSet, z3Str = cnfUtility.iZ3format(cnfCfg)
 
-    print("\n\n*******************\n\n", z3Str, "\n\n--------------\n\n")
-    print(varSet)
-
-    print("\n\n")
+    # print("\n\n*******************\n\n", z3Str, "\n\n--------------\n\n")
+    # print(varSet)
+    #
+    # print("\n\n")
     z3Str = z3Str.replace("  ", " ")
     z3Str = z3Str.replace(" == ", " = ")
     z3Str = z3Str.replace(" = ", " == ")
     z3StringConvertor = WpcStringConverter(z3Str)
     z3StringConvertor.execute()
-    print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
+    # print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
 
     z3FileString = "# This file was generated at runtime on " + str(datetime.datetime.now()) + "\n"
     z3FileString = z3FileString + "from z3 import *\n\n"
@@ -155,27 +155,27 @@ def executeSinglePlSqlFile(data, spec):
     #     z3FileString = z3FileString + "\t\t" + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
     z3FileString = z3FileString + "\t\t" + "s.add( Not( " + z3StringConvertor.convertedWpc + " ) )\n"
 
-    z3FileString = z3FileString + "\n\t\t" + "print()"
-    z3FileString = z3FileString + "\n\t\t" + "print(\"%%%%%%%%%% Aggregate Formula %%%%%%%%%%\\n\", s)"
+    # z3FileString = z3FileString + "\n\t\t" + "print()"
+    # z3FileString = z3FileString + "\n\t\t" + "print(\"%%%%%%%%%% Aggregate Formula %%%%%%%%%%\\n\", s)"
     z3FileString = z3FileString + "\n\t\t" + "self.finalFormula = str(s)"
-    z3FileString = z3FileString + "\n\t\t" + "print()"
-    z3FileString = z3FileString + "\n\t\t" + "print(\"%%%%%%%%%% Satisfiability %%%%%%%%%%\")\n"
+    # z3FileString = z3FileString + "\n\t\t" + "print()"
+    # z3FileString = z3FileString + "\n\t\t" + "print(\"%%%%%%%%%% Satisfiability %%%%%%%%%%\")\n"
     z3FileString = z3FileString + "\n\t\t" + "self.satisfiability = str(s.check())"
 
     z3FileString = z3FileString + "\n\t\t" + "if self.satisfiability == \"sat\":"
-    z3FileString = z3FileString + "\n\t\t\t" + "print()"
-    z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> Violation Occurred...\")"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print()"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> Violation Occurred...\")"
     z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"Unsatisfiable\""
-    z3FileString = z3FileString + "\n\t\t\t" + "print()"
-    z3FileString = z3FileString + "\n\t\t\t" + "print(\"%%%%%%%%%% An Instance for which Violation Occurred %%%%%%%%%%\\n\", s.model())"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print()"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print(\"%%%%%%%%%% An Instance for which Violation Occurred %%%%%%%%%%\\n\", s.model())"
     z3FileString = z3FileString + "\n\t\t\t" + "self.modelForViolation = str(s.model())"
 
     z3FileString = z3FileString + "\n\t\t" + "elif self.satisfiability == \"unsat\":"
-    z3FileString = z3FileString + "\n\t\t\t" + "print()"
-    z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> NO Violation Detected so far...\")"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print()"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> NO Violation Detected so far...\")"
     z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"Satisfiable\""
-    z3FileString = z3FileString + "\n\t\t\t" + "print()"
-    z3FileString = z3FileString + "\n\t\t" + "print()\n"
+    # z3FileString = z3FileString + "\n\t\t\t" + "print()"
+    # z3FileString = z3FileString + "\n\t\t" + "print()\n"
 
     file = open('cnf/Z3RuntimeCnfFile.py', "w")
     file.write(z3FileString)
@@ -203,6 +203,7 @@ def main(argv):
         data = "cnf/data/" + argv[1]
         spec = "cnf/spec/" + argv[2]
         executeSinglePlSqlFile(data, spec)
+        print("kuch bhi")
     elif len(argv) == 4:
         if argv[1] == "-dataset":
             dataList = os.listdir(argv[2])
@@ -232,8 +233,6 @@ def main(argv):
                     print(specFile + " do not exist!!!")
                 counter = counter + 1
                 print("Counter =", counter)
-
-
             print(
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             print("Filename\t\tLinesOfCode\t\tExecutionTime\t\tSatisfiability\t\tViolatingInstance\n")
@@ -241,6 +240,20 @@ def main(argv):
                 for j in range(len(mat[i])):
                     print(mat[i][j], end="\t\t")
                 print()
+    elif len(argv) == 6:
+        if argv[1] == "-datafilename" and argv[3] == "-data_spec_filepaths":
+            linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(argv[4], argv[5])
+            print(" "+argv[2], end="\t\t\t")
+            print(linesOfCode, end="\t\t")
+            print(executionTime, end="\t")
+            print("1", end="\t")
+            print(satisfiability, end="\t\t")
+            print(modelForViolation.replace("\n", " ")[0:60], end="")
+            print()
+
+
+
+
 
 
 
