@@ -11,7 +11,7 @@ dataList = os.listdir(datapath)
 specList = os.listdir(specpath)
 
 counter = 0
-print("Work in Progress...\n")
+print("Work in Progress for CNF...\n")
 print(" Filename\t\t\tLinesOfCode\tExecutionTime\tNoOfVc\tSatisfiability\tViolatingInstance\n")
 for dataFile in dataList:
     specFile = dataFile.split(".")[0].strip() + ".spec"
