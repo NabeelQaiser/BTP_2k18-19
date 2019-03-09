@@ -1,0 +1,68 @@
+
+
+ add_delivery_attempt.sql			35		1.628959	1	Satisfiable		
+
+ credit-account.sql			27		1.423425	1	Unsatisfiable		[BALANCE0 = 1/2,  CREDIT0 = -1/2,  ACCT0 = 0,  NEW_BALANCE1 = 0,  BALANCE1 = 0,  ACCT_ID2 = 0,  BALANCE2 = -1/2,  ACCT_ID0 = 0,  OLD_BALANCE1 = 1/2]
+
+ add_client.sql			59		1.811183	1	Satisfiable		
+
+
+ discount.sql			24		2.634305	1	Unsatisfiable		[PRICE0 = 1,  SYSDATE0 = 1,  START_TIME0 = 2,  WRONG_DISCOUNT0 = 0,  LOW_DISCOUNT0 = 0,  PERCENT0 = 200,  BIG_DISCOUNT0 = 0,  CUSTOMER0 = 0,  CUSTOMER_ID0 = 0,  PRICE1 = -1,  SUM_WEIGHT0 = 0,  MY_WEIGHT1 = 0]
+
+
+ get_country_id.sql			41		1.81979	1	Satisfiable		
+
+
+ add_dimension_class.sql			39		1.784996	1	Satisfiable		
+
+
+ update_warehouse.sql			27		1.429431	1	Unsatisfiable		[ENTERED_WAREHOUSE1 = 1,  WAREHOUSE_ID1 = 1,  LEFT_WAREHOUSE1 = 0,  ENTERED_WAREHOUSE0 = 1,  WAREHOUSE_ID0 = 1,  PARCEL_ID2 = 0,  WAREHOUSE_PARCEL3 = 0,  A_PARCEL_ID0 = 0,  WAREHOUSE_ID2 = 1,  CURRENT_DATE0 = 1,  LEFT_WAREHOUSE3 = 0,  LEFT_WAREHOUSE2 = 0,  PARCEL_ID0 = 1,  WAREHOUSE_PARCEL1 = 0,  V_TIME1 = 1,  A_NEW_WAREHOUSE_ID0 = 1,  LEFT_WAREHOUSE0 = 0,  A_OLD_WAREHOUSE_ID0 = 0,  ENTERED_WAREHOUSE2 = 1,  PARCEL_ID1 = 0,  WAREHOUSE_PARCEL2 = 0,  ENTERED_WAREHOUSE3 = 1,  WAREHOUSE_ID3 = 1,  PARCEL_ID3 = 0]
+
+ select-record.sql			8		0.92821	1	Unsatisfiable		[EMP_RET0 = 1, EMP_NUMBER0 = 0, EMP_RET1 = 0, EMPNO0 = 0]
+
+ delete_client.sql			10		0.853326	1	Satisfiable		
+
+
+ get_delivery_status.sql			45		1.802835	1	Satisfiable		
+
+
+ budget.sql			22		1.611065	1	Satisfiable		
+
+
+ add_parcel_type.sql			42		1.858233	1	Satisfiable		
+
+
+ get_driving_license_category_id.sql			39		1.630977	1	Satisfiable		
+
+ debit-account.sql			28		1.471518	1	Satisfiable		
+
+ add_parcel.sql			74		1.921998	1	Satisfiable		
+
+
+ add_status.sql			42		1.774085	1	Satisfiable		
+
+
+ only-update.sql			8		1.184469	1	Satisfiable		
+
+
+ salary.sql			29		1.592942	1	Satisfiable		
+
+
+ add_car.sql			55		1.974606	1	Satisfiable		
+
+ add_warehouse.sql			52		1.670544	1	Satisfiable		
+
+
+ get_contract_type_id.sql			41		1.860243	1	Satisfiable		
+
+ add_courier.sql			104		2.079493	1	Satisfiable		
+
+ award-bonus.sql			17		1.475994	1	Satisfiable		
+
+ bill.sql			41		1.852741	1	Satisfiable		
+Work in Progress...
+
+ Filename			LinesOfCode	ExecutionTime	NoOfVc	Satisfiability	ViolatingInstance
+
+
+Total Files executed = 24

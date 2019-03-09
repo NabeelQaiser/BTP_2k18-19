@@ -242,16 +242,14 @@ def main(argv):
                 print()
     elif len(argv) == 6:
         if argv[1] == "-datafilename" and argv[3] == "-data_spec_filepaths":
-            print(">>>>>>>>>>>>>", argv[2])
             linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(argv[4], argv[5])
             print(" "+argv[2], end="\t\t\t")
             print(linesOfCode, end="\t\t")
             print(executionTime, end="\t")
             print("1", end="\t")
             print(satisfiability, end="\t\t")
-            print(modelForViolation.replace("\n", " ")[0:60], end="")
+            print(modelForViolation.replace("\n", " "), end="")
             print()
-            print(">>>>>>>>>>>>>", argv[2])
 
 
 
