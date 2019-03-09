@@ -101,9 +101,14 @@ class CnfVcGenerator(PlSqlVisitor):
         tempCtx = ctx.children[0].children[0]
         rhsList = []
         lhsList = []
+        fromCondtion = ""
+        whereStr = ""
+        isNullPresent = False
         for i in range(tempCtx.getChildCount()):
             if self.helper.getRuleName(tempCtx.children[i]) == 'where_clause':
                 whereIndex = i
+                whereStr = self.getConditionalString(nodeId, tempCtx.children[whereIndex].children[1])
+                isNullPresent = self.nullInCondition(tempCtx.children[whereIndex].children[1])
                 break
             elif self.helper.getRuleName(tempCtx.children[i]) == 'selected_element':
                 varStr = self.getVersionedTerminalRHS(nodeId,tempCtx.children[i]).strip()
@@ -114,19 +119,52 @@ class CnfVcGenerator(PlSqlVisitor):
                 for j in range(tempCtx.children[i].getChildCount()):
                     if self.helper.getRuleName(tempCtx.children[i].children[j]) == 'variable_name':
                         lhsList.append(self.getVersionedTerminalLHS(nodeId, tempCtx.children[i].children[j]).strip())
-        if whereIndex > -1 and not self.nullInCondition(tempCtx.children[whereIndex].children[1]):
-            whereStr = self.getConditionalString(nodeId, tempCtx.children[whereIndex].children[1])
+            elif self.helper.getRuleName(tempCtx.children[i]) == 'from_clause':
+                fromCondtion = self.extractConditionsInFromClause(nodeId, tempCtx.children[i].children[1])
+
+        finalCondition = ""
+
+        if whereIndex > -1:
+            if isNullPresent:
+                if fromCondtion == '':
+                    finalCondition = ""
+                else:
+                    finalCondition = fromCondtion
+            else:
+                if fromCondtion == '':
+                    finalCondition = whereStr
+                else:
+                    finalCondition = '( ( ' + whereStr + ' ) ^ ( ' + fromCondtion + ' ) )'
+        else:
+            if fromCondtion == '':
+                finalCondition = ''
+            else:
+                finalCondition = fromCondtion
+
+
+        if finalCondition == '':
+
             if len(rhsList) != len(lhsList):
                 print("\n\n\t*********************************************************    wrong select statement****************\n\n")
+                return res
             else:
                 for i in range(len(rhsList)):
-                    res.append('( ( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) ) ^ ( ' + whereStr + ' ) )')
+                    res.append('( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) )')
+
+            # whereStr = self.getConditionalString(nodeId, tempCtx.children[whereIndex].children[1])
+            # if len(rhsList) != len(lhsList):
+            #     print("\n\n\t*********************************************************    wrong select statement****************\n\n")
+            #     return res
+            # else:
+            #     for i in range(len(rhsList)):
+            #         res.append('( ( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) ) ^ ( ( ' + whereStr + ' ) ^ ( ' +  + ' ) )')
         else:
             if len(rhsList) != len(lhsList):
                 print("\n\n\t*********************************************************    wrong select statement****************\n\n")
             else:
                 for i in range(len(rhsList)):
-                    res.append('( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) )')
+                    res.append('( ( ( ' + lhsList[i] + ' ) == ( ' + rhsList[i] + ' ) ) ^ ( ' + finalCondition + ' ) )')
+
         # # print(ctx.children[0].children[0].getChildCount())
         # # print(self.helper.getRuleName(ctx.children[0]))
         # # input("Hi")
@@ -155,6 +193,7 @@ class CnfVcGenerator(PlSqlVisitor):
         whereCondition = ""
         isWherePresent = False
         isNullPresentInWhere = False
+        fromCondtion = ""
         res = ""
         for i in range(ctx.getChildCount()):
             if self.helper.getRuleName(ctx.children[i]) == "cursor_name":
@@ -169,16 +208,39 @@ class CnfVcGenerator(PlSqlVisitor):
                             isNullPresentInWhere = True
                         else:
                             whereCondition = self.getConditionalString(nodeId, tempCtx.children[j].children[1])
+                    elif self.helper.getRuleName(tempCtx.children[j]) == "from_clause":
+                        fromCondtion = self.extractConditionsInFromClause(nodeId, tempCtx.children[j].children[1])
+
                 varStr = self.getVersionedTerminalRHS(nodeId, tempCtx.children[1]).strip()
                 rhsVar = self.getVariableForAggregateFunctionInSelect(varStr)
 
         self.cnfCfg.nodes[nodeId].versionedRHS[rhsVar] = rhsVar
 
-        if not (lhsVar == "") and not (rhsVar == ""):
-            if isWherePresent and not isNullPresentInWhere:
-                res = "( ( ( " + lhsVar + " ) == ( " + rhsVar + " ) ) ^ ( " + whereCondition + " ) )"
+        finalCondition = ''
+
+        if isWherePresent:
+            if isNullPresentInWhere:
+                if fromCondtion == '':
+                    finalCondition = ''
+                else:
+                    finalCondition = fromCondtion
             else:
+                if fromCondtion == '':
+                    finalCondition = whereCondition
+                else:
+                    finalCondition = '( ( ' + whereCondition + ' ) ^ ( ' + fromCondtion + ' ) )'
+        else:
+            if fromCondtion == '':
+                finalCondition = ''
+            else:
+                finalCondition = fromCondtion
+
+        if not (lhsVar == "") and not (rhsVar == ""):
+            if finalCondition == '':
                 res = "( ( " + lhsVar + " ) == ( " + rhsVar + " ) )"
+
+            else:
+                res = "( ( ( " + lhsVar + " ) == ( " + rhsVar + " ) ) ^ ( " + finalCondition + " ) )"
         # if ctx.children[3].children[0].children[0].getChildCount() == 4:
         #     res = "( ( ( " + self.getVersionedTerminalLHS(nodeId, ctx.children[1]) + " ) == ( " + varStr + " ) ) ^ ( " + self.getWhereClause(nodeId, ctx.children[3].children[0].children[0].children[3]) + " ) )"
         # else:
@@ -402,6 +464,34 @@ class CnfVcGenerator(PlSqlVisitor):
             for i in range(c):
                 res = res + self.getTerminal(ctx.children[i])
             return res
+
+
+    def extractConditionsInFromClause(self, nodeId, ctx):       # ctx ~ from_clause.children[1]
+        if self.helper.getRuleName(ctx) == "table_ref":
+            if ctx.getChildCount() == 2:
+                leftCondition = self.extractConditionsInFromClause(nodeId, ctx.children[0])
+                rightCondition = self.extractConditionsInFromClause(nodeId, ctx.children[1])
+                if leftCondition == "" and rightCondition == "":
+                    return ""
+                elif leftCondition == "":
+                    return rightCondition
+                elif rightCondition == "":
+                    return leftCondition
+                else:
+                    return "( " + leftCondition + " ^ " + rightCondition + " )"
+            elif ctx.getChildCount() == 1:
+                # one can get Table Name from here...
+                notImportant = "notImportant"
+                return ""
+        elif self.helper.getRuleName(ctx) == "join_clause":
+            condition = ""
+            for i in range(ctx.getChildCount()):
+                if self.helper.getRuleName(ctx.children[i]) == "table_ref":
+                    # one can get Table Name from here...
+                    notImportant = "notImportant"
+                elif self.helper.getRuleName(ctx.children[i]) == "join_on_part":
+                    condition = self.getConditionalString(nodeId, ctx.children[i].children[1].children[0])
+            return condition
 
 
     def getConditionalString(self, nodeId, ctx):   # considering only AND, OR, NOT as 'word' separator
