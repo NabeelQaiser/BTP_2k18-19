@@ -2,8 +2,10 @@ import os
 import sys
 from subprocess import call
 
-datapath = "/home/nabeel/PycharmProjects/PLSQLBenchMarkCode/PLSQLBenchMarkCode1/plSqlCode"     # data-folder-path hardcoded
-specpath = "/home/nabeel/PycharmProjects/PLSQLBenchMarkCode/PLSQLBenchMarkCode1/specification"     # spec-folder-path hardcoded
+# datapath = "/home/nabeel/PycharmProjects/PLSQLBenchMarkCode/PLSQLBenchMarkCode1/plSqlCode"     # data-folder-path hardcoded
+# specpath = "/home/nabeel/PycharmProjects/PLSQLBenchMarkCode/PLSQLBenchMarkCode1/specification"     # spec-folder-path hardcoded
+datapath = "/home/mridul/Music/BTP-II/nabeel_dataset/latest_dataset/plSqlCode"     # data-folder-path hardcoded
+specpath = "/home/mridul/Music/BTP-II/nabeel_dataset/latest_dataset/specification"     # spec-folder-path hardcoded
 
 dataList = os.listdir(datapath)
 specList = os.listdir(specpath)

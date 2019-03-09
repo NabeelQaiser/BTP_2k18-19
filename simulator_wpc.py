@@ -150,7 +150,6 @@ def executeSinglePlSqlFile(data, spec):
     from wpc.Z3RuntimeWpcFile import Z3RuntimeWpcFile
     # Reload after module's creation to avoid old module remain imported from disk...VVI...
     wpc.Z3RuntimeWpcFile = reload(wpc.Z3RuntimeWpcFile)
-    wpc.Z3RuntimeWpcFile = reload(wpc.Z3RuntimeWpcFile)
 
     z3Runtime = Z3RuntimeWpcFile()
     z3Runtime.execute()
