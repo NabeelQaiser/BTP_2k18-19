@@ -327,6 +327,7 @@ class WpcGenerator():
                         else:
                             wpcString = "( ( " + conditionInFromClause + " ^ " + newWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
                 # also add every RHS var to variablesForZ3 set
+                self.variablesForZ3.add(rhsVar)  # <<<-----------<<<---------------<<<-------------
                 self.variablesForZ3 = self.variablesForZ3.union(currentNode.variableRHS)       # <<<-----------<<<---------------<<<-------------
         return wpcString
 
