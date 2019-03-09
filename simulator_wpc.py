@@ -228,7 +228,7 @@ def main(argv):
             print(executionTime, end="\t")
             print("1", end="\t")
             print(satisfiability, end="\t\t")
-            print(modelForViolation.replace("\n", " ")[0:60], end="")
+            print(modelForViolation.replace("\n", " "), end="")
             print()
 
 

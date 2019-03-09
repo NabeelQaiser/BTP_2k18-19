@@ -1,4 +1,6 @@
+Work in Progress for CNF...
 
+ Filename			LinesOfCode	ExecutionTime	NoOfVc	Satisfiability	ViolatingInstance
 
  add_delivery_attempt.sql			35		1.628959	1	Satisfiable		
 
@@ -60,9 +62,7 @@
  award-bonus.sql			17		1.475994	1	Satisfiable		
 
  bill.sql			41		1.852741	1	Satisfiable		
-Work in Progress...
 
- Filename			LinesOfCode	ExecutionTime	NoOfVc	Satisfiability	ViolatingInstance
 
 
 Total Files executed = 24
