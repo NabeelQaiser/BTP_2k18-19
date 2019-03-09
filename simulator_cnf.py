@@ -202,8 +202,11 @@ def main(argv):
     elif len(argv) == 3:
         data = "cnf/data/" + argv[1]
         spec = "cnf/spec/" + argv[2]
-        executeSinglePlSqlFile(data, spec)
-        print("kuch bhi")
+        linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(data, spec)
+        print("\n The VC is :\n")
+        print(vcGenerated)
+        print("\nsatisfibality is : \t", satisfiability, "\n\nmodel for Violation is : \t", modelForViolation, "\n")
+        # print("kuch bhi")
     elif len(argv) == 4:
         if argv[1] == "-dataset":
             dataList = os.listdir(argv[2])

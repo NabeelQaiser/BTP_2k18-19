@@ -1,44 +1,34 @@
--- HTTPS://GITHUB.COM/LEWAN110/HOTEL-ROOM-RESERVATION-DATABASE/BLOB/MASTER/PROC.SQL
-
-
-PROCEDURE BILL (P_RESERVATION_ID IN NUMBER) IS
-        N_O_VISITS   NUMBER;
-        FINAL_COST   NUMBER;
-        TO_PAY      NUMBER;
-        DISCOUNT     NUMBER;
+PROCEDURE TEST(M IN NUMBER) IS
+    MY_MAX NUMBER;
+    CURSOR G IS SELECT MAX(A) FROM T
+            WHERE A>=M+5 AND C IN (SELECT G FROM U WHERE D>=50);
     BEGIN
-	ASSUME TO_PAY > 0 ;
+	ASSUME A>15 AND A3>15 ;
 
-        SELECT
-            COUNT(*)
-        INTO N_O_VISITS
-        FROM
-            CLIENTS
-            JOIN CLIENT_RESERVATION ON PESEL_C = PESEL
-            JOIN RESERVATIONS ON RESERVATION_ID = RESERVATION_ID_R
-        WHERE
-            STATUS = COMPLETED;
-
-        IF
-            ( N_O_VISITS > 10 )
-        THEN
-            DISCOUNT := 10;
+        OPEN G;
+        FETCH G INTO MY_MAX;
+        CLOSE G;
+        SELECT AVG(E), MAX(F) INTO X, Y FROM T
+                                  JOIN U ON B=D
+                                  JOIN V ON G=H
+                    WHERE E>=M+5 AND C<99;
+        IF MY_MAX > Y THEN
+            UPDATE V SET J=J*(X-9), F=Y-9 WHERE J>10 AND F<=(X+Y);
+        ELSIF MY_MAX < Y THEN
+            UPDATE T SET A=A*(X-9), B=Y-9 WHERE A>10 AND B<=(X+Y);
         ELSE
-            DISCOUNT := 0;
+            INSERT INTO T(A, B, C) VALUES (MY_MAX-X, MY_MAX-Y, Y*(X-2));
         END IF;
-
-
-        SELECT
-            SUM(PRICE_PER_DAY)
-        INTO FINAL_COST
-        FROM
-            ROOMS
-            JOIN RESERVATIONS ON ROOM_ID = ROOM_ID_R
-        WHERE
-            RESERVATION_ID_R = P_RESERVATION_ID;
-
-        TO_PAY:=FINAL_COST-FINAL_COST*(DISCOUNT/100);
-
-
-ASSERT TO_PAY > 0 ;
+    ASSERT A>0 AND A3>10 ;
 	END;
+
+-- C2--G
+-- T2--U
+-- B2--D
+-- A2--E
+-- B3--F
+-- T3--V
+-- C3--H
+-- A3--J
+-- D2--K
+-- D3--L
