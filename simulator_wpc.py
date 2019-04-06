@@ -49,7 +49,7 @@ def executeSinglePlSqlFile(data, spec):
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-    # print(v.rawCFG, "\n")
+    print("\n\t", v.rawCFG, "\n")
 
     # for key in v.cfg.nodes:
     #     if v.cfg.nodes[key].ctx != None:
@@ -61,7 +61,7 @@ def executeSinglePlSqlFile(data, spec):
     # cfg.printPretty()
     # print("\n")
 
-    # cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
+    cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
     utility.generateVariableSet(cfg)
 
     # all properties of each node
@@ -79,7 +79,7 @@ def executeSinglePlSqlFile(data, spec):
     # done: replace " = " with " == " in algo.finalWpcString
     algo.finalWpcString = algo.finalWpcString.replace(" = ", " == ")
 
-    # print("\n**** Final WPC String:\n", algo.finalWpcString, "\n")
+    print("\n**** Final WPC String:\n\n", algo.finalWpcString, "\n")
 
     # print(algo.variablesForZ3)
 
@@ -91,7 +91,7 @@ def executeSinglePlSqlFile(data, spec):
     z3StringConvertor = WpcStringConverter(algo.finalWpcString)
     z3StringConvertor.execute()
     # z3StringConvertor.convertedWpc is the FINAL VC Generated...
-    # print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
+    print("\n**** WPC String in Z3 Format:\n\n", z3StringConvertor.convertedWpc, "\n")
 
     z3FileString = "# This file was generated at runtime on " + str(datetime.datetime.now()) + "\n"
     z3FileString = z3FileString + "from z3 import *\n\n"
