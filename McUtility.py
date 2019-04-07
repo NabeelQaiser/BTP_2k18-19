@@ -77,8 +77,6 @@ class McUtility():
 
 
 
-
-
     def statementWiseBooleanVariableForANode(self, nodeId, predicateIndex):
         currentNode = self.cfg.nodes[nodeId]
         if len(currentNode.variableLHS) > 0:
@@ -86,93 +84,96 @@ class McUtility():
                 for i in currentNode.variableLHS:
                     self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
             elif self.helper.getRuleName(currentNode.ctx) == "update_statement":    # Database UPDATE statement
-                whereClausePosition = -1
+                isWherePresent = False
+                isNullPresentInWhere = False
                 whereCondition = ""
                 for i in range(currentNode.ctx.getChildCount()):        # finding "where_clause"...
                     if currentNode.ctx.children[i].getChildCount() > 1 and self.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
-                        whereClausePosition = i
-                        whereCondition = self.wpcGenerator.getConditionalString(currentNode.ctx.children[i].children[1])
-                        # print("@@@@@@@ update_statement whereCondition :", whereCondition)
+                        isWherePresent = True
+                        if self.wpcGenerator.nullInCondition(currentNode.ctx.children[i].children[1]):
+                            isNullPresentInWhere = True
+                        else:
+                            whereCondition = self.wpcGenerator.getConditionalString(currentNode.ctx.children[i].children[1])
+                            # print("@@@@@@@ update_statement whereCondition :", whereCondition)
                         break
-                if not whereClausePosition == -1:   # whereCondition exists
-                    self.cfg.nodes[nodeId].booleans[predicateIndex] = [whereCondition, "*", "True"]
-                else:       # whereCondition does not exist...so, no merging like 'if' block...
+                if isWherePresent:
+                    if isNullPresentInWhere:
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
+                    else:
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = [whereCondition, "*", "True"]
+                else:
                     self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
             elif self.helper.getRuleName(currentNode.ctx) == "select_statement":  # Database SELECT statement
                 # Note: we will not enter here if currentNode.variableLHS set is empty. See outer if condition.
                 tempNode = currentNode.ctx.children[0].children[0]
-                conditionInFromClause = ""
                 # SELECT A, B, C2 INTO K, L, M   FROM T JOIN T2 ON B=B2 JOIN T3 ON A2=A3   WHERE A2=X+3;
-                trueWpcString = ""
-                into_flag = -1
-                whereHandled_flag = False
+                whereCondition = ""
+                conditionInFromClause = ""
+                isWherePresent = False
+                isNullPresentInWhere = False
                 for i in range(tempNode.getChildCount()):
                     if tempNode.children[i].getChildCount() > 0:
                         if self.helper.getRuleName(tempNode.children[i]) == "from_clause":
                             conditionInFromClause = self.wpcGenerator.extractConditionsInFromClause(tempNode.children[i].children[1])
                             # print("@@@@@@@ select_statement conditionInFromClause :", conditionInFromClause)
                         elif self.helper.getRuleName(tempNode.children[i]) == "where_clause":
-                            whereCondition = self.wpcGenerator.getConditionalString(tempNode.children[i].children[1])
-                            # print("@@@@@@@ select_statement whereCondition :", whereCondition)
-                            if not conditionInFromClause == "":     # merging condition from WHERE and FROM_CLAUSE
-                                whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
-                            whereHandled_flag = True
-                if whereHandled_flag is False and into_flag > -1:
-                    # BUT, don't relax, condition from FROM_CLAUSE may not be empty!!!
-                    if not conditionInFromClause == "":
-                        self.cfg.nodes[nodeId].booleans[predicateIndex] = [conditionInFromClause, "*", "True"]
+                            isWherePresent = True
+                            if self.wpcGenerator.nullInCondition(tempNode.children[i].children[1]):
+                                isNullPresentInWhere = True
+                            else:
+                                whereCondition = self.wpcGenerator.getConditionalString(tempNode.children[i].children[1])
+                                # print("@@@@@@@ select_statement whereCondition :", whereCondition)
+                if isWherePresent:
+                    if isNullPresentInWhere:
+                        if conditionInFromClause == "":
+                            self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
+                        else:
+                            self.cfg.nodes[nodeId].booleans[predicateIndex] = [conditionInFromClause, "*", "True"]
                     else:
+                        if not conditionInFromClause == "":
+                            whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = [whereCondition, "*", "True"]
+                else:
+                    if conditionInFromClause == "":
                         self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
-                elif whereHandled_flag is True and into_flag > -1:
-                    self.cfg.nodes[nodeId].booleans[predicateIndex] = [whereCondition, "*", "True"]
+                    else:
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = [conditionInFromClause, "*", "True"]
             elif self.helper.getRuleName(currentNode.ctx) == "insert_statement":  # Database INSERT statement
                 self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
             elif self.helper.getRuleName(currentNode.ctx) == "fetch_statement":    # Database FETCH statement
                 for i in currentNode.variableLHS:
                     self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
             elif self.helper.getRuleName(currentNode.ctx) == "cursor_declaration":  # Database CURSOR statement
-                lhsVar = ""
-                rhsVar = ""
-                # whereCondition = ""
-                # conditionInFromClause = ""
-                # isWherePresent = False
-                # isNullPresentInWhere = False
-                # for i in range(currentNode.ctx.getChildCount()):
-                #     if self.helper.getRuleName(currentNode.ctx.children[i]) == "cursor_name":
-                #         lhsVar = currentNode.ctx.children[i].getText().strip()
-                #     elif self.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
-                #         tempCtx = currentNode.ctx.children[i].children[0].children[0]
-                #         for j in range(tempCtx.getChildCount()):
-                #             if self.helper.getRuleName(tempCtx.children[j]) == "from_clause":
-                #                 conditionInFromClause = self.extractConditionsInFromClause(tempCtx.children[j].children[1])
-                #                 # print("@@@@@@@ cursor_statement conditionInFromClause :", conditionInFromClause)
-                #             elif self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
-                #                 isWherePresent = True
-                #                 if self.nullInCondition(tempCtx.children[j].children[1]):
-                #                     isNullPresentInWhere = True
-                #                 else:
-                #                     whereCondition = self.getConditionalString(tempCtx.children[j].children[1])
-                #                     # print("@@@@@@@ cursor_statement whereCondition :", whereCondition)
-                #         # BUT what to do if there are multiple SELECTION attributes here???...as per datasets assuming single attribute...
-                #         varString = self.ssaString.getTerminal(tempCtx.children[1]).strip()
-                #         rhsVar = self.getVariableForAggregateFunctionInSelect(varString)
-                # if not(lhsVar == "") and not(rhsVar == ""):
-                #     newWpcString = wpcString
-                #     newWpcString = newWpcString.replace(" " + lhsVar + " ", " " + rhsVar + " ")
-                #     if isWherePresent:
-                #         if isNullPresentInWhere:
-                #             if conditionInFromClause == "":
-                #                 wpcString = "( " + newWpcString + " v " + wpcString + " )"
-                #             else:
-                #                 wpcString = "( ( " + conditionInFromClause + " ^ " + newWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
-                #         else:
-                #             if not conditionInFromClause == "":
-                #                 whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
-                #             wpcString = "( ( " + whereCondition + " ^ " + newWpcString + " ) v ( ( ! " + whereCondition + " ) ^ " + wpcString + " ) )"
-                #     else:
-                #         if conditionInFromClause == "":
-                #             wpcString = newWpcString
-                #         else:
-                #             wpcString = "( ( " + conditionInFromClause + " ^ " + newWpcString + " ) v ( ( ! " + conditionInFromClause + " ) ^ " + wpcString + " ) )"
-        return ""
-
+                whereCondition = ""
+                conditionInFromClause = ""
+                isWherePresent = False
+                isNullPresentInWhere = False
+                for i in range(currentNode.ctx.getChildCount()):
+                    if self.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
+                        tempCtx = currentNode.ctx.children[i].children[0].children[0]
+                        for j in range(tempCtx.getChildCount()):
+                            if self.helper.getRuleName(tempCtx.children[j]) == "from_clause":
+                                conditionInFromClause = self.wpcGenerator.extractConditionsInFromClause(tempCtx.children[j].children[1])
+                                # print("@@@@@@@ cursor_statement conditionInFromClause :", conditionInFromClause)
+                            elif self.helper.getRuleName(tempCtx.children[j]) == "where_clause":
+                                isWherePresent = True
+                                if self.wpcGenerator.nullInCondition(tempCtx.children[j].children[1]):
+                                    isNullPresentInWhere = True
+                                else:
+                                    whereCondition = self.wpcGenerator.getConditionalString(tempCtx.children[j].children[1])
+                                    # print("@@@@@@@ cursor_statement whereCondition :", whereCondition)
+                if isWherePresent:
+                    if isNullPresentInWhere:
+                        if conditionInFromClause == "":
+                            self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
+                        else:
+                            self.cfg.nodes[nodeId].booleans[predicateIndex] = [conditionInFromClause, "*", "True"]
+                    else:
+                        if not conditionInFromClause == "":
+                            whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = [whereCondition, "*", "True"]
+                else:
+                    if conditionInFromClause == "":
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = ["*"]
+                    else:
+                        self.cfg.nodes[nodeId].booleans[predicateIndex] = [conditionInFromClause, "*", "True"]
