@@ -1,7 +1,7 @@
 T :: A : not_null, B: null, C :null, D:not_null
 T2 :: P:null, Q:not_null, R:not_null
 
-PREDICATES :: A+p>=50, c+d=100, q+R<54
+PREDICATES :: A+p>=50, c+d=100
 
 **** These lines will be ignored, but not above of this
 **** individual predicates MUST be separated by COMMA(,)

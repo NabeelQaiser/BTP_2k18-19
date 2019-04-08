@@ -85,7 +85,7 @@ class McPreProcessor:
         wpcGeneratorObj = WpcGenerator(cfg, helper, ssaStringObj)
 
         newPredicates = []
-        predicateVarSet = {}
+        predicateVarSet = set()
         for nodeId in cfg.nodes:
             if helper.getRuleName(cfg.nodes[nodeId].ctx) == "assume_statement":
                 assumeCondition = wpcGeneratorObj.getConditionalString(cfg.nodes[nodeId].ctx.children[1])

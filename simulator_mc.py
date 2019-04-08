@@ -7,6 +7,9 @@ from subprocess import call
 
 from antlr4 import *
 
+from McNode import McNode
+from McPreProcessor import McPreProcessor
+from McUtility import McUtility
 from MyCFG import MyCFG
 from MyHelper import MyHelper
 from MyRawCfgToGraph import MyRawCfgToGraph
@@ -20,13 +23,34 @@ from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
 
 
+def copyNode(node):
+    res = McNode(node.id, node.ctx)
+    res.next = node.next
+    res.parent = node.parent
+    res.domSet = node.domSet
+    res.sDomSet = node.sDomSet
+    res.iDom = node.iDom
+    res.DFSet = node.DFSet
+    res.levelFromEntryNode = node.levelFromEntryNode
+    res.phiNode = node.phiNode
+    res.variableSet = node.variableSet
+    res.variableLHS = node.variableLHS
+    res.variableRHS = node.variableRHS
+    res.versionedPhiNode = node.versionedPhiNode
+    res.versionedLHS = node.versionedLHS
+    res.versionedRHS = node.versionedRHS
+    res.destructedPhi = node.destructedPhi
+    res.stringSsa = node.stringSsa
+    res.oldString = node.oldString
+    res.branching = node.branching
+    return res
 
 def executeSinglePlSqlFile(data, spec):
     f = open(data, 'r')
     linesOfCode = len(f.readlines())
     f.close()
 
-    processor = PreProcessor(spec, data)
+    processor = McPreProcessor(spec, data)
     tableInfo, predicates, predicateVarSet, resultString = processor.start()
 
     file = open('mc/upper_input.sql', "w")
@@ -49,91 +73,57 @@ def executeSinglePlSqlFile(data, spec):
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-    # print(v.rawCFG, "\n")
-
-    # for key in v.cfg.nodes:
-    #     if v.cfg.nodes[key].ctx != None:
-    #         print(key, " --> ", v.cfg.nodes[key].ctx.getText())
-    # print("\n")
-
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
-    # cfg.printPretty()
-    # print("\n")
-
-    # cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
-    utility.generateVariableSet(cfg)
-
-    # all properties of each node
-    # for nodeId in cfg.nodes:
-    #     cfg.nodes[nodeId].printPretty()
 
 
-    ssaString = MySsaStringGenerator(cfg, parser)
-    # ssaString.execute()
+    mcCfg = MyCFG()
+    for nodeId in cfg.nodes:
+        tempNode = copyNode(cfg.nodes[nodeId])
+        mcCfg.nodes[nodeId] = tempNode
+
+    utility.generateVariableSet(mcCfg)
+    ssaString = MySsaStringGenerator(mcCfg, parser)
+    wpcObj = WpcGenerator(mcCfg, helper, ssaString)
+    mcUtility = McUtility(mcCfg, wpcObj, predicateVarSet)
+
+    print("\n----------\n\n\t\tpredicates\n")
+    for i in predicates:
+        print(i)
+    print("\n-------  booleans and wpcs  ------\n\n")
+
+    # for i in mcCfg.nodes:
+    #     if mcCfg.nodes[i].ctx is not None:
+    #         print(mcCfg.nodes[i].ctx.getText(), "\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
+
+    mcUtility.execute(predicates)
 
 
-    algo = WpcGenerator(cfg, helper, ssaString)
-    algo.execute()
-    algo.finalWpcString = algo.finalWpcString.replace("  ", " ")
-    # done: replace " = " with " == " in algo.finalWpcString
-    algo.finalWpcString = algo.finalWpcString.replace(" = ", " == ")
 
-    # print("\n**** Final WPC String:\n", algo.finalWpcString, "\n")
+    for i in mcCfg.nodes:
+        if mcCfg.nodes[i].ctx is not None:
+            print(mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
 
-    # print(algo.variablesForZ3)
-
-    # algo.finalWpcString = "( ( z ) ^ ( ( ! ( y ) ) ==> ( ( ( 2 ) v ( x ) ) ==> ( y - 2 ) ) ) )"       # for testing! Don't UNCOMMENT...
-    # algo.finalWpcString = "( ( ( z ) ==> ( u ) ) ^ ( ( ! ( y ) ) ==> ( ( ( true ) ) ==> ( y - 2 ) ) ) )"       # for testing! Don't UNCOMMENT...
-    # algo.finalWpcString = "( ( ( z ) ==> ( u ) ) ^ ( ( ! ( y ) ) ==> ( true ) ) ^ ( ( a ) ==> ( b ) ) )"       # for testing! Don't UNCOMMENT...
-    # algo.finalWpcString = "( ( ( ! ( y ) ) ==> ( true ) ) )"       # for testing! Don't UNCOMMENT...
-    # algo.finalWpcString = "( ( ( ! ( y ) ) ^ ( true ) v ( g ) ) )"       # for testing! Don't UNCOMMENT...
-    z3StringConvertor = WpcStringConverter(algo.finalWpcString)
-    z3StringConvertor.execute()
-    # z3StringConvertor.convertedWpc is the FINAL VC Generated...
-    # print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
-
-    # import file created on Runtime...
-    import wpc.Z3RuntimeWpcFile
-    from wpc.Z3RuntimeWpcFile import Z3RuntimeWpcFile
-    # Reload after module's creation to avoid old module remain imported from disk...VVI...
-    wpc.Z3RuntimeWpcFile = reload(wpc.Z3RuntimeWpcFile)
-
-    z3Runtime = Z3RuntimeWpcFile()
-    z3Runtime.execute()
-    # print(z3Runtime.finalFormula)
-    # print(z3Runtime.satisfiability)
-    # print(z3Runtime.modelForViolation)
-
-    # recording finishTime
-    finishTime = datetime.datetime.now()
-    timeDifference = (finishTime-startTime).total_seconds()
-
-    return linesOfCode, timeDifference, z3StringConvertor.convertedWpc, z3Runtime.satisfiability, z3Runtime.modelForViolation
 
 
 
 def main(argv):
     if len(argv) < 3:
         print("Not Enough Arguments. Exiting...")
-    elif len(argv) == 3:        # python3 simulator_wpc.py <data-file-name> <spec-file-name>
-        data = "mc/data/" + argv[1]    # given data-file must be +nt in "wpc/data/"
-        spec = "mc/spec/" + argv[2]    # given spec-file must be +nt in "wpc/spec/"
-        linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(data, spec)
-        print("executionTime :", executionTime)
-        print("vcGenerated :", vcGenerated)
-        print("satisfiability :", satisfiability)
-        print("modelForViolation :", modelForViolation)
-    elif len(argv) == 6:        # see dataset_runner_wpc.py
+    elif len(argv) == 3:        # python3 simulator_mc.py <data-file-name> <spec-file-name>
+        data = "mc/data/" + argv[1]    # given data-file must be +nt in "mc/data/"
+        spec = "mc/spec/" + argv[2]    # given spec-file must be +nt in "mc/spec/"
+        executeSinglePlSqlFile(data, spec)
+    elif len(argv) == 6:        # see dataset_runner_mc.py
         if argv[1] == "-datafilename" and argv[3] == "-data_spec_filepaths":
-            linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(argv[4], argv[5])
-            print(" "+argv[2], end="\t\t\t")
-            print(linesOfCode, end="\t\t")
-            print(executionTime, end="\t")
-            print("1", end="\t")
-            print(satisfiability, end="\t\t")
-            print(modelForViolation.replace("\n", " "), end="")
-            print()
+            executeSinglePlSqlFile(argv[4], argv[5])
+            # print(" "+argv[2], end="\t\t\t")
+            # print(linesOfCode, end="\t\t")
+            # print(executionTime, end="\t")
+            # print("1", end="\t")
+            # print(satisfiability, end="\t\t")
+            # print(modelForViolation.replace("\n", " "), end="")
+            # print()
 
 
 if __name__ == '__main__':

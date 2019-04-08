@@ -1,5 +1,6 @@
 from z3 import *
 
+from McNode import McNode
 from WpcStringConverter import WpcStringConverter
 
 
@@ -11,8 +12,13 @@ class McUtility():
         self.wpcGenerator = wpcGenerator
         self.allVar = predicateVarSet
 
-    def execute(self):
+
+    def execute(self, predicateList):
         self.preExecute()
+        for i in range(len(predicateList)):
+            self.generateWpcStringForAPredicate(predicateList[i], i)
+        for i in range(len(predicateList)):
+            self.generateBooleanVariableForAPredicate(predicateList[i], i)
 
 
 
@@ -65,10 +71,10 @@ class McUtility():
         z3SolverObj = Solver()
         if len(z3StringConvertorObj.implies_p) > 0:
             for i in range(len(z3StringConvertorObj.implies_p)):
-                z3SolverObj.add(z3StringConvertorObj.implies_p[i])
+                exec("%s" % ("z3SolverObj.add(" + z3StringConvertorObj.implies_p[i] + ")"))
                 if not z3StringConvertorObj.convertedWpc == z3StringConvertorObj.implies_p_q[i]:
-                    z3SolverObj.add(z3StringConvertorObj.implies_p_q[i])
-        z3SolverObj.add(Not(z3StringConvertorObj.convertedWpc))
+                    exec("%s" % ("z3SolverObj.add(" + z3StringConvertorObj.implies_p_q[i] + ")"))
+        exec("%s" % ("z3SolverObj.add( Not(" + z3StringConvertorObj.convertedWpc + ") )"))
         satisfiability = str(z3SolverObj.check())
         if satisfiability == "unsat":
             return "looksgood"
