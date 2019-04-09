@@ -29,6 +29,7 @@ class McUtility():
     def generateWpcStringForAPredicate(self, predicate, predicateIndex):
         for nodeId in self.cfg.nodes:
             self.wpcStringForANode(nodeId, predicate, predicateIndex)
+        self.allVar = self.allVar.union(self.wpcGenerator.variablesForZ3)
 
     def wpcStringForANode(self, nodeId, predicate, predicateIndex):
         temp = self.wpcGenerator.updateWpcStringByReplacing(predicate, self.cfg.nodes[nodeId]).strip()

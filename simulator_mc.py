@@ -7,6 +7,7 @@ from subprocess import call
 
 from antlr4 import *
 
+from McExecutor import McExecutor
 from McNode import McNode
 from McPreProcessor import McPreProcessor
 from McUtility import McUtility
@@ -90,19 +91,30 @@ def executeSinglePlSqlFile(data, spec):
     print("\n----------\n\n\t\tpredicates\n")
     for i in predicates:
         print(i)
-    print("\n-------  booleans and wpcs  ------\n\n")
 
     # for i in mcCfg.nodes:
     #     if mcCfg.nodes[i].ctx is not None:
     #         print(mcCfg.nodes[i].ctx.getText(), "\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
 
-    mcUtility.execute(predicates)
+    # mcUtility.execute(predicates)
 
+    mcExecutor = McExecutor()
+    # paths = []
+    # mcExecutor.getAllPaths(mcCfg, 0, [], paths)
+    # print(paths)
 
+    print("**********************************************************************")
+    mcExecutor.execute(mcUtility, predicates)
+    print("**********************************************************************\n\n\n")
 
+    print("\n-------  booleans and wpcs  ------\n\n")
     for i in mcCfg.nodes:
         if mcCfg.nodes[i].ctx is not None:
-            print(mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
+            print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
+
+    mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
+
+
 
 
 
