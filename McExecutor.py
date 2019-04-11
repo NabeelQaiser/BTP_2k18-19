@@ -20,37 +20,53 @@ class McExecutor():
             currPath.pop()
             cfg.nodes[nodeId].visited = False
 
-    def execute(self, mcUtility, predicateList):
+    def execute(self, mcUtility, predicateList, sePathList, seSatInfoList):
         paths = []
         self.getAllPaths(mcUtility.cfg, 0, [], paths)
         mcUtility.execute(predicateList)
         for predicateIndex in range(len(predicateList)):
-            # currPredicate = predicateList[predicateIndex]
+            print("----------------- Working for PREDICATE : \t", predicateList[predicateIndex])
             index = 0
-            isRepeated = False
+            isFirstRefined = False
             isFaultyPredicate = False
-            while index < len(paths):
+            while index < len(paths):       #index for conventional loop
                 looksGood = True
+                probNodeId = -1
                 for nodeId in paths[index]:
                     looksGood = self.observeNode(mcUtility, nodeId, predicateIndex)
                     if not looksGood:
+                        probNodeId = nodeId
                         break   #todo : mention something worthy here
-                if not looksGood:
-                    if not isRepeated:
-                        isRepeated = True
-                        self.refine(mcUtility, paths[index], predicateList[predicateIndex], predicateIndex)       # we are adding all the 'if' conditions of this particular path
-                        index = index - 1
-                    else:       #todo: mention the error here
+                if not looksGood:           #todo : check for spurious path here and also update the 'isRefined' variable
+                    seSatisfiability = self.getSeSatisfiability(sePathList, seSatInfoList, paths[index])
+                    if seSatisfiability == "ProblemInSeApi":
+                        print("!!!!!!!!!    This path dosen't exists in SE API paths !!!!!", "\nAnd that path is : \t", paths[index])
+                    elif seSatisfiability == "cannotsay":
                         isFaultyPredicate = True
-                        print("Problem for PREDICATE : \t", predicateList[predicateIndex])
-                        print("There is a problem in the execution of path (here showing only node IDs) : \n\t", paths[index], "\nAnd the node ID which is causing problem is :\t", nodeId, "\n")
-                        break
+                        print("Problem in execution of path (here showing only node IDs) : \n\t",
+                              paths[index], "\nAnd the node ID which is causing problem is :\t", probNodeId, "\n")
+                    elif seSatisfiability == "looksgood":     # se looks good where as mc doesn't
+                        if not isFirstRefined:
+                            isFirstRefined = True
+                            self.firstRefine(mcUtility, paths[index], predicateList[predicateIndex], predicateIndex)  # we are adding all the 'if' conditions of this particular path
+                            index = index - 1
+                        else:
+                            self.furtherRefine(mcUtility, paths[index], predicateList[predicateIndex], predicateIndex, probNodeId)  # we are adding assignment eq. as condition
+                            index = index - 1
+                    # if not isRefined:
+                    #     isRefined = True
+
+                    # else:       #todo: mention the error here
+                    #     isFaultyPredicate = True
+                    #     print("Problem for PREDICATE : \t", predicateList[predicateIndex])
+                    #     print("There is a problem in the execution of path (here showing only node IDs) : \n\t", paths[index], "\nAnd the node ID which is causing problem is :\t", probNodeId, "\n")
+                    #     break
                 index = index + 1
             if not isFaultyPredicate:
-                print("SUCCESSFUL FOR PREDICATE :\t", predicateList[predicateIndex], "\n")
+                print("\nSUCCESSFUL FOR PREDICATE :\t", predicateList[predicateIndex], "\n")
 
 
-    def refine(self, mcUtility, path, oldPredicate, predicateIndex):
+    def firstRefine(self, mcUtility, path, oldPredicate, predicateIndex):
         newPredicateStr = oldPredicate
         for i in range(len(path)):
             if len(mcUtility.cfg.nodes[path[i]].next) > 1:
@@ -64,7 +80,74 @@ class McExecutor():
         mcUtility.generateWpcStringForAPredicate(newPredicateStr, predicateIndex)
         mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
 
+    def furtherRefine(self, mcUtility, path, oldPredicate, predicateIndex, probNodeId):
+        newPredicateStr = oldPredicate
+        currentNode = mcUtility.cfg.nodes[probNodeId]
+        ruleName = mcUtility.helper.getRuleName(currentNode.ctx).strip()
+        if ruleName == "assignment_statement":
+            lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[0]).strip()
+            # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+            # DON'T expect more...
+            varString = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[2]).strip()
+            varString = varString.replace("( )", "")
+            varString = varString.replace("  ", " ").strip()
+            rhsVar = "( " + varString + " )"
+            if not lhsVar == "" and not varString == "":
+                newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
+        elif ruleName == "update_statement":
+            for i in range(currentNode.ctx.getChildCount()):
+                # finding "update_set_clause"...
+                if currentNode.ctx.children[i].getChildCount() > 1 and mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
+                    updateSetCtx = currentNode.ctx.children[i]
+                    for j in range(updateSetCtx.getChildCount()):
+                        # finding "column_based_update_set_clause"...
+                        if updateSetCtx.children[j].getChildCount() > 1 and mcUtility.helper.getRuleName(updateSetCtx.children[j]) == "column_based_update_set_clause":
+                            lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(updateSetCtx.children[j].children[0]).strip()
+                            # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                            # DON'T expect more...
+                            varString = mcUtility.wpcGenerator.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip()
+                            varString = varString.replace("( )", "")
+                            varString = varString.replace("  ", " ").strip()
+                            rhsVar = " ( " + varString + " ) "
+                            if not lhsVar == "" and not varString == "":
+                                newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
+                # finding "where_clause"...
+                elif currentNode.ctx.children[i].getChildCount() > 1 and mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
+                    if not mcUtility.wpcGenerator.nullInCondition(currentNode.ctx.children[i].children[1]):
+                        whereCondition = mcUtility.wpcGenerator.getConditionalString(currentNode.ctx.children[i].children[1])
+                        newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + whereCondition + " ) )"
+        elif ruleName == "insert_statement":    # assuming Attributes in which data is to be inserted is mentioned with Tablename
+            tempNode = currentNode.ctx.children[1]  # single_table_insert
+            myLHS = []
+            myRHS = []
+            count = tempNode.children[0].getChildCount()  # inset_into_clause
+            if count > 2:
+                i = 2
+                while i < count:
+                    if tempNode.children[0].children[i].getChildCount() > 0:
+                        myLHS.append(tempNode.children[0].children[i].getText().strip())
+                    i = i + 1
+            count = tempNode.children[1].children[1].getChildCount()  # expression_list
+            i = 0
+            while i < count:
+                node = tempNode.children[1].children[1].children[i]
+                if node.getChildCount() > 0:
+                    myRHS.append(mcUtility.wpcGenerator.ssaString.getTerminal(node).strip())
+                i = i + 1
+            # do replacing in wpcString now...
+            if len(myLHS) > 0:
+                for i in range(len(myLHS)):
+                    # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                    # DON'T expect more...
+                    varString = myRHS[i]
+                    varString = varString.replace("( )", "")
+                    varString = varString.replace("  ", " ").strip()
+                    rhsVar = "( " + varString + " )"
+                    if not myLHS[i] == "" and not varString == "":
+                        newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + myLHS[i] + " == " + rhsVar + " ) )"
 
+        mcUtility.generateWpcStringForAPredicate(newPredicateStr, predicateIndex)
+        mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
 
 
 
@@ -111,3 +194,14 @@ class McExecutor():
             return True
         elif satisfiability == "sat":
             return False
+
+    def getSeSatisfiability(self, sePathList, seSatInfoList, mcPath):
+        target = -1
+        for i in range(len(sePathList)):
+            if mcPath == sePathList[i]:
+                target = i
+                break
+        if target != -1:
+            return seSatInfoList[target]
+        else:
+            return "ProblemInSeApi"

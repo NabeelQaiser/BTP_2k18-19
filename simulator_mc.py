@@ -17,6 +17,7 @@ from MyRawCfgToGraph import MyRawCfgToGraph
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
 from PreProcessor import PreProcessor
+from SeAPI.SePathsInfoForMc import SePathsInfoForMc
 from WpcGenerator import WpcGenerator
 from WpcStringConverter import WpcStringConverter
 from gen.MySsaStringGenerator import MySsaStringGenerator
@@ -99,6 +100,7 @@ def executeSinglePlSqlFile(data, spec):
     # mcUtility.execute(predicates)
 
     mcExecutor = McExecutor()
+    sePathsInfoForMc = SePathsInfoForMc()
     # paths = []
     # mcExecutor.getAllPaths(mcCfg, 0, [], paths)
     # print(paths)
