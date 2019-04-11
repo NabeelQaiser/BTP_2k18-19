@@ -1,0 +1,21 @@
+from z3 import *
+ACC_NO0 = Real('ACC_NO0')
+AMT0 = Real('AMT0')
+BAL0 = Real('BAL0')
+MIN_BAL0 = Real('MIN_BAL0')
+BALANCE0 = Real('BALANCE0')
+ACCNO0 = Real('ACCNO0')
+BAL1 = Real('BAL1')
+MIN_BAL1 = Real('MIN_BAL1')
+ACCNO1 = Real('ACCNO1')
+BALANCE1 = Real('BALANCE1')
+ACCNO2 = Real('ACCNO2')
+BALANCE2 = Real('BALANCE2')
+s = Solver()
+s.add(And(And(And(And(And(And(And(True, BALANCE0 > 0 ), BAL1 ==BALANCE0 ), ACCNO0 ==ACC_NO0 ), MIN_BAL1  == BAL1 - AMT0 ) , Not(And(AMT0 < 10000 , MIN_BAL1 > 0 ))), ACCNO2 == ACCNO0), BALANCE2 == BALANCE0))
+s.add(Not(Implies(And(And(And(And(And(And(And(True, BALANCE0 > 0 ), BAL1 ==BALANCE0 ), ACCNO0 ==ACC_NO0 ), MIN_BAL1  == BAL1 - AMT0 ) , Not(And(AMT0 < 10000 , MIN_BAL1 > 0 ))), ACCNO2 == ACCNO0), BALANCE2 == BALANCE0), BALANCE2 > 0 )))
+r = s.check()
+if str(r) == "unsat":
+    print("looksgood")
+else:
+    print('cannotsay')

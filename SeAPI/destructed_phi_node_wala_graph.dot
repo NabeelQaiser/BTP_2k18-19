@@ -1,0 +1,43 @@
+digraph G {
+
+	
+	0[ label=""  ] ;
+	
+	0 -> 1 ;
+	
+	1[ label="X0 IN NUMBER "  ] ;
+	
+	1 -> 2 ;
+	
+	2[ label="Y0 IN NUMBER "  ] ;
+	
+	2 -> 3 ;
+	
+	3[ label="ASSUME A0 > 10 "  ] ;
+	
+	3 -> 4 ;
+	
+	4[ label="ASSUME B0 > 10 "  ] ;
+	
+	4 -> 5 ;
+	
+	5[ label="( X0 >= 3 ) " , color=orange, shape=diamond ] ;
+	
+	5 -> 6 ;
+	5 -> 7 ;
+	
+	6[ label="UPDATE T SET B1 = B1 - 10 WHERE A0 = Y0 \nDestructed PhiNode(s)\nA2 = A1" , color=green ] ;
+	
+	6 -> 8 ;
+	
+	7[ label="\nDestructed PhiNode(s)\nA2 = A0" , color=green ] ;
+	
+	7 -> 8 ;
+	
+	8[ label="ASSERT B2 > 10 "  ] ;
+	
+	
+	0[ label="START", shape=Msquare, color=green ] ;
+	8 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	
+}

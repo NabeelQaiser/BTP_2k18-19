@@ -1,0 +1,38 @@
+digraph G {
+
+	
+	0[ label=""  ] ;
+	
+	0 -> 1 ;
+	
+	1[ label="X0 IN NUMBER "  ] ;
+	
+	1 -> 2 ;
+	
+	2[ label="Y0 IN NUMBER "  ] ;
+	
+	2 -> 3 ;
+	
+	3[ label="ASSUME A0 > 10 AND B0 > 10 "  ] ;
+	
+	3 -> 4 ;
+	
+	4[ label="X0 >= 3 " , color=orange, shape=diamond ] ;
+	
+	4 -> 5 ;
+	4 -> 6 ;
+	
+	5[ label="UPDATE T SET B1 = B1 - 10 WHERE A0 = Y0 "  ] ;
+	
+	5 -> 7 ;
+	
+	6[ label=""  ] ;
+	
+	6 -> 7 ;
+	
+	7[ label="ASSERT A2 > 10 AND B2 > 10 "  ] ;
+	
+	0[ label="START", shape=Msquare, color=green ] ;
+	7 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	
+}
