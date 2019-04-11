@@ -7,6 +7,7 @@ from MyHelper import MyHelper
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
 from PreProcessor import PreProcessor
+from SePathsInfoForMc import SePathsInfoForMc
 from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
 from MyRawCfgToGraph import MyRawCfgToGraph
@@ -113,11 +114,12 @@ def main(argv):
         #print(varaibleset)
         variableset = z3fr.z3VariableDeclarationSet(path)
         z3fr.z3FormulaForEachPath(vc)
-        call(['python', 'z3formula.py'])
+        os.system('python3 z3formula.py')
 
     finishTime = datetime.datetime.now()
     timeDifference = (finishTime - startTime).total_seconds()
     print(timeDifference*60)
+
 
 
 
