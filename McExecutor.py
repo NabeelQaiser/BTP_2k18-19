@@ -52,11 +52,15 @@ class McExecutor():
 
     def refine(self, mcUtility, path, oldPredicate, predicateIndex):
         newPredicateStr = oldPredicate
-        for nodeId in path:
-            if len(mcUtility.cfg.nodes[nodeId].next) > 1:
-                if not mcUtility.wpcGenerator.nullInCondition(mcUtility.cfg.nodes[nodeId].ctx):
-                    singleCondition = mcUtility.wpcGenerator.getConditionalString(mcUtility.cfg.nodes[nodeId].ctx)
-                    newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + singleCondition + " ) )"
+        for i in range(len(path)):
+            if len(mcUtility.cfg.nodes[path[i]].next) > 1:
+                if not mcUtility.wpcGenerator.nullInCondition(mcUtility.cfg.nodes[path[i]].ctx):
+                    singleCondition = mcUtility.wpcGenerator.getConditionalString(mcUtility.cfg.nodes[path[i]].ctx)
+                    if path[i + 1] == mcUtility.cfg.nodes[path[i]].branching['true']:
+                        newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + singleCondition + " ) )"
+                    elif path[i + 1] == mcUtility.cfg.nodes[path[i]].branching['true']:
+                        newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( ! ( " + singleCondition + " ) ) )"
+
         mcUtility.generateWpcStringForAPredicate(newPredicateStr, predicateIndex)
         mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
 
