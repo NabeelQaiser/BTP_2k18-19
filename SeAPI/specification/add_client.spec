@@ -1,4 +1,5 @@
-client :: id: NOT NULL, name:NULL, surname:NULL
+client :: id: NOT_NULL, name:NULL, surname:NULL
 
 
-constraints:: max_id > 0,  id > 0
+assume:: max_id > 0,  id > 0
+assert:: max_id > 0,  id > 0

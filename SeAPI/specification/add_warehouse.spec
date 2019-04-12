@@ -1,3 +1,4 @@
-warehouse:: id:NUT NULL
+warehouse:: id:NUT_NULL
 
-constraints:: id>0, max_id > 0
+assume:: id>0, max_id > 0
+assert:: id>0, max_id > 0

@@ -2,34 +2,34 @@ import sys
 import os
 import datetime
 from antlr4 import *
-from MyCFG import MyCFG
-from MyHelper import MyHelper
-from MyUtility import MyUtility
-from MyVisitor import MyVisitor
-from PreProcessor import PreProcessor
-from gen.PlSqlLexer import PlSqlLexer
-from gen.PlSqlParser import PlSqlParser
-from MyRawCfgToGraph import MyRawCfgToGraph
-from gen.MySsaStringGenerator import MySsaStringGenerator
-from gen.SymbolicVcGeneration import SymbolicVcGeneration
-from gen.z3formulaofvcs import z3formulaofvcs
+from SeAPI.MyCFG import MyCFG
+from SeAPI.MyHelper import MyHelper
+from SeAPI.MyUtility import MyUtility
+from SeAPI.MyVisitor import MyVisitor
+from SeAPI.PreProcessor import PreProcessor
+from SeAPI.gen.PlSqlLexer import PlSqlLexer
+from SeAPI.gen.PlSqlParser import PlSqlParser
+from SeAPI.MyRawCfgToGraph import MyRawCfgToGraph
+from SeAPI.gen.MySsaStringGenerator import MySsaStringGenerator
+from SeAPI.gen.SymbolicVcGeneration import SymbolicVcGeneration
+from SeAPI.gen.z3formulaofvcs import z3formulaofvcs
 
 
 class SePathsInfoForMc():
     def __init__(self):
         pass
 
-    def execute(self, data, spec):
-        # data = "gen/data/" + argv[1]
-        # spec = "specification/" + argv[2]
+    def execute(self, data, spec, pwd):
+        data = pwd + "SeAPI/gen/data/" + data
+        spec = pwd + "SeAPI/specification/" + spec
         processor = PreProcessor(spec, data)
         tableInfo, assume, assrt, resultString = processor.start()
 
-        file = open('upper_input.sql', "w")
+        file = open(pwd + 'SeAPI/upper_input.sql', "w")
         file.write(resultString)
         file.close()
 
-        input = FileStream('upper_input.sql')
+        input = FileStream(pwd + 'SeAPI/upper_input.sql')
         lexer = PlSqlLexer(input)
         stream = CommonTokenStream(lexer)
         parser = PlSqlParser(stream)
@@ -37,6 +37,7 @@ class SePathsInfoForMc():
 
         cfg = MyCFG()
         helper = MyHelper(parser)
+        helper.updateTableDict(tableInfo)
         utility = MyUtility(helper)
         v = MyVisitor(parser, cfg, utility)
         v.visit(tree)
@@ -56,6 +57,9 @@ class SePathsInfoForMc():
         ssaString = MySsaStringGenerator(cfg, parser)
         ssaString.execute()
 
+        # for nodeId in cfg.nodes:
+        #     cfg.nodes[nodeId].printPretty()
+
         utility.dfs(cfg.nodes[0].id, cfg)
 
         for nodeId in cfg.nodes:
@@ -72,14 +76,27 @@ class SePathsInfoForMc():
         for path in list_of_path:
             vc = vcs.SymbolicVc(path)
             variableset = z3fr.z3VariableDeclarationSet(path)
-            z3fr.z3FormulaForEachPath(vc)
+            z3fr.z3FormulaForEachPath(vc, pwd)
 
-            f = open("tempSatInfo.txt", "w")
+            f = open(pwd + "SeAPI/tempSatInfo.txt", "w")
             f.close()
-            os.system('python3 z3formula.py >> tempSatInfo.txt')
+
+            tempStr = 'python3 ' + pwd + 'SeAPI/z3formula.py >> ' + pwd + 'SeAPI/tempSatInfo.txt'
+            os.system(tempStr)
+
             listOfPaths.append(path)
-            f = open("tempSatInfo.txt", "r")
+
+            f = open(pwd + "SeAPI/tempSatInfo.txt", "r")
             lines = f.readlines()
-            listOfSatisfiability.append(lines[0].strip())
+            f.close()
+
+            if len(lines) > 0:
+                listOfSatisfiability.append(lines[0].strip())
+            else:
+                listOfSatisfiability.append("NoZ3OutputGivenForThisPath")
+                print("\t!!!!!!! Problem in SE API, No Z3 Output Given For This SE Path :", path)
+        # clearing this file
+        f = open(pwd + "SeAPI/tempSatInfo.txt", "w")
+        f.close()
 
         return listOfPaths, listOfSatisfiability

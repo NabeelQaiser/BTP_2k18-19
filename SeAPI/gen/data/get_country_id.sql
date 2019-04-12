@@ -9,7 +9,7 @@ IS
         FROM country
         WHERE country = a_country;
       CURSOR get_max_country_id IS
-        SELECT MAX_id
+        SELECT MAX(id)
         FROM country;
     BEGIN
       OPEN get_country_id;

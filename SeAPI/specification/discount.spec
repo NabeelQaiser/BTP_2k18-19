@@ -1,5 +1,6 @@
-ROUTES :: PRICE:NOT NULL
-LOADS:: load_id:NULL, CUSTOMER_ID:NOT NULL
+ROUTES :: PRICE:NOT_NULL
+LOADS:: load_id:NULL, CUSTOMER_ID:NOT_NULL, WEIGHT:NOT_NULL, START_TIME:NULL
 
 
-constraints:: big_discount >= 0 , low_discount >= 0 , wrong_discount >= 0 , price > 0, SYSDATE > 0
+assume:: big_discount >= 0 , low_discount >= 0 , wrong_discount >= 0 , price > 0, SYSDATE > 0
+assert:: big_discount >= 0 , low_discount >= 0 , wrong_discount >= 0 , price > 0, SYSDATE > 0

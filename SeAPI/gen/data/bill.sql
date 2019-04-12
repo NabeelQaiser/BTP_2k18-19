@@ -11,11 +11,11 @@ PROCEDURE bill (p_reservation_id IN NUMBER) IS
             COUNT(*)
         INTO n_o_visits
         FROM
-            clients c
-            JOIN client_reservation cr ON c.pesel = cr.pesel
-            JOIN reservations r ON cr.reservation_id = r.reservation_id
+            clients
+            JOIN client_reservation ON pesel_c = pesel
+            JOIN reservations ON reservation_id = reservation_id_r
         WHERE
-            r.status = 'completed';
+            status = completed;
 
         IF
             ( n_o_visits > 10 )
@@ -27,23 +27,15 @@ PROCEDURE bill (p_reservation_id IN NUMBER) IS
 
 
         SELECT
-            SUM(r.price_per_day)
+            SUM(price_per_day)
         INTO final_cost
         FROM
-            rooms r
-            JOIN reservations res ON r.room_id = res.room_id
+            rooms
+            JOIN reservations ON room_id = room_id_r
         WHERE
-            res.reservation_id = p_reservation_id;
+            reservation_id_r = p_reservation_id;
 
         to_pay:=final_cost-final_cost*(discount/100);
-        dbms_output.put_line('Final price: '
-                               || final_cost
-                               || ' discount: '
-                               || discount
-                               || '% '
-                               || 'To pay: '
-                               || to_pay );
 
-    END;
 
 END;

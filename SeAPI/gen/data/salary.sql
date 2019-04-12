@@ -7,7 +7,7 @@ CREATE OR REPLACE PROCEDURE emp_salary_increase (emp_id IN emptbl.empID%type, sa
    salary_inout number; 
 
  BEGIN 
-
+ --assume  salary > 10000 and salary_inout > 10000;
    SELECT salary INTO tmp_sal 
     FROM emp_tbl
     WHERE empID = emp_id; 
@@ -25,5 +25,5 @@ CREATE OR REPLACE PROCEDURE emp_salary_increase (emp_id IN emptbl.empID%type, sa
    
 
    END IF; 
-
+--assert salary_inout >= salary;
  END;

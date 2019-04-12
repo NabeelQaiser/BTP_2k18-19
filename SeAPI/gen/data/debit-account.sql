@@ -7,7 +7,7 @@
         insufficient_funds  EXCEPTION; 
 
   BEGIN 
-
+  	--assume minimum_balance > 1000 and balance  >= minimum_balance;
         SELECT balance INTO old_balance FROM accounts 
           WHERE acct_id = acct 
           FOR UPDATE OF balance; 
@@ -22,7 +22,7 @@
         END IF; 
        
        
-
+ --assert balance  >= minimum_balance ;
   EXCEPTION 
         WHEN NO_DATA_FOUND THEN 
           new_status := 'Nonexistent account'; 

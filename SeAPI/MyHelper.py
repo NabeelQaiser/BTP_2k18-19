@@ -1,4 +1,4 @@
-from gen.PlSqlVisitor import PlSqlVisitor
+from SeAPI.gen.PlSqlVisitor import PlSqlVisitor
 
 
 class MyHelper(PlSqlVisitor):
@@ -288,6 +288,14 @@ class MyHelper(PlSqlVisitor):
             return temparg
         else:
             return self.getfunction_arguments(ctx)
+
+
+    def updateTableDict(self, tableInfo):               #todo : solve insert issue for all the attributes
+        for table in tableInfo:
+            attr = set()
+            for pair in tableInfo[table]:
+                attr.add(pair[0])
+            self.tableDict[table] = attr
 
 
 

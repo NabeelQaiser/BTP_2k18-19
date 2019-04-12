@@ -47,14 +47,23 @@ def copyNode(node):
     res.branching = node.branching
     return res
 
-def executeSinglePlSqlFile(data, spec):
-    f = open(data, 'r')
+def preprocessSinglePlSqlFileForDatasetRunning(dataFileName, specFileName, dataFilePath, specFilePath):
+    f = open(dataFilePath, 'r')
     linesOfCode = len(f.readlines())
     f.close()
-
-    processor = McPreProcessor(spec, data)
+    processor = McPreProcessor(specFilePath, dataFilePath)
     tableInfo, predicates, predicateVarSet, resultString = processor.start()
+    execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName)
 
+def preprocessSinglePlSqlFile(dataFileName, specFileName):
+    f = open("mc/data/" + dataFileName, 'r')
+    linesOfCode = len(f.readlines())
+    f.close()
+    processor = McPreProcessor("mc/spec/" + specFileName, "mc/data/" + dataFileName)
+    tableInfo, predicates, predicateVarSet, resultString = processor.start()
+    execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName)
+
+def execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName):
     file = open('mc/upper_input.sql', "w")
     file.write(resultString)
     file.close()
@@ -88,8 +97,11 @@ def executeSinglePlSqlFile(data, spec):
     ssaString = MySsaStringGenerator(mcCfg, parser)
     wpcObj = WpcGenerator(mcCfg, helper, ssaString)
     mcUtility = McUtility(mcCfg, wpcObj, predicateVarSet)
+    # print("mc graph------------->")
+    # for nodeId in mcCfg.nodes:
+    #     mcCfg.nodes[nodeId].printPretty()
 
-    print("\n----------\n\n\t\tpredicates\n")
+    print("\n++++++++++++++++++++++\tPredicates\n")
     for i in predicates:
         print(i)
 
@@ -100,21 +112,26 @@ def executeSinglePlSqlFile(data, spec):
     # mcUtility.execute(predicates)
 
     mcExecutor = McExecutor()
+
+    pwd = os.getcwd()
+    pwd = pwd + "/"
     sePathsInfoForMc = SePathsInfoForMc()
+    sePathList, seSatInfoList = sePathsInfoForMc.execute(dataFileName, specFileName, pwd)
+    print("sePathList", sePathList)
     # paths = []
     # mcExecutor.getAllPaths(mcCfg, 0, [], paths)
     # print(paths)
 
-    print("**********************************************************************")
-    mcExecutor.execute(mcUtility, predicates)
-    print("**********************************************************************\n\n\n")
+    print("********************************")
+    mcExecutor.execute(mcUtility, predicates, sePathList, seSatInfoList)
+    print("********************************\n")
 
-    print("\n-------  booleans and wpcs  ------\n\n")
-    for i in mcCfg.nodes:
-        if mcCfg.nodes[i].ctx is not None:
-            print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
+    # print("\n-------  booleans and wpcs  ------\n\n")
+    # for i in mcCfg.nodes:
+    #     if mcCfg.nodes[i].ctx is not None:
+    #         print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
 
-    mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
+    # mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
 
 
 
@@ -125,19 +142,13 @@ def main(argv):
     if len(argv) < 3:
         print("Not Enough Arguments. Exiting...")
     elif len(argv) == 3:        # python3 simulator_mc.py <data-file-name> <spec-file-name>
-        data = "mc/data/" + argv[1]    # given data-file must be +nt in "mc/data/"
-        spec = "mc/spec/" + argv[2]    # given spec-file must be +nt in "mc/spec/"
-        executeSinglePlSqlFile(data, spec)
+        dataFileName = argv[1]    # given data-file must be +nt in "mc/data/"
+        specFileName = argv[2]    # given spec-file must be +nt in "mc/spec/"
+        preprocessSinglePlSqlFile(dataFileName, specFileName)
     elif len(argv) == 6:        # see dataset_runner_mc.py
-        if argv[1] == "-datafilename" and argv[3] == "-data_spec_filepaths":
-            executeSinglePlSqlFile(argv[4], argv[5])
-            # print(" "+argv[2], end="\t\t\t")
-            # print(linesOfCode, end="\t\t")
-            # print(executionTime, end="\t")
-            # print("1", end="\t")
-            # print(satisfiability, end="\t\t")
-            # print(modelForViolation.replace("\n", " "), end="")
-            # print()
+        if argv[3] == "-data_spec_filepaths":
+            print("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Running for filename :", argv[1], "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            preprocessSinglePlSqlFileForDatasetRunning(argv[1], argv[2], argv[4], argv[5])
 
 
 if __name__ == '__main__':

@@ -58,11 +58,11 @@ class z3formulaofvcs(PlSqlVisitor):
 
 
     
-    def z3FormulaForEachPath(self, vc):
+    def z3FormulaForEachPath(self, vc, pwd):
         global varSet
         y = list(map(lambda k: k+" = Real('"+k+"')\n", varSet))
         position = self.anticedent_position(vc[8:]);
-        with open('z3formula.py', 'w') as outfile:
+        with open(pwd + 'SeAPI/z3formula.py', 'w') as outfile:
             outfile.writelines("from z3 import *\n")
             outfile.writelines(y)
             outfile.writelines("s = Solver()\n")
@@ -72,7 +72,7 @@ class z3formulaofvcs(PlSqlVisitor):
             outfile.writelines("if str(r) == \"unsat\":\n")
             outfile.writelines("    print(\"looksgood\")\n")
             outfile.writelines("else:\n")
-            outfile.writelines("    print('cannotsay')\n")
+            outfile.writelines("    print(\"cannotsay\")\n")
             
 
     

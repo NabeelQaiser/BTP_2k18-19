@@ -1,3 +1,4 @@
-client:: id:NOT NULL
+client:: id:NOT_NULL
 
-constraints::  a_client_id > 0
+assume::  a_client_id > 0
+assert::  a_client_id > 0

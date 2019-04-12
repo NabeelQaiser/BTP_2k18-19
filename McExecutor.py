@@ -21,14 +21,17 @@ class McExecutor():
             cfg.nodes[nodeId].visited = False
 
     def execute(self, mcUtility, predicateList, sePathList, seSatInfoList):
+        updatedPredList = list(predicateList)
         paths = []
         self.getAllPaths(mcUtility.cfg, 0, [], paths)
+        print("mcPathsList", paths, "\n")
         mcUtility.execute(predicateList)
         for predicateIndex in range(len(predicateList)):
             print("----------------- Working for PREDICATE : \t", predicateList[predicateIndex])
             index = 0
             isFirstRefined = False
             isFaultyPredicate = False
+            probNodeIdSet = set()
             while index < len(paths):       #index for conventional loop
                 looksGood = True
                 probNodeId = -1
@@ -48,11 +51,20 @@ class McExecutor():
                     elif seSatisfiability == "looksgood":     # se looks good where as mc doesn't
                         if not isFirstRefined:
                             isFirstRefined = True
-                            self.firstRefine(mcUtility, paths[index], predicateList[predicateIndex], predicateIndex)  # we are adding all the 'if' conditions of this particular path
+                            tempPred = self.firstRefine(mcUtility, paths[index], updatedPredList[predicateIndex], predicateIndex)  # we are adding all the 'if' conditions of this particular path
+                            updatedPredList[predicateIndex] = tempPred
                             index = index - 1
                         else:
-                            self.furtherRefine(mcUtility, paths[index], predicateList[predicateIndex], predicateIndex, probNodeId)  # we are adding assignment eq. as condition
-                            index = index - 1
+                            if probNodeId not in probNodeIdSet:
+                                tempPred = self.furtherRefine(mcUtility, paths[index], updatedPredList[predicateIndex], predicateIndex, probNodeId)  # we are adding assignment eq. as condition
+                                updatedPredList[predicateIndex] = tempPred
+                                probNodeIdSet.add(probNodeId)
+                                index = index - 1
+                            else:
+                                isFaultyPredicate = True
+                                print("Problem in execution of path (even after adding assignment equivalent condition) : \n\t",
+                                      paths[index], "\nAnd the node ID for which equivalent condition is already added :\t", probNodeId,
+                                      "\n")
                     # if not isRefined:
                     #     isRefined = True
 
@@ -79,6 +91,8 @@ class McExecutor():
 
         mcUtility.generateWpcStringForAPredicate(newPredicateStr, predicateIndex)
         mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
+        # print("%%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$$$$$4 firstRefine", newPredicateStr)
+        return newPredicateStr
 
     def furtherRefine(self, mcUtility, path, oldPredicate, predicateIndex, probNodeId):
         newPredicateStr = oldPredicate
@@ -148,6 +162,9 @@ class McExecutor():
 
         mcUtility.generateWpcStringForAPredicate(newPredicateStr, predicateIndex)
         mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
+        # print("%%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$$$$$4 furtherRefine", newPredicateStr)
+        return newPredicateStr
+
 
 
 

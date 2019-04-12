@@ -1,4 +1,6 @@
-
+-- requires add_car procedure 
+-- requires get_country_id procedure 
+-- requires get_driving_license_category_id procedure 
 CREATE OR REPLACE PROCEDURE add_courier(a_pesel                    IN NUMBER,
                                         a_name                     IN VARCHAR,
                                         a_surname                  IN VARCHAR,
@@ -14,6 +16,7 @@ CREATE OR REPLACE PROCEDURE add_courier(a_pesel                    IN NUMBER,
                                         a_salary                   IN NUMBER,
                                         a_contract_type               VARCHAR,
                                         a_driving_license_category IN VARCHAR,
+  -- car -- note every courier has it's own car
                                         a_car_license_number       IN VARCHAR,
                                         a_brand                    IN VARCHAR,
                                         a_model                    IN VARCHAR,
@@ -23,32 +26,40 @@ CREATE OR REPLACE PROCEDURE add_courier(a_pesel                    IN NUMBER,
                                         a_servicing_valid_thru     IN DATE)
 IS
   BEGIN
- 
     DECLARE
-       v_courier_id                  NUMBER;
-       v_country_id                  NUMBER;
-       v_driving_license_category_id NUMBER;
-       v_contract_type_id            NUMBER;
-       v_contract_start              DATE;
-       CURSOR get_max_courier_id IS
-        SELECT max_id
+      v_courier_id                  NUMBER;
+      v_country_id                  NUMBER;
+      v_driving_license_category_id NUMBER;
+      v_contract_type_id            NUMBER;
+      v_contract_start              DATE;
+      CURSOR get_max_courier_id IS
+        SELECT Max(id)
         FROM courier;
     BEGIN
-    
-       OPEN get_max_courier_id;
+      OPEN get_max_courier_id;
 
-       FETCH get_max_courier_id INTO v_courier_id;
+      FETCH get_max_courier_id INTO v_courier_id;
 
-       CLOSE get_max_courier_id;
+      CLOSE get_max_courier_id;
 
-       IF v_courier_id IS NULL
+      IF v_courier_id IS NULL
       THEN
-         v_courier_id := 1;
-       ELSE
-         v_courier_id := v_courier_id + 1;
+        v_courier_id := 1;
+      ELSE
+        v_courier_id := v_courier_id + 1;
       END IF;
 
-       INSERT INTO courier
+      --get_country_id(a_country, v_country_id);
+
+      --get_driving_license_category_id(a_driving_license_category, v_driving_license_category_id);
+
+      --get_contract_type_id(a_contract_type, v_contract_type_id);
+
+      --add_car(a_car_license_number, a_brand, a_model, a_trunk_capacity, a_load_capacity, a_production_year, a_servicing_valid_thru);
+
+      v_contract_start := Current_date();
+
+      INSERT INTO courier
       (id,
        pesel,
        name,
@@ -84,11 +95,10 @@ IS
               v_contract_type_id,
               v_contract_start);
 
-       INSERT INTO courier_driving_license_category
+      INSERT INTO courier_driving_license_category
       (courier_id,
        driving_license_category_id)
       VALUES (v_courier_id,
               v_driving_license_category_id);
     END;
-
   END;

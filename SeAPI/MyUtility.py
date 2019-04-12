@@ -1,9 +1,9 @@
 
 import queue
 
-from gen.PlSqlVisitor import PlSqlVisitor
+from SeAPI.gen.PlSqlVisitor import PlSqlVisitor
 
-from MyHelper import MyHelper
+from SeAPI.MyHelper import MyHelper
 
 time = 0
 
