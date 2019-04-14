@@ -230,20 +230,28 @@ class MyHelper(PlSqlVisitor):
                 tableName = tempCtx.children[i + 1].children[1].getText()
                 res = res.union(self.tableDict[tableName])
             elif self.getRuleName(tempCtx.children[i]) == "selected_element":
-                #print("**************************************************************", "\n\n\n\n\n\n\n\n\n")
-                res.add(tempCtx.children[i].getText())
-                #var = self.getselected_element(tempCtx.children[i])
-                #print(type(var))
-                #res.add(var)
-                #print(res)
-                #input("wait")
+                # print("**************************************************************", "\n\n\n\n\n\n\n\n\n")
+                varStr = tempCtx.children[i].getText().strip()
+                tempList = varStr.split('(')
+                if len(tempList) > 1:
+                    varStr2 = tempList[1].strip(')').strip()
+                    if varStr2 == '*':  # for count(*)
+                        continue
+                    else:
+                        res.add(varStr2)
+                else:
+                    res.add(tempCtx.children[i].getText())
+                # res.add(tempCtx.children[i].getText())
             elif self.getRuleName(tempCtx.children[i]) == "from_clause":
-                tableName = tempCtx.children[i].children[1].getText()
-                #print(self.tableDict[tableName])
-                #print(res)
-                #input("wait")
-                #print("**************************************************************", tableName, "\n\n\n\n\n\n\n\n\n")
-                res = res.union(self.tableDict[tableName])
+                # tableName = tempCtx.children[i].children[1].getText()
+                for k in range(tempCtx.children[i].getChildCount()):
+                    if self.getRuleName(tempCtx.children[i].children[k]) == "table_ref":
+                        tableSet = set()
+                        self.extractConditionsInFromClause(tempCtx.children[i].children[k], tableSet)
+                        # print("**************************************************************", tableSet, "\n\n\n\n\n\n\n\n\n")
+                        for tableName in tableSet:
+                            res = res.union(self.tableDict[tableName])
+                # res = res.union(self.tableDict[tableName])
             elif self.getRuleName(tempCtx.children[i]) == "where_clause":
                 #print("*****************************************where*********************", "\n\n\n\n\n\n\n\n\n")
                 self.temp = set()
@@ -296,6 +304,20 @@ class MyHelper(PlSqlVisitor):
             for pair in tableInfo[table]:
                 attr.add(pair[0])
             self.tableDict[table] = attr
+
+
+    # Recursive method to extract Tablenames In From_Clause (SELECT, SELECT-IN-CURSOR)
+    def extractConditionsInFromClause(self, ctx, resultTableSet):  # ctx ~ from_clause.children[1]
+        if self.getRuleName(ctx) == "table_ref":
+            if ctx.getChildCount() == 2:
+                self.extractConditionsInFromClause(ctx.children[0], resultTableSet)
+                self.extractConditionsInFromClause(ctx.children[1], resultTableSet)
+            elif ctx.getChildCount() == 1:
+                resultTableSet.add(ctx.getText().strip())
+        elif self.getRuleName(ctx) == "join_clause":
+            for i in range(ctx.getChildCount()):
+                if self.getRuleName(ctx.children[i]) == "table_ref":
+                    resultTableSet.add(ctx.children[i].getText().strip())
 
 
 
