@@ -220,7 +220,7 @@ class MyHelper(PlSqlVisitor):
         return res
 
 
-    # Recursive method to extract Conditions In From_Clause (SELECT, SELECT-IN-CURSOR)
+    # Recursive method to extract Tablenames In From_Clause (SELECT, SELECT-IN-CURSOR)
     def extractConditionsInFromClause(self, ctx, resultTableSet):  # ctx ~ from_clause.children[1]
         if self.getRuleName(ctx) == "table_ref":
             if ctx.getChildCount() == 2:

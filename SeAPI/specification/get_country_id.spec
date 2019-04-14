@@ -1,3 +1,4 @@
-country:: id:NOT NULL
+country:: id:NOT_NULL
 
-constraints:: id> 0
+assume:: id> 0
+assert:: id> 0

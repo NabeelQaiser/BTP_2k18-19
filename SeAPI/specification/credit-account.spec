@@ -1,4 +1,5 @@
-accounts:: acct_id:NOT NULL, balance:NOT NULL
+accounts:: acct_id:NOT_NULL, balance:NOT_NULL
 
-constraints:: balance > 0
+assume:: balance > 0
+assert:: balance > 0
 

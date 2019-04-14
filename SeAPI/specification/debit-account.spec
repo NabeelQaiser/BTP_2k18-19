@@ -1,3 +1,4 @@
-accounts:: acct_id:NOT NULL
+accounts:: acct_id:NOT_NULL
 
-constraints:: minimum_balance > 1000 , balance > 0, balance  >= minimum_balance
+assume:: minimum_balance > 1000 , balance > 0, balance  >= minimum_balance
+assert:: minimum_balance > 1000 , balance > 0, balance  >= minimum_balance

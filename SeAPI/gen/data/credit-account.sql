@@ -1,7 +1,10 @@
-
+--https://www.bnl.gov/phobos/detectors/computing/orant/doc/database.804/a58227/ch14.htm
 
 CREATE PROCEDURE credit_account (acct NUMBER, credit NUMBER) AS 
-
+/* This procedure accepts two arguments: an account 
+   number and an amount of money to credit to the specified 
+   account. If the specified account does not exist, a 
+   new account is created. */ 
 
         old_balance  NUMBER; 
         new_balance  NUMBER; 

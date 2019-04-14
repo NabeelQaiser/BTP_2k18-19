@@ -1,3 +1,4 @@
-t:: a:NOT NULL, b: NOT NULL
+t:: a:NOT_NULL, b: NOT_NULL
 
-constraints:: a > 10, b>10
+assume:: a > 10, b>10
+assert:: a > 10, b>10

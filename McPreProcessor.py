@@ -52,9 +52,6 @@ class McPreProcessor:
 
     def start(self):
         tableInfo, predicates = self.getSpec()
-        f = open(self.fileData, "r")
-        result = f.read().upper()
-        f.close()
 
         magicString = "CREATE OR REPLACE PROCEDURE TEST(X IN VARCHAR)\nIS\nBEGIN\n"
         for predicate in predicates:
@@ -92,5 +89,22 @@ class McPreProcessor:
                 assumeCondition = assumeCondition.replace("  ", " ").strip()
                 newPredicates.append(assumeCondition)
                 predicateVarSet = predicateVarSet.union(cfg.nodes[nodeId].variableSet)
+
+        f = open(self.fileData, "r")
+        content = f.read().upper()
+        f.close()
+        assumeConstraintString = "TO_CORRECT_PROBLEMS_IN_SE_API > 0"
+        assertConstraintString = "TO_CORRECT_PROBLEMS_IN_SE_API > 0"
+        temp = content.strip().split("BEGIN")
+        result = ""
+        result = result + temp[0] + "BEGIN\n\t" + "ASSUME " + assumeConstraintString + " ;\n" + temp[1]
+        for i in range(2, len(temp)):
+            result = result + "BEGIN" + temp[i]
+
+        temp = result.strip().split("END")
+        result = temp[0]
+        for i in range(1, len(temp) - 1):
+            result = result + "END" + temp[i]
+        result = result + "ASSERT " + assertConstraintString + " ;\n\t" + "END" + temp[len(temp) - 1]
 
         return tableInfo, newPredicates, predicateVarSet, result

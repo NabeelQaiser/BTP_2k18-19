@@ -9,7 +9,7 @@ BEGIN
           FROM   driving_license_category
           WHERE  category = a_category;
         CURSOR get_max_category_id IS
-          SELECT max_id
+          SELECT MAX(id)
           FROM   driving_license_category;
     BEGIN
         OPEN get_category_id;

@@ -1,11 +1,11 @@
 import sys
 from inspect import signature
 from antlr4 import *
-from gen.PlSqlLexer import PlSqlLexer
-from gen.PlSqlParser import PlSqlParser
-from gen.PlSqlVisitor import PlSqlVisitor
+from SeAPI.gen.PlSqlLexer import PlSqlLexer
+from SeAPI.gen.PlSqlParser import PlSqlParser
+from SeAPI.gen.PlSqlVisitor import PlSqlVisitor
 
-from MyNode import MyNode
+from SeAPI.MyNode import MyNode
 
 
 class MyVisitor(PlSqlVisitor):

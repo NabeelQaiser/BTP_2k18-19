@@ -16,6 +16,12 @@ from gen.SymbolicVcGeneration import SymbolicVcGeneration
 from gen.z3formulaofvcs import z3formulaofvcs
 from subprocess import call
 
+# this file will not run from here...
+
+# for running this file, better create an object of equivalent class of this object in the directory where this file is...
+# and instantiate it from topmost level directory(BTP_2k18-19) and run from there
+
+
 def main(argv):
     data = "gen/data/" + argv[1]
     spec = "specification/" + argv[2]
