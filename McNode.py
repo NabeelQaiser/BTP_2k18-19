@@ -8,6 +8,7 @@ class McNode(MyNode):
         self.booleans = dict()          #format { 1 : [True], 2 : [False / * / skip], b : [phi, first ternary, second ternary] ... }
         self.wpcString = dict()         #format  { 1 : "---corresponding to first predicate---", ......}
         self.visited = False
+        self.parentBranching = dict()
 
 
     def printPretty(self):

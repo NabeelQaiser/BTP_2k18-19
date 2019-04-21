@@ -20,6 +20,26 @@ class McExecutor():
             currPath.pop()
             cfg.nodes[nodeId].visited = False
 
+
+    
+    
+    def setParentBranching(self, cfg, nodeId, stk_):
+        stk = list(stk_)
+        if not cfg.nodes[nodeId].visited:
+            cfg.nodes[nodeId].visited = True
+            if (len(cfg.nodes[nodeId].parent) > 1):
+                stk.pop()
+            for i in range(len(stk)):
+                cfg.nodes[nodeId].parentBranching[stk[i][0]] = stk[i][1]
+            if len(cfg.nodes[nodeId].next) > 1:
+                stk.append((nodeId, 'true'))
+                self.setParentBranching(cfg, cfg.nodes[nodeId].branching['true'], stk)
+                stk.append((nodeId, 'false'))
+                self.setParentBranching(cfg, cfg.nodes[nodeId].branching['false'], stk)
+            elif len(cfg.nodes[nodeId].next) == 1:
+                self.setParentBranching(cfg, list(cfg.nodes[nodeId].next)[0], stk)
+
+
     def execute(self, mcUtility, predicateList, sePathList, seSatInfoList):
         updatedPredList = list(predicateList)
         paths = []
