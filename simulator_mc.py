@@ -118,6 +118,7 @@ def execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, 
     sePathsInfoForMc = SePathsInfoForMc()
     sePathList, seSatInfoList = sePathsInfoForMc.execute(dataFileName, specFileName, pwd)
     print("sePathList", sePathList)
+    print("seSatInfoList", seSatInfoList)
     # paths = []
     # mcExecutor.getAllPaths(mcCfg, 0, [], paths)
     # print(paths)
@@ -126,12 +127,12 @@ def execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, 
     mcExecutor.execute(mcUtility, predicates, sePathList, seSatInfoList)
     print("********************************\n")
 
-    # print("\n-------  booleans and wpcs  ------\n\n")
-    # for i in mcCfg.nodes:
-    #     if mcCfg.nodes[i].ctx is not None:
-    #         print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
+    print("\n-------  booleans and wpcs  ------\n")
+    for i in mcCfg.nodes:
+        if mcCfg.nodes[i].ctx is not None:
+            print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
 
-    # mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
+    mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
 
 
 
