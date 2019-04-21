@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-04-15 19:15:06.569068
+# This file was generated at runtime on 2019-04-21 22:05:23.521207
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -8,16 +8,19 @@ class Z3RuntimeWpcFile():
 		self.modelForViolation = ""
 
 	def execute(self):
-		ACC_NO = Real('ACC_NO')
-		BALANCE = Real('BALANCE')
-		AMT = Real('AMT')
-		ACCNO = Real('ACCNO')
-		BAL = Real('BAL')
-		MIN_BAL = Real('MIN_BAL')
+		R = Real('R')
+		B = Real('B')
+		Y = Real('Y')
+		Q = Real('Q')
+		D = Real('D')
+		X = Real('X')
+		A = Real('A')
+		C = Real('C')
+		P = Real('P')
 
 		s = Solver()
-		s.add(BALANCE > 0)
-		s.add( Not( Implies( BALANCE > 0, Or( And( ACCNO == ACC_NO, Or( And( And( AMT < 10000, ( BALANCE - AMT ) > 0 ), Or( And( ACCNO == ACC_NO, ( BALANCE - AMT ) > 0 ), And( Not( ACCNO == ACC_NO ), BALANCE > 0 ) ) ), And( Not( And( AMT < 10000, ( BALANCE - AMT ) > 0 ) ), BALANCE > 0 ) ) ), And( Not( ACCNO == ACC_NO ), Or( And( And( AMT < 10000, ( BAL - AMT ) > 0 ), Or( And( ACCNO == ACC_NO, ( BALANCE - AMT ) > 0 ), And( Not( ACCNO == ACC_NO ), BALANCE > 0 ) ) ), And( Not( And( AMT < 10000, ( BAL - AMT ) > 0 ) ), BALANCE > 0 ) ) ) ) ) ) )
+		s.add(And( And( A + P >= 50, C + D == 100 ), Q + R < 54 ))
+		s.add( Not( Implies( And( And( A + P >= 50, C + D == 100 ), Q + R < 54 ), Or( And( And( A == ( X - 50 ) + 3, B == ( X - 50 ) - 3 ), Or( And( ( ( X - 50 ) + 5 ) > 10, And( And( ( ( X - 50 ) - 9 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ), And( Not( ( ( X - 50 ) + 5 ) > 10 ), And( And( ( ( X - 50 ) + 5 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ) ) ), And( Not( And( A == ( X - 50 ) + 3, B == ( X - 50 ) - 3 ) ), Or( And( ( ( X - 50 ) + 5 ) > 10, And( And( ( ( X - 50 ) - 9 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ), And( Not( ( ( X - 50 ) + 5 ) > 10 ), And( And( ( ( X - 50 ) + 5 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ) ) ) ) ) ) )
 
 		#print("\n%%%%%%%%%% Aggregate Formula %%%%%%%%%%\n", s)
 		self.finalFormula = str(s)
