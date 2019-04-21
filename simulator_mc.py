@@ -52,7 +52,7 @@ def preprocessSinglePlSqlFileForDatasetRunning(dataFileName, specFileName, dataF
     linesOfCode = len(f.readlines())
     f.close()
     processor = McPreProcessor(specFilePath, dataFilePath)
-    tableInfo, predicates, predicateVarSet, resultString = processor.start()
+    tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString = processor.start()
     execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName)
 
 def preprocessSinglePlSqlFile(dataFileName, specFileName):
@@ -60,10 +60,10 @@ def preprocessSinglePlSqlFile(dataFileName, specFileName):
     linesOfCode = len(f.readlines())
     f.close()
     processor = McPreProcessor("mc/spec/" + specFileName, "mc/data/" + dataFileName)
-    tableInfo, predicates, predicateVarSet, resultString = processor.start()
+    tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString = processor.start()
     execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName)
 
-def execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName):
+def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName):
     file = open('mc/upper_input.sql', "w")
     file.write(resultString)
     file.close()
@@ -124,7 +124,7 @@ def execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, 
     # print(paths)
 
     print("********************************")
-    mcExecutor.execute(mcUtility, predicates, sePathList, seSatInfoList)
+    mcExecutor.execute(mcUtility, predicates, rawPredicateContent, sePathList, seSatInfoList, tableInfo)
     print("********************************\n")
 
     print("\n-------  booleans and wpcs  ------\n")

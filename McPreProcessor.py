@@ -107,4 +107,4 @@ class McPreProcessor:
             result = result + "END" + temp[i]
         result = result + "ASSERT " + assertConstraintString + " ;\n\t" + "END" + temp[len(temp) - 1]
 
-        return tableInfo, newPredicates, predicateVarSet, result
+        return tableInfo, newPredicates, predicates, predicateVarSet, result        # newPredicates : in wpc format ; predicate : in plsql format
