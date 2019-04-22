@@ -62,6 +62,7 @@ class McExecutor():
             # todo : print the result for this path
             self.cleanForNextPath(mcUtility, predicateList)     #todo : remove additional predicates, ie, apart from initial predicates
             # todo : yaha par khali karna hai, boolean aur wpc string ke liye
+            pathIndex = pathIndex + 1
 
 
 
@@ -145,37 +146,37 @@ class McExecutor():
                 eqBooleanProg = self.generateEqBooleanProg(mcUtility, mcPredList, mcPath)
                 antecedent, consequent, versionisedVarSet = self.generateVcForBooleanProg(mcUtility, rawPredicateContentList, eqBooleanProg, mcPredList, mcRawPredicateContentDict, mcPath, tableInfo)
                 mcOutput = self.checkSatisfiability(mcUtility, antecedent, consequent, versionisedVarSet)      #todo : here refinement may be needed
+                print("mcOutput = ", mcOutput, ",\t seZ3Output = ", seZ3Output)     #todo : hatana hai ise
                 if mcOutput == seZ3Output:
+                    # todo : return the result
                     break
                 else:           #todo : also consider for the situation where, after saturation of refining, mcOutput and seZ3Output do not match
-                    culprit = self.findCulprit(mcUtility, eqBooleanProg, mcPath)
-                    if culprit == -1:
+                    culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
+                    if len(culprits) == 0:
                         pass        # todo : handle the situation where no culprit found
                     else:
-                        self.refine(mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprit)
+                        self.refine(mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits)
 
 
-    def findCulprit(self, mcUtility, eqBooleanProg, mcPath):        # returns -1 in case of NO culprit found
+    def findCulprits(self, mcUtility, eqBooleanProg, mcPath):        # returns -1 in case of NO culprit found
         i = len(mcPath) - 1
-        res = -1
+        res = []        # list of all the culprits
         while i >= 0:       # traversing in the reverse direction
             predicateIndex = eqBooleanProg[mcPath[i]]
             boolean = mcUtility.cfg.nodes[mcPath[i]].booleans[predicateIndex]
             if len(boolean) == 3:
-                res = mcPath[i]
-                break
+                res.append(mcPath[i])
             elif len(boolean) == 1 and boolean[0] == "*":
-                res = mcPath[i]
-                break
+                res.append(mcPath[i])
             i = i - 1
         return res
 
-    def refine(self, mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprit):
+    def refine(self, mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits):
         pass
 
 
     def checkSatisfiability(self, mcUtility, antecedent, consequent, versionisedVarSet):
-        rawWpcStr = "( " + antecedent + " ) ==> ( " + consequent + " )"
+        rawWpcStr = "( ( " + antecedent + " ) ==> ( " + consequent + " ) )"
         rawWpcStr = rawWpcStr.replace("  ", " ")
         rawWpcStr = rawWpcStr.replace(" = ", " == ")
         z3StringConvertorObj = WpcStringConverter(rawWpcStr)
@@ -225,7 +226,7 @@ class McExecutor():
                             currIndex = currIndex + 1
                         else:
                             print("!!!! some problem occured !!!!")
-                    else:
+                    else:       # considering last node will have 0 child
                         temp = "( ( " + versionizedPredicateList[currIndex] + " ) == True )"
                         currIndex = currIndex + 1
                 elif mcUtility.cfg.nodes[mcPath[i]].booleans[predicateIndex][0] == "*":
@@ -239,14 +240,14 @@ class McExecutor():
                 isFirst = False
                 finalVc = temp
             else:
-                finalVc = "( " + finalVc + " ) ^ ( " + temp + " )"
+                finalVc = "( ( " + finalVc + " ) ^ ( " + temp + " ) )"
         isFirst = True
         for consequent in versionizedConsequentList:
             if isFirst:
                 isFirst = False
-                finalConsequent = "( " + consequent + " ) == True"
+                finalConsequent = "( ( " + consequent + " ) == True )"
             else:
-                finalConsequent = "( " + finalConsequent + " ) ^ ( ( " + consequent + " ) == True )"
+                finalConsequent = "( ( " + finalConsequent + " ) ^ ( ( " + consequent + " ) == True ) )"
         return finalVc, finalConsequent, versionisedVarSet
 
 
