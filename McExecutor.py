@@ -11,6 +11,7 @@ class McExecutor():
 
     def getAllPaths(self, cfg, nodeId, currPath, allPaths):
         if not cfg.nodes[nodeId].visited:
+            # print("--", nodeId)
             cfg.nodes[nodeId].visited = True
             currPath.append(nodeId)
             children = list(cfg.nodes[nodeId].next)
@@ -23,6 +24,9 @@ class McExecutor():
             cfg.nodes[nodeId].visited = False
 
 
+    def unvisitCfg(self, mcUtility):
+        for nodeId in mcUtility.cfg.nodes:
+            mcUtility.cfg.nodes[nodeId].visited = False
     
     
     def setParentBranching(self, cfg, nodeId, stk_):
@@ -48,18 +52,23 @@ class McExecutor():
 
     def execute(self, mcUtility, predicateList, rawPredicateContentList, sePathList, seSatInfoList, tableInfo):
         self.setParentBranching(mcUtility.cfg, 0, [])
+        self.unvisitCfg(mcUtility)
+
         rawPredicateContentDict = dict()        # format : {'index of predicate' : ['rawPredicate', 'ass / cond'], ...}
         self.initRawPredicateContent(predicateList, rawPredicateContentList, rawPredicateContentDict)
         updatedPredList = list(predicateList)
         paths = []
         self.getAllPaths(mcUtility.cfg, 0, [], paths)
+        self.unvisitCfg(mcUtility)
         print("mcPathsList", paths, "\n")
         mcUtility.execute(predicateList)      # important, as we need all variables
 
         pathIndex = 0
         while pathIndex < len(paths):
+            # rawPredicateContentList --> for generating consequents
+            print("_____________________________ Working for path : ", paths[pathIndex])
             self.executeForAPath(mcUtility, rawPredicateContentList, updatedPredList, rawPredicateContentDict, paths[pathIndex], self.getSeSatisfiability(sePathList, seSatInfoList, paths[pathIndex]), tableInfo)
-            # todo : print the result for this path
+            # result is printed in the above function
             self.cleanForNextPath(mcUtility, predicateList)     #todo : remove additional predicates, ie, apart from initial predicates
             # todo : yaha par khali karna hai, boolean aur wpc string ke liye
             pathIndex = pathIndex + 1
@@ -126,10 +135,12 @@ class McExecutor():
         for i in range(len(predicateList)):
             notToRemove.append(i)
         for nodeId in mcUtility.cfg.nodes:
-            for index in mcUtility.cfg.nodes[nodeId].wpcString:
+            wpcStringKeys = list(mcUtility.cfg.nodes[nodeId].wpcString.keys())
+            booleansKeys = list(mcUtility.cfg.nodes[nodeId].booleans.keys())
+            for index in wpcStringKeys:
                 if not index in notToRemove:
                     mcUtility.cfg.nodes[nodeId].wpcString.pop(index, None)
-            for index in mcUtility.cfg.nodes[nodeId].booleans:
+            for index in booleansKeys:
                 if not index in notToRemove:
                     mcUtility.cfg.nodes[nodeId].booleans.pop(index, None)
 
@@ -145,15 +156,23 @@ class McExecutor():
                 mcUtility.generateBooleanVariableForAPath(mcPredList, mcPath)
                 eqBooleanProg = self.generateEqBooleanProg(mcUtility, mcPredList, mcPath)
                 antecedent, consequent, versionisedVarSet = self.generateVcForBooleanProg(mcUtility, rawPredicateContentList, eqBooleanProg, mcPredList, mcRawPredicateContentDict, mcPath, tableInfo)
+                if len(antecedent) == 0:
+                    print("---All booleans are SKIP for path :  ", mcPath, ", And seZ3Output : ", seZ3Output)
+                    break
                 mcOutput = self.checkSatisfiability(mcUtility, antecedent, consequent, versionisedVarSet)      #todo : here refinement may be needed
                 print("mcOutput = ", mcOutput, ",\t seZ3Output = ", seZ3Output)     #todo : hatana hai ise
                 if mcOutput == seZ3Output:
-                    # todo : return the result
+                    if mcOutput == "looksgood":
+                        print("---No violation in path :  ", mcPath)
+                    elif mcOutput == "cannotsay":
+                        culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
+                        print("---Violation in path :  ", mcPath, "\t culprit nodes are : ", culprits)
                     break
                 else:           #todo : also consider for the situation where, after saturation of refining, mcOutput and seZ3Output do not match
                     culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
                     if len(culprits) == 0:
-                        pass        # todo : handle the situation where no culprit found
+                        print("!!!! NO CULPRIT FOUND, BUT STILL SE AND MC ARE NOT CONSISTENT, FOR THE PATH : ", mcPath)        # todo : handle the situation where no culprit found
+                        break
                     else:
                         self.refine(mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits)
 
@@ -172,7 +191,26 @@ class McExecutor():
         return res
 
     def refine(self, mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits):
-        pass
+        for nodeId in culprits:    # culprit ~ nodeId
+            rawContent, assCond = self.getRawContentOfANode(nodeId, mcUtility)
+            newPredicate = self.getNewBrackettedPredicate(mcUtility, nodeId)
+            if not rawContent in [i[0] for  i in mcRawPredicateContentDict.values()]:
+                mcPredList.append(newPredicate)
+                predIndex = len(mcPredList) - 1
+                mcRawPredicateContentDict[predIndex] = [rawContent, assCond]
+                mcUtility.cfg.nodes[nodeId].booleans[predIndex] = ["True"]
+            controlNodeIds = []
+            for key in mcUtility.cfg.nodes[nodeId].parentBranching:
+                controlNodeIds.append(key)
+            for nodeId in controlNodeIds:
+                rawContent, assCond = self.getRawContentOfANode(nodeId, mcUtility)
+                newPredicate = self.getNewBrackettedPredicate(mcUtility, nodeId)
+                if not rawContent in [i[0] for i in mcRawPredicateContentDict.values()]:        #todo: can may consider the implications of the new predicates to old predicates
+                    mcPredList.append(newPredicate)
+                    predIndex = len(mcPredList) - 1
+                    mcRawPredicateContentDict[predIndex] = [rawContent, assCond]
+                    mcUtility.cfg.nodes[nodeId].booleans[predIndex] = ["True"]
+
 
 
     def checkSatisfiability(self, mcUtility, antecedent, consequent, versionisedVarSet):
@@ -188,9 +226,17 @@ class McExecutor():
             return "cannotsay"
 
 
+    def printBooleans(self, mcUtility, mcPath):
+        print("----------- booleans")
+        for nodeId in mcPath:
+            print(nodeId, ": ", mcUtility.cfg.nodes[nodeId].booleans)
+            print(nodeId, ": ", mcUtility.cfg.nodes[nodeId].wpcString)
+            print("--")
+
     def generateVcForBooleanProg(self, mcUtility, rawPredicateContentList, eqBooleanProg, mcPredList, rawPredicateContentDict, mcPath, tableInfo):
         toVersionizeList = list()   # list of predicateIndex
         toVersionizeContentDict = dict()
+        self.printBooleans(mcUtility, mcPath)
         for nodeId in mcPath:
             predicateIndex = eqBooleanProg[nodeId]
             if len(mcUtility.cfg.nodes[nodeId].booleans[predicateIndex]) == 1:       # "True" / "*" / "skip" only
@@ -208,6 +254,19 @@ class McExecutor():
                 toVersionizeContentDict[predicateIndex] = [rawPredicateContentDict[predicateIndex][0], rawPredicateContentDict[predicateIndex][1], phi]
         mcSsaForBooleanVc = McSsaForBooleanVc()
         versionizedPredicateList, versionisedVarSet, versionizedConsequentList = mcSsaForBooleanVc.execute(toVersionizeList, toVersionizeContentDict, tableInfo, rawPredicateContentList)
+        # print("versionizedPredicateList, versionisedVarSet, versionizedConsequentList---\n", versionizedPredicateList,"\n", versionisedVarSet, "\n", versionizedConsequentList)
+
+        print("toVersionizeList : ", toVersionizeList)
+        print("-----------------&&&&&&&&&&&&&&&&&&&&&& mcPredList", len(mcPredList))
+        for i in mcPredList:
+            print(i)
+        print("-----------------&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList", len(versionizedPredicateList))
+        for i in versionizedPredicateList:
+            print(i)
+        print("-----------------&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList")
+        for i in versionizedConsequentList:
+            print(i)
+
         finalVc = ""
         finalConsequent = ""
         isFirst = True
@@ -236,11 +295,13 @@ class McExecutor():
             elif len(mcUtility.cfg.nodes[mcPath[i]].booleans[predicateIndex]) == 3:  # "phi, *, True"
                 temp = versionizedPredicateList[currIndex]
                 currIndex = currIndex + 1
-            if isFirst:
-                isFirst = False
-                finalVc = temp
-            else:
-                finalVc = "( ( " + finalVc + " ) ^ ( " + temp + " ) )"
+            if not temp == "":
+                if isFirst:
+                    isFirst = False
+                    finalVc = temp
+                else:
+                    finalVc = "( ( " + finalVc + " ) ^ ( " + temp + " ) )"
+                # print("-------------temp = ", temp)
         isFirst = True
         for consequent in versionizedConsequentList:
             if isFirst:
@@ -272,7 +333,33 @@ class McExecutor():
         return result
 
 
-
+    def getRawContentOfANode(self, nodeId, mcUtility):
+        currentNode = mcUtility.cfg.nodes[nodeId]
+        ruleName = mcUtility.helper.getRuleName(currentNode.ctx).strip()
+        rawContent = ""
+        assCond = ""
+        if len(currentNode.next) > 1:
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "cond"
+        elif ruleName == "assignment_statement":
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "ass"
+        elif ruleName == "update_statement":
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "ass"
+        elif ruleName == "insert_statement":
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "ass"
+        elif ruleName == "select_statement":
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "ass"
+        elif ruleName == "cursor_declaration":
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "ass"
+        elif ruleName == "fetch_statement":
+            rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
+            assCond = "ass"
+        return rawContent, assCond
 
     # def firstRefine(self, mcUtility, path, oldPredicate, predicateIndex):
     #     newPredicateStr = oldPredicate
@@ -289,78 +376,178 @@ class McExecutor():
     #     mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
     #     # print("%%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$$$$$4 firstRefine", newPredicateStr)
     #     return newPredicateStr
-    #
-    # def furtherRefine(self, mcUtility, path, oldPredicate, predicateIndex, probNodeId):
-    #     newPredicateStr = oldPredicate
-    #     currentNode = mcUtility.cfg.nodes[probNodeId]
-    #     ruleName = mcUtility.helper.getRuleName(currentNode.ctx).strip()
-    #     if ruleName == "assignment_statement":
-    #         lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[0]).strip()
-    #         # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
-    #         # DON'T expect more...
-    #         varString = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[2]).strip()
-    #         varString = varString.replace("( )", "")
-    #         varString = varString.replace("  ", " ").strip()
-    #         rhsVar = "( " + varString + " )"
-    #         if not lhsVar == "" and not varString == "":
-    #             newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
-    #     elif ruleName == "update_statement":
-    #         for i in range(currentNode.ctx.getChildCount()):
-    #             # finding "update_set_clause"...
-    #             if currentNode.ctx.children[i].getChildCount() > 1 and mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
-    #                 updateSetCtx = currentNode.ctx.children[i]
-    #                 for j in range(updateSetCtx.getChildCount()):
-    #                     # finding "column_based_update_set_clause"...
-    #                     if updateSetCtx.children[j].getChildCount() > 1 and mcUtility.helper.getRuleName(updateSetCtx.children[j]) == "column_based_update_set_clause":
-    #                         lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(updateSetCtx.children[j].children[0]).strip()
-    #                         # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
-    #                         # DON'T expect more...
-    #                         varString = mcUtility.wpcGenerator.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip()
-    #                         varString = varString.replace("( )", "")
-    #                         varString = varString.replace("  ", " ").strip()
-    #                         rhsVar = " ( " + varString + " ) "
-    #                         if not lhsVar == "" and not varString == "":
-    #                             newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
-    #             # finding "where_clause"...
-    #             elif currentNode.ctx.children[i].getChildCount() > 1 and mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
-    #                 if not mcUtility.wpcGenerator.nullInCondition(currentNode.ctx.children[i].children[1]):
-    #                     whereCondition = mcUtility.wpcGenerator.getConditionalString(currentNode.ctx.children[i].children[1])
-    #                     newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + whereCondition + " ) )"
-    #     elif ruleName == "insert_statement":    # assuming Attributes in which data is to be inserted is mentioned with Tablename
-    #         tempNode = currentNode.ctx.children[1]  # single_table_insert
-    #         myLHS = []
-    #         myRHS = []
-    #         count = tempNode.children[0].getChildCount()  # inset_into_clause
-    #         if count > 2:
-    #             i = 2
-    #             while i < count:
-    #                 if tempNode.children[0].children[i].getChildCount() > 0:
-    #                     myLHS.append(tempNode.children[0].children[i].getText().strip())
-    #                 i = i + 1
-    #         count = tempNode.children[1].children[1].getChildCount()  # expression_list
-    #         i = 0
-    #         while i < count:
-    #             node = tempNode.children[1].children[1].children[i]
-    #             if node.getChildCount() > 0:
-    #                 myRHS.append(mcUtility.wpcGenerator.ssaString.getTerminal(node).strip())
-    #             i = i + 1
-    #         # do replacing in wpcString now...
-    #         if len(myLHS) > 0:
-    #             for i in range(len(myLHS)):
-    #                 # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
-    #                 # DON'T expect more...
-    #                 varString = myRHS[i]
-    #                 varString = varString.replace("( )", "")
-    #                 varString = varString.replace("  ", " ").strip()
-    #                 rhsVar = "( " + varString + " )"
-    #                 if not myLHS[i] == "" and not varString == "":
-    #                     newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + myLHS[i] + " == " + rhsVar + " ) )"
-    #
-    #     mcUtility.generateWpcStringForAPredicate(newPredicateStr, predicateIndex)
-    #     mcUtility.generateBooleanVariableForAPredicate(newPredicateStr, predicateIndex)
-    #     # print("%%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$$$$$4 furtherRefine", newPredicateStr)
-    #     return newPredicateStr
-    #
+
+    def getNewBrackettedPredicate(self, mcUtility, nodeId):
+        currentNode = mcUtility.cfg.nodes[nodeId]
+        ruleName = mcUtility.helper.getRuleName(currentNode.ctx).strip()
+        newPredicateStr = ""
+        if len(currentNode.next) > 1:
+            newPredicateStr = mcUtility.wpcGenerator.getConditionalString(currentNode.ctx).strip()
+        elif ruleName == "assignment_statement":
+            lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[0]).strip()
+            # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+            # DON'T expect more...
+            varString = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[2]).strip()
+            varString = varString.replace("( )", "")
+            varString = varString.replace("  ", " ").strip()
+            rhsVar = "( " + varString + " )"
+            if not lhsVar == "" and not varString == "":
+                newPredicateStr = "( " + lhsVar + " == " + rhsVar + " )"
+        elif ruleName == "update_statement":
+            for i in range(currentNode.ctx.getChildCount()):
+                # finding "update_set_clause"...
+                if currentNode.ctx.children[i].getChildCount() > 1 and mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "update_set_clause":
+                    updateSetCtx = currentNode.ctx.children[i]
+                    for j in range(updateSetCtx.getChildCount()):
+                        # finding "column_based_update_set_clause"...
+                        if updateSetCtx.children[j].getChildCount() > 1 and mcUtility.helper.getRuleName(updateSetCtx.children[j]) == "column_based_update_set_clause":
+                            lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(updateSetCtx.children[j].children[0]).strip()
+                            # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                            # DON'T expect more...
+                            varString = mcUtility.wpcGenerator.ssaString.getTerminal(updateSetCtx.children[j].children[2]).strip()
+                            varString = varString.replace("( )", "")
+                            varString = varString.replace("  ", " ").strip()
+                            rhsVar = " ( " + varString + " ) "
+                            if not lhsVar == "" and not varString == "":
+                                if not newPredicateStr == "":
+                                    newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
+                                else:
+                                    newPredicateStr = "( " + lhsVar + " == " + rhsVar + " )"
+                # finding "where_clause"...
+                elif currentNode.ctx.children[i].getChildCount() > 1 and mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "where_clause":
+                    if not mcUtility.wpcGenerator.nullInCondition(currentNode.ctx.children[i].children[1]):
+                        whereCondition = mcUtility.wpcGenerator.getConditionalString(currentNode.ctx.children[i].children[1])
+                        newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + whereCondition + " ) )"
+        elif ruleName == "insert_statement":    # assuming Attributes in which data is to be inserted is mentioned with Tablename
+            tempNode = currentNode.ctx.children[1]  # single_table_insert
+            myLHS = []
+            myRHS = []
+            count = tempNode.children[0].getChildCount()  # inset_into_clause
+            if count > 2:
+                i = 2
+                while i < count:
+                    if tempNode.children[0].children[i].getChildCount() > 0:
+                        myLHS.append(tempNode.children[0].children[i].getText().strip())
+                    i = i + 1
+            count = tempNode.children[1].children[1].getChildCount()  # expression_list
+            i = 0
+            while i < count:
+                node = tempNode.children[1].children[1].children[i]
+                if node.getChildCount() > 0:
+                    myRHS.append(mcUtility.wpcGenerator.ssaString.getTerminal(node).strip())
+                i = i + 1
+            # do replacing in wpcString now...
+            if len(myLHS) > 0:
+                for i in range(len(myLHS)):
+                    # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
+                    # DON'T expect more...
+                    varString = myRHS[i]
+                    varString = varString.replace("( )", "")
+                    varString = varString.replace("  ", " ").strip()
+                    rhsVar = "( " + varString + " )"
+                    if not myLHS[i] == "" and not varString == "":
+                        if not newPredicateStr == "":
+                            newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + myLHS[i] + " == " + rhsVar + " ) )"
+                        else:
+                            newPredicateStr = "( " + myLHS[i] + " == " + rhsVar + " )"
+        elif ruleName == "select_statement":
+            tempNode = currentNode.ctx.children[0].children[0]
+            myRHS = []
+            myLHS = []
+            conditionInFromClause = ""
+            # SELECT A, B, C2 INTO K, L, M   FROM T JOIN T2 ON B=B2 JOIN T3 ON A2=A3   WHERE A2=X+3;
+            into_flag = -1
+            whereHandled_flag = False
+            for i in range(tempNode.getChildCount()):
+                if tempNode.children[i].getChildCount() > 0:
+                    if mcUtility.helper.getRuleName(tempNode.children[i]) == "selected_element":
+                        varString = mcUtility.wpcGenerator.ssaString.getTerminal(tempNode.children[i]).strip()
+                        myRHS.append(mcUtility.wpcGenerator.getVariableForAggregateFunctionInSelect(varString))  # <--- RHS
+                    elif mcUtility.helper.getRuleName(tempNode.children[i]) == "into_clause":
+                        into_flag = i
+                        intoNode = tempNode.children[i]
+                        for x in range(intoNode.getChildCount()):
+                            if intoNode.children[x].getChildCount() > 0 and mcUtility.helper.getRuleName(intoNode.children[x]) == "variable_name":
+                                myLHS.append(mcUtility.wpcGenerator.ssaString.getTerminal(intoNode.children[x]).strip())  # <--- LHS
+                    elif mcUtility.helper.getRuleName(tempNode.children[i]) == "from_clause":
+                        conditionInFromClause = mcUtility.wpcGenerator.extractConditionsInFromClause(tempNode.children[i].children[1]).strip()
+                        # print("@@@@@@@ select_statement conditionInFromClause :", conditionInFromClause)
+                    elif mcUtility.helper.getRuleName(tempNode.children[i]) == "where_clause":
+                        # myLHS & myRHS & conditionInFromClause will be already filled here if they should be
+                        whereCondition = mcUtility.wpcGenerator.getConditionalString(tempNode.children[i].children[1])
+                        # print("@@@@@@@ select_statement whereCondition :", whereCondition)
+                        if not conditionInFromClause == "":  # merging condition from WHERE and FROM_CLAUSE
+                            whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
+                        whereHandled_flag = True
+                        if into_flag > -1:
+                            for j in range(len(myLHS)):
+                                if newPredicateStr == "":
+                                    newPredicateStr = "( " + myLHS[j] + " == " + myRHS[j] + " )"
+                                else:
+                                    newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + myLHS[j] + " == " + myRHS[j] + " ) )"
+                            if mcUtility.wpcGenerator.nullInCondition(tempNode.children[i].children[1]):  # NULL +nt in where_condition
+                                if not conditionInFromClause == "":
+                                    newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + conditionInFromClause + " ) )"
+                            else:  # NULL not +nt in where_condition
+                                newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + whereCondition + " ) )"
+            if whereHandled_flag is False and into_flag > -1:
+                # whereCondition do not exist in SELECT
+                for i in range(len(myLHS)):
+                    if newPredicateStr == "":
+                        newPredicateStr = "( " + myLHS[i] + " == " + myRHS[i] + " )"
+                    else:
+                        newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + myLHS[i] + " == " + myRHS[i] + " ) )"
+                # BUT, don't relax, condition from FROM_CLAUSE may not be empty!!!
+                if not conditionInFromClause == "":
+                    newPredicateStr = "( ( " + newPredicateStr + " ) ^ ( " + conditionInFromClause + " ) )"
+        elif ruleName == "cursor_declaration":
+            lhsVar = ""
+            rhsVar = ""
+            whereCondition = ""
+            conditionInFromClause = ""
+            isWherePresent = False
+            isNullPresentInWhere = False
+            for i in range(currentNode.ctx.getChildCount()):
+                if mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "cursor_name":
+                    lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[i]).strip()
+                elif mcUtility.helper.getRuleName(currentNode.ctx.children[i]) == "select_statement":
+                    tempCtx = currentNode.ctx.children[i].children[0].children[0]
+                    for j in range(tempCtx.getChildCount()):
+                        if mcUtility.helper.getRuleName(tempCtx.children[j]) == "from_clause":
+                            conditionInFromClause = mcUtility.wpcGenerator.extractConditionsInFromClause(tempCtx.children[j].children[1]).strip()
+                            # print("@@@@@@@ cursor_statement conditionInFromClause :", conditionInFromClause)
+                        elif mcUtility.helper.getRuleName(tempCtx.children[j]) == "where_clause":
+                            isWherePresent = True
+                            if mcUtility.wpcGenerator.nullInCondition(tempCtx.children[j].children[1]):
+                                isNullPresentInWhere = True
+                            else:
+                                whereCondition = mcUtility.wpcGenerator.getConditionalString(tempCtx.children[j].children[1])
+                                # print("@@@@@@@ cursor_statement whereCondition :", whereCondition)
+                    # BUT what to do if there are multiple SELECTION attributes here???...as per datasets assuming single attribute...
+                    varString = mcUtility.wpcGenerator.ssaString.getTerminal(tempCtx.children[1]).strip()
+                    rhsVar = mcUtility.wpcGenerator.getVariableForAggregateFunctionInSelect(varString)
+            if not (lhsVar == "") and not (rhsVar == ""):
+                if isWherePresent:
+                    if isNullPresentInWhere:
+                        if conditionInFromClause == "":
+                            newPredicateStr = "( " + lhsVar + " == " + rhsVar + " )"
+                        else:
+                            newPredicateStr = "( ( " + conditionInFromClause + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
+                    else:
+                        if not conditionInFromClause == "":
+                            whereCondition = "( ( " + conditionInFromClause + " ) ^ ( " + whereCondition + " ) )"
+                        newPredicateStr = "( ( " + whereCondition + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
+                else:
+                    if not conditionInFromClause == "":
+                        newPredicateStr = "( ( " + conditionInFromClause + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
+                    else:
+                        newPredicateStr = "( " + lhsVar + " == " + rhsVar + " )"
+        elif ruleName == "fetch_statement":
+            newPredicateStr = "( ( " + mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[3]).strip() + " ) == ( " + mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[1]).strip() + " ) )"
+
+        newPredicateStr = newPredicateStr.replace("  ", " ").strip()
+        return newPredicateStr
+
     #
     #
     #
@@ -391,11 +578,13 @@ class McExecutor():
     #     z3StringConvertorObj.execute()
     #     return self.getZ3SolverResult(z3StringConvertorObj, mcUtility.allVar, boolVarStr)
 
+
     def getZ3SolverResult(self, z3StringConvertorObj, allVar, boolVarStr):
         for i in allVar:
             exec("%s=%s" % (i, "Real(\'" + i + "\')"))
         exec("%s=%s" % (boolVarStr, "Bool(\'" + boolVarStr + "\')"))
         z3SolverObj = Solver()
+        print("z3StringConvertorObj.wpcString---\n", z3StringConvertorObj.wpcString)
         if len(z3StringConvertorObj.implies_p) > 0:
             for i in range(len(z3StringConvertorObj.implies_p)):
                 exec("%s" % ("z3SolverObj.add(" + z3StringConvertorObj.implies_p[i] + ")"))
