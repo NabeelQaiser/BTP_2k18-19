@@ -53,7 +53,7 @@ def preprocessSinglePlSqlFileForDatasetRunning(dataFileName, specFileName, dataF
     f.close()
     processor = McPreProcessor(specFilePath, dataFilePath)
     tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString = processor.start()
-    execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName)
+    execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName)
 
 def preprocessSinglePlSqlFile(dataFileName, specFileName):
     f = open("mc/data/" + dataFileName, 'r')
@@ -61,7 +61,7 @@ def preprocessSinglePlSqlFile(dataFileName, specFileName):
     f.close()
     processor = McPreProcessor("mc/spec/" + specFileName, "mc/data/" + dataFileName)
     tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString = processor.start()
-    execute(tableInfo, predicates, predicateVarSet, resultString, dataFileName, specFileName)
+    execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName)
 
 def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName):
     file = open('mc/upper_input.sql', "w")
@@ -101,13 +101,15 @@ def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultS
     # for nodeId in mcCfg.nodes:
     #     mcCfg.nodes[nodeId].printPretty()
 
+    for i in mcCfg.nodes:
+        if mcCfg.nodes[i].ctx is not None:
+            print(i, mcCfg.nodes[i].ctx.getText())
+        else:
+            print(i, "ctx = None")
+
     print("\n++++++++++++++++++++++\tPredicates\n")
     for i in predicates:
         print(i)
-
-    # for i in mcCfg.nodes:
-    #     if mcCfg.nodes[i].ctx is not None:
-    #         print(mcCfg.nodes[i].ctx.getText(), "\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
 
     # mcUtility.execute(predicates)
 
@@ -128,11 +130,11 @@ def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultS
     print("********************************\n")
 
     print("\n-------  booleans and wpcs  ------\n")
-    for i in mcCfg.nodes:
-        if mcCfg.nodes[i].ctx is not None:
-            print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
-
-    mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
+    # for i in mcCfg.nodes:
+    #     if mcCfg.nodes[i].ctx is not None:
+    #         print(str(i)+".", mcCfg.nodes[i].ctx.getText(), "\nbooleans -->\t", mcCfg.nodes[i].booleans, ",\twpcs -->\t", mcCfg.nodes[i].wpcString, "\n")
+    #
+    # mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
 
 
 

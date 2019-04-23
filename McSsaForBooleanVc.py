@@ -57,11 +57,17 @@ class McSsaForBooleanVc():
         ssaStringObj = MySsaStringGenerator(self.cfg, parser)
         ssaStringObj.execute()
 
+        # print('{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{')
+        # for nodeId in self.cfg.nodes:
+        #     self.cfg.nodes[nodeId].printPretty()
+        # print('{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{')
+
         versionizedPredicateList = self.processSmartList(smartList, rawPredicateContentDict, toVersionizeList)
+        # last element of smartList will be versionized ConsequentList node ids
         nodeList = smartList[len(smartList)-1]
         versionizedConsequentList = list()
         for i in nodeList:
-            tempCond = self.getEquivalentPredicateForANode(nodeList[i]).strip()
+            tempCond = self.getEquivalentPredicateForANode(i).strip()
             versionizedConsequentList.append(tempCond)
         return versionizedPredicateList, self.variablesForZ3, versionizedConsequentList
 
@@ -95,7 +101,7 @@ class McSsaForBooleanVc():
                     flagList.append(counter)
                     counter = counter + 1
                 elif tempList[1] == "ass":
-                    sqlFileStr = sqlFileStr + "\t" + tempList[0].strip() + ";\n\n"
+                    sqlFileStr = sqlFileStr + "\t" + self.cursorToSelectStmt(tempList[0].strip()) + ";\n\n"
                     flagList.append(counter)
                     counter = counter + 1
             elif len(tempList) == 3:
@@ -110,7 +116,7 @@ class McSsaForBooleanVc():
                     sqlFileStr = sqlFileStr + "\tASSUME " + tempList[2].strip() + ";\n"
                     flagList.append(counter)
                     counter = counter + 1
-                    sqlFileStr = sqlFileStr + "\t" + tempList[0].strip() + ";\n\n"
+                    sqlFileStr = sqlFileStr + "\t" + self.cursorToSelectStmt(tempList[0].strip()) + ";\n\n"
                     flagList.append(counter)
                     counter = counter + 1
             smartList.append(flagList)
@@ -122,6 +128,25 @@ class McSsaForBooleanVc():
         smartList.append(flagList)
         sqlFileStr = sqlFileStr + "\nEND;"
         return sqlFileStr
+
+
+    def cursorToSelectStmt(self, cStr):
+        tokens = cStr.split(" ")
+        if tokens[0] == "CURSOR":
+            fromIndexCursor = -1
+            for i in range(len(tokens)):
+                if tokens[i] == "SELECT":
+                    fromIndexCursor = i
+                    break
+            selectStr = ""
+            for i in range(fromIndexCursor, len(tokens)-1):
+                if tokens[i] == "FROM":
+                    selectStr = selectStr + "INTO " + tokens[1] + " FROM "
+                else:
+                    selectStr = selectStr + tokens[i] + " "
+            return selectStr.strip()
+        else:
+            return cStr
 
 
     def getEquivalentPredicateForANode(self, nodeId):
@@ -292,7 +317,7 @@ class McSsaForBooleanVc():
                             equivalentCondition = "( ( " + conditionInFromClause + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
                     else:
                         if not conditionInFromClause == "":
-                            whereCondition = "( " + conditionInFromClause + " ^ " + whereCondition + " )"
+                            whereCondition = "( ( " + conditionInFromClause + " ) ^ ( " + whereCondition + " ) )"
                         equivalentCondition = "( ( " + whereCondition + " ) ^ ( " + lhsVar + " == " + rhsVar + " ) )"
                 else:
                     if not conditionInFromClause == "":
@@ -304,7 +329,7 @@ class McSsaForBooleanVc():
             self.variablesForZ3 = self.variablesForZ3.union(set(currentNode.versionedLHS.values()))
             self.variablesForZ3 = self.variablesForZ3.union(set(currentNode.versionedRHS.values()))
         elif ruleName == "fetch_statement":
-            equivalentCondition = "( ( " + self.getVersionedTerminalRHS(nodeId, currentNode.ctx.children[3], self.cfg).strip() + " ) == ( " + self.getVersionedTerminalLHS(nodeId, currentNode.ctx.children[1], self.cfg).strip() + " ) )"
+            equivalentCondition = "( ( " + self.getVersionedTerminalLHS(nodeId, currentNode.ctx.children[3], self.cfg).strip() + " ) == ( " + self.getVersionedTerminalRHS(nodeId, currentNode.ctx.children[1], self.cfg).strip() + " ) )"
             self.variablesForZ3 = self.variablesForZ3.union(set(currentNode.versionedLHS.values()))
             self.variablesForZ3 = self.variablesForZ3.union(set(currentNode.versionedRHS.values()))
         elif ruleName == "assume_statement":
@@ -356,7 +381,7 @@ class McSsaForBooleanVc():
         varString = varString.replace("*", "STAR")
         return varString
 
-
+    # it will yeild versioned condition
     def getConditionalString(self, nodeId, ctx):   # considering only AND, OR, NOT as 'word' separator
         if ctx.getChildCount() == 1:
             return self.getConditionalString(nodeId, ctx.children[0])
@@ -433,6 +458,7 @@ class McSsaForBooleanVc():
             return "( " + self.getVersionedTerminalRHS(nodeId, ctx, self.cfg).strip() + " )"
 
 
+    # it will yeild versioned condition
     def extractConditionsInFromClause(self, nodeId, ctx):       # ctx ~ from_clause.children[1]
         if self.helper.getRuleName(ctx) == "table_ref":
             if ctx.getChildCount() == 2:
@@ -462,8 +488,21 @@ class McSsaForBooleanVc():
 
 
     def nullInCondition(self, conditionalCtx):
-        condition = self.helper.getTerminal(conditionalCtx).strip()
+        condition = self.getTerminal(conditionalCtx).strip()
         tokens = condition.split(" ")   # tokens will be a list
         if "NULL" in tokens:
             return True
         return False
+
+
+    def getTerminal(self, ctx):
+        if ctx==None:
+            return ""
+        c = ctx.getChildCount()
+        if c==0:
+            return str(ctx) + " "
+        else:
+            res = ""
+            for i in range(c):
+                res = res + self.getTerminal(ctx.children[i])
+            return res

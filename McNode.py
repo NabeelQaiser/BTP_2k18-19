@@ -8,7 +8,7 @@ class McNode(MyNode):
         self.booleans = dict()          #format { 1 : [True], 2 : [False / * / skip], b : [phi, first ternary, second ternary] ... }
         self.wpcString = dict()         #format  { 1 : "---corresponding to first predicate---", ......}
         self.visited = False
-        self.parentBranching = dict()
+        self.parentBranching = dict()   # format : {'ancestor branching node id': "whether this node lies in the true part or the false part of that ancestor branching node"}
 
 
     def printPretty(self):
