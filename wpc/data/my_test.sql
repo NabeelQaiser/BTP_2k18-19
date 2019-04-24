@@ -10,12 +10,12 @@ IS
 
       ELSIF num_item >= 500 THEN
         price := price - 0.2*num_item;
-
+        
       ELSIF num_item > 99 AND price > 5000 THEN
         price := price - 0.2*num_item;
       ELSE
         price := price + 0.05*num_item;
-
+      
       END IF;
 
 

@@ -20,8 +20,7 @@ class MySsaStringGenerator(PlSqlVisitor):
         ctx = self.cfg.nodes[nodeId].ctx
         res = ""
         if ctx==None:
-            print()
-            #todo: destructed phi nodes
+            pass
         else:
             ruleName = self.helper.getRuleName(ctx)
             if ruleName == "parameter":
@@ -105,12 +104,18 @@ class MySsaStringGenerator(PlSqlVisitor):
     def getUpdate_statement(self, nodeId, ctx):
         res = "" + str(ctx.children[0]) + " " + self.getTerminal(ctx.children[1])
         res = res + self.getVersionedTerminalLHS(nodeId, ctx.children[2])
-        res = res + self.getVersionedTerminalRHS(nodeId, ctx.children[3])   # considering WHERE is mandatory for UPDATE statement
+        res = res + self.getVersionedTerminalRHS(nodeId, ctx.children[3])   # considering WHERE is mandatory for UPDATE statement (bug)
         return res
 
     def getSelect_statement(self, nodeId, ctx):
-        #res = "" + ctx.children[0] + " "
-        return self.getVersionedTerminalRHS(nodeId, ctx)
+        res = ""
+        for i in range(ctx.children[0].children[0].getChildCount()):
+            ruleName = self.helper.getRuleName(ctx.children[0].children[0].children[i])
+            if ruleName == "into_clause":
+                res = res + self.getVersionedTerminalLHS(nodeId, ctx.children[0].children[0].children[i])
+            else:
+                res = res + self.getVersionedTerminalRHS(nodeId, ctx.children[0].children[0].children[i])
+        return res
 
     def getAssignment_statement(self, nodeId, ctx):
         res = ""

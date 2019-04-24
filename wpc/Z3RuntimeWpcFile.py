@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-04-21 22:05:23.521207
+# This file was generated at runtime on 2019-04-24 21:04:09.937886
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -8,19 +8,17 @@ class Z3RuntimeWpcFile():
 		self.modelForViolation = ""
 
 	def execute(self):
-		R = Real('R')
-		B = Real('B')
-		Y = Real('Y')
-		Q = Real('Q')
-		D = Real('D')
-		X = Real('X')
-		A = Real('A')
-		C = Real('C')
-		P = Real('P')
+		PRICE = Real('PRICE')
+		NUM_ITEM = Real('NUM_ITEM')
+		ITEM_ID = Real('ITEM_ID')
+		ITEM_COUNT = Real('ITEM_COUNT')
+		NO_OF_ITEM = Real('NO_OF_ITEM')
+		ITEM_PRICE = Real('ITEM_PRICE')
+		ID = Real('ID')
 
 		s = Solver()
-		s.add(And( And( A + P >= 50, C + D == 100 ), Q + R < 54 ))
-		s.add( Not( Implies( And( And( A + P >= 50, C + D == 100 ), Q + R < 54 ), Or( And( And( A == ( X - 50 ) + 3, B == ( X - 50 ) - 3 ), Or( And( ( ( X - 50 ) + 5 ) > 10, And( And( ( ( X - 50 ) - 9 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ), And( Not( ( ( X - 50 ) + 5 ) > 10 ), And( And( ( ( X - 50 ) + 5 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ) ) ), And( Not( And( A == ( X - 50 ) + 3, B == ( X - 50 ) - 3 ) ), Or( And( ( ( X - 50 ) + 5 ) > 10, And( And( ( ( X - 50 ) - 9 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ), And( Not( ( ( X - 50 ) + 5 ) > 10 ), And( And( ( ( X - 50 ) + 5 ) + P >= 50, C + D == 100 ), Q + R < 54 ) ) ) ) ) ) ) )
+		s.add(And( NO_OF_ITEM > 0, ITEM_PRICE > 0 ))
+		s.add( Not( Implies( And( NO_OF_ITEM > 0, ITEM_PRICE > 0 ), Or( And( ITEM_ID == ID, Or( And( NUM_ITEM >= 1000, ( ITEM_PRICE - 0.1 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 1000 ), Or( And( NUM_ITEM >= 500, ( ITEM_PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 500 ), Or( And( And( NUM_ITEM > 99, ITEM_PRICE > 5000 ), ( ITEM_PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( And( NUM_ITEM > 99, ITEM_PRICE > 5000 ) ), ( ITEM_PRICE + 0.05 * NUM_ITEM ) > 0 ) ) ) ) ) ) ), And( Not( ITEM_ID == ID ), Or( And( NUM_ITEM >= 1000, ( PRICE - 0.1 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 1000 ), Or( And( NUM_ITEM >= 500, ( PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 500 ), Or( And( And( NUM_ITEM > 99, PRICE > 5000 ), ( PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( And( NUM_ITEM > 99, PRICE > 5000 ) ), ( PRICE + 0.05 * NUM_ITEM ) > 0 ) ) ) ) ) ) ) ) ) ) )
 
 		#print("\n%%%%%%%%%% Aggregate Formula %%%%%%%%%%\n", s)
 		self.finalFormula = str(s)
