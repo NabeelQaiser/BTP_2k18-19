@@ -3,8 +3,7 @@ IS
   BEGIN
 
     DELETE from client
-    WHERE id = a_client_id;
+    WHERE id > a_client_id;
 
     COMMIT;
-
   END;

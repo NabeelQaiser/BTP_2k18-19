@@ -60,17 +60,16 @@ class McExecutor():
         paths = []
         self.getAllPaths(mcUtility.cfg, 0, [], paths)
         self.unvisitCfg(mcUtility)
-        print("mcPathsList", paths, "\n")
+        print("mcPathsList", paths)
         mcUtility.execute(predicateList)      # important, as we need all variables
 
         pathIndex = 0
         while pathIndex < len(paths):
             # rawPredicateContentList --> for generating consequents
-            print("_____________________________ Working for path : ", paths[pathIndex])
+            print("\n\n\n__________VAVAVAVAVAVAVA__________ Working for path : ", paths[pathIndex], "_________VAVAVAVAVAVAVA__________")
             self.executeForAPath(mcUtility, rawPredicateContentList, updatedPredList, rawPredicateContentDict, paths[pathIndex], self.getSeSatisfiability(sePathList, seSatInfoList, paths[pathIndex]), tableInfo)
             # result is printed in the above function
-            self.cleanForNextPath(mcUtility, predicateList)     #todo : remove additional predicates, ie, apart from initial predicates
-            # todo : yaha par khali karna hai, boolean aur wpc string ke liye
+            self.cleanForNextPath(mcUtility, predicateList)     #remove additional predicates, ie, apart from initial predicates
             pathIndex = pathIndex + 1
 
 
@@ -149,32 +148,45 @@ class McExecutor():
         mcPredList = list(updatedPredList)
         mcRawPredicateContentDict = dict(rawPredicateContentDict)
         if seZ3Output == 'ProblemInSeApi':
-            print("!!!! NO PATH MATCHED CORRESPONDING TO : ", mcPath, " in SE provided paths !!!!")
+            print("\n!!!! NO PATH MATCHED CORRESPONDING TO : ", mcPath, " in SE provided paths !!!!\n")
+        elif seZ3Output == "NoZ3OutputGivenForThisPath":
+            print("\n!!!! SE did'd GENERATED OUTPUT FOR PATH : ", mcPath, " in SE API module !!!!\n")
         else:
             mcOutput = ""
             while mcOutput != seZ3Output:       # assuming it never happen that mcOutput == looksgood and seZ3Output == cannotsay
                 mcUtility.generateBooleanVariableForAPath(mcPredList, mcPath)
                 eqBooleanProg = self.generateEqBooleanProg(mcUtility, mcPredList, mcPath)
                 antecedent, consequent, versionisedVarSet = self.generateVcForBooleanProg(mcUtility, rawPredicateContentList, eqBooleanProg, mcPredList, mcRawPredicateContentDict, mcPath, tableInfo)
+
+
                 if len(antecedent) == 0:
-                    print("---All booleans are SKIP for path :  ", mcPath, ", And seZ3Output : ", seZ3Output)
+                    print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                    print("%%%%%%%% All booleans are SKIP for path :  ", mcPath, ", And seZ3Output : ", seZ3Output)
+                    print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     break
-                mcOutput = self.checkSatisfiability(mcUtility, antecedent, consequent, versionisedVarSet)      #todo : here refinement may be needed
-                print("mcOutput = ", mcOutput, ",\t seZ3Output = ", seZ3Output)     #todo : hatana hai ise
+                mcOutput = self.checkSatisfiability(mcUtility, antecedent, consequent, versionisedVarSet)      # here refinement may be needed
+                print("///////////////////////// Checking Spurious-ness:\n", "mcOutput = ", mcOutput, ",\t seZ3Output = ", seZ3Output)
                 if mcOutput == seZ3Output:
                     if mcOutput == "looksgood":
-                        print("---No violation in path :  ", mcPath)
+                        print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                        print("%%%%%%%% No violation in path :  ", mcPath)
+                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     elif mcOutput == "cannotsay":
                         culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
-                        print("---Violation in path :  ", mcPath, "\t culprit nodes are : ", culprits)
+                        print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                        print("%%%%%%%% Violation in path :  ", mcPath, "\tCulprit nodes are : ", culprits)
+                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     break
-                else:           #todo : also consider for the situation where, after saturation of refining, mcOutput and seZ3Output do not match
+                else:           # also consider for the situation where, after saturation of refining, mcOutput and seZ3Output do not match
                     culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
-                    if len(culprits) == 0:
-                        print("!!!! NO CULPRIT FOUND, BUT STILL SE AND MC ARE NOT CONSISTENT, FOR THE PATH : ", mcPath)        # todo : handle the situation where no culprit found
+                    if len(culprits) == 0:  # saturation attained, no culprits
+                        print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                        print("!!!! NO CULPRIT FOUND, BUT STILL SE AND MC ARE NOT CONSISTENT, FOR THE PATH : ", mcPath)     # todo : handle the situation where no culprit found
+                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                         break
                     else:
                         self.refine(mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits)
+
 
 
     def findCulprits(self, mcUtility, eqBooleanProg, mcPath):        # returns -1 in case of NO culprit found
@@ -191,25 +203,28 @@ class McExecutor():
         return res
 
     def refine(self, mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits):
+        print("------------- Entered Refine(...) fn.")
         for nodeId in culprits:    # culprit ~ nodeId
             rawContent, assCond = self.getRawContentOfANode(nodeId, mcUtility)
             newPredicate = self.getNewBrackettedPredicate(mcUtility, nodeId)
-            if not rawContent in [i[0] for  i in mcRawPredicateContentDict.values()]:
-                mcPredList.append(newPredicate)
-                predIndex = len(mcPredList) - 1
-                mcRawPredicateContentDict[predIndex] = [rawContent, assCond]
-                mcUtility.cfg.nodes[nodeId].booleans[predIndex] = ["True"]
+            if not rawContent == "" and not newPredicate == "":
+                if not rawContent in [i[0] for  i in mcRawPredicateContentDict.values()]:
+                    mcPredList.append(newPredicate)
+                    predIndex = len(mcPredList) - 1
+                    mcRawPredicateContentDict[predIndex] = [rawContent, assCond]
+                    mcUtility.cfg.nodes[nodeId].booleans[predIndex] = ["True"]
             controlNodeIds = []
             for key in mcUtility.cfg.nodes[nodeId].parentBranching:
                 controlNodeIds.append(key)
             for nodeId in controlNodeIds:
                 rawContent, assCond = self.getRawContentOfANode(nodeId, mcUtility)
                 newPredicate = self.getNewBrackettedPredicate(mcUtility, nodeId)
-                if not rawContent in [i[0] for i in mcRawPredicateContentDict.values()]:        #todo: can may consider the implications of the new predicates to old predicates
-                    mcPredList.append(newPredicate)
-                    predIndex = len(mcPredList) - 1
-                    mcRawPredicateContentDict[predIndex] = [rawContent, assCond]
-                    mcUtility.cfg.nodes[nodeId].booleans[predIndex] = ["True"]
+                if not rawContent == "" and not newPredicate == "":
+                    if not rawContent in [i[0] for i in mcRawPredicateContentDict.values()]:        #todo: someone may consider the implications of the new predicates to old predicates
+                        mcPredList.append(newPredicate)
+                        predIndex = len(mcPredList) - 1
+                        mcRawPredicateContentDict[predIndex] = [rawContent, assCond]
+                        mcUtility.cfg.nodes[nodeId].booleans[predIndex] = ["True"]
 
 
 
@@ -221,22 +236,28 @@ class McExecutor():
         z3StringConvertorObj.execute()
         tempRes =  self.getZ3SolverResult(z3StringConvertorObj, versionisedVarSet, "JUST_IGNORE_IT_NOTHING_MUCH")
         if tempRes:
-            return "looksgood"      #todo : check for it
+            return "looksgood"
         else:
             return "cannotsay"
 
 
     def printBooleans(self, mcUtility, mcPath):
-        print("----------- booleans")
+        print("\n&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs")
         for nodeId in mcPath:
             print(nodeId, ": ", mcUtility.cfg.nodes[nodeId].booleans)
             print(nodeId, ": ", mcUtility.cfg.nodes[nodeId].wpcString)
             print("--")
 
+
     def generateVcForBooleanProg(self, mcUtility, rawPredicateContentList, eqBooleanProg, mcPredList, rawPredicateContentDict, mcPath, tableInfo):
         toVersionizeList = list()   # list of predicateIndex
         toVersionizeContentDict = dict()
+
+        print("\n&&&&&&&&&&&&&&&&&&&&&& mcPredList,", len(mcPredList), " (Updated pred-list for further working)")
+        for i in mcPredList:
+            print(i)
         self.printBooleans(mcUtility, mcPath)
+
         for nodeId in mcPath:
             predicateIndex = eqBooleanProg[nodeId]
             if len(mcUtility.cfg.nodes[nodeId].booleans[predicateIndex]) == 1:       # "True" / "*" / "skip" only
@@ -256,16 +277,15 @@ class McExecutor():
         versionizedPredicateList, versionisedVarSet, versionizedConsequentList = mcSsaForBooleanVc.execute(toVersionizeList, toVersionizeContentDict, tableInfo, rawPredicateContentList)
         # print("versionizedPredicateList, versionisedVarSet, versionizedConsequentList---\n", versionizedPredicateList,"\n", versionisedVarSet, "\n", versionizedConsequentList)
 
-        print("toVersionizeList : ", toVersionizeList)
-        print("-----------------&&&&&&&&&&&&&&&&&&&&&& mcPredList", len(mcPredList))
-        for i in mcPredList:
-            print(i)
-        print("-----------------&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList", len(versionizedPredicateList))
+        print("&&&&&&&&&&&&&&&&&&&&&& toVersionizeList :", toVersionizeList, " (List of pred-index need to versionize)")
+
+        print("&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList,", len(versionizedPredicateList), " (List of eq. predicates after versionization)")
         for i in versionizedPredicateList:
             print(i)
-        print("-----------------&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList")
+        print("&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList", " (Versionized ORIGINAL predicates for Consequent in VC)")
         for i in versionizedConsequentList:
             print(i)
+        print()
 
         finalVc = ""
         finalConsequent = ""
@@ -341,6 +361,9 @@ class McExecutor():
         if len(currentNode.next) > 1:
             rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
             assCond = "cond"
+            if mcUtility.wpcGenerator.nullInCondition(currentNode.ctx):
+                rawContent = ""
+                assCond = ""
         elif ruleName == "assignment_statement":
             rawContent = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx).strip()
             assCond = "ass"
@@ -383,6 +406,8 @@ class McExecutor():
         newPredicateStr = ""
         if len(currentNode.next) > 1:
             newPredicateStr = mcUtility.wpcGenerator.getConditionalString(currentNode.ctx).strip()
+            if mcUtility.wpcGenerator.nullInCondition(currentNode.ctx):
+                newPredicateStr = ""
         elif ruleName == "assignment_statement":
             lhsVar = mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[0]).strip()
             # converting functions like "xyx_ab_jhk()" in RHS to equivalent variable "xyx_ab_jhk", however nested RHS is
@@ -545,7 +570,8 @@ class McExecutor():
         elif ruleName == "fetch_statement":
             newPredicateStr = "( ( " + mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[3]).strip() + " ) == ( " + mcUtility.wpcGenerator.ssaString.getTerminal(currentNode.ctx.children[1]).strip() + " ) )"
 
-        newPredicateStr = newPredicateStr.replace("  ", " ").strip()
+        newPredicateStr = newPredicateStr.replace("  ", " ")
+        newPredicateStr = newPredicateStr.replace(" = ", " == ").strip()
         return newPredicateStr
 
     #

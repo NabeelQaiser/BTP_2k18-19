@@ -13,6 +13,5 @@ IS
        x := y;
        end if;
        
-      assert b > 0;
     end;
 end;

@@ -1,27 +1,14 @@
 --https://www.bnl.gov/phobos/detectors/computing/orant/doc/database.804/a58227/ch14.htm
 
 CREATE PROCEDURE credit_account (acct NUMBER, credit NUMBER) AS 
-/* This procedure accepts two arguments: an account 
-   number and an amount of money to credit to the specified 
-   account. If the specified account does not exist, a 
-   new account is created. */ 
-
         old_balance  NUMBER; 
         new_balance  NUMBER; 
    BEGIN 
         SELECT balance INTO old_balance FROM accounts 
-          WHERE acct_id = acct 
-          FOR UPDATE OF balance; 
+          WHERE acct_id = acct; 
 
         new_balance := old_balance + credit; 
         UPDATE accounts SET balance = new_balance 
           WHERE acct_id = acct; 
-        COMMIT; 
-
-        EXCEPTION 
-          WHEN NO_DATA_FOUND THEN 
-            INSERT INTO accounts (acct_id, balance) 
-                VALUES(acct, credit); 
-          WHEN OTHERS THEN 
-        ROLLBACK; 
+        COMMIT;
 END credit_account

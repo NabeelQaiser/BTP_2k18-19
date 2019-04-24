@@ -4,5 +4,5 @@ BEGIN
       UPDATE Emp_tab
          SET Sal = Sal + Sal_incr
          WHERE Empno = Emp_id;
- END Sal_raise;
+END Sal_raise;
 
