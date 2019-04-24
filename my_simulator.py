@@ -6,6 +6,7 @@ from MyCFG import MyCFG
 from MyHelper import MyHelper
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
+from PreProcessor import PreProcessor
 from gen.MySsaStringGenerator import MySsaStringGenerator
 from gen.PlSqlLexer import PlSqlLexer
 from gen.PlSqlParser import PlSqlParser
@@ -14,10 +15,16 @@ from MyRawCfgToGraph import MyRawCfgToGraph
 
 
 def main(argv):
-    name = "se/data/"+argv[1]
-    file = open(name, "r")
+    datafile = "se/data/"+argv[1]
+    specfile = "se/spec/"+argv[2]
+
+    file = open(datafile, "r")
     content = file.read().upper()
     file.close()
+
+    processor = PreProcessor(specfile, datafile)
+    tableInfo, assumeConstraintList, assertConstraintList, resultString = processor.start()
+
     file = open('se/upper_input.sql', "w")
     file.write(content)
     file.close()
@@ -33,13 +40,12 @@ def main(argv):
 
     cfg = MyCFG()
     helper = MyHelper(parser)
+    helper.updateTableDict(tableInfo)
     utility = MyUtility(helper)
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-
-
-    print(v.rawCFG)
+    print("\n\t", v.rawCFG, "\n")
 
     for key in v.cfg.nodes:
         if v.cfg.nodes[key].ctx != None:
@@ -51,11 +57,11 @@ def main(argv):
     cfg.printPretty()
     cfg.dotToPng(cfg.dotGraph, "se/raw_graph")
     utility.generateDomSet(cfg)
-    print("Dominator set ended----------->\n\n")
+    # print("Dominator set ended----------->\n\n")
     utility.generateSDomSet(cfg)
-    print("Strictly Dominator set ended ----------->\n\n")
+    # print("Strictly Dominator set ended ----------->\n\n")
     utility.generatIDom(cfg)
-    print("Immediate Dominator ended ----------->\n\n")
+    # print("Immediate Dominator ended ----------->\n\n")
     utility.generateDFSet(cfg)
     utility.insertPhiNode(cfg)
 
@@ -68,13 +74,10 @@ def main(argv):
     ssaString = MySsaStringGenerator(cfg, parser)
     ssaString.execute()
 
-    # utility.generateFinalDotGraph(cfg)
+
     for nodeId in cfg.nodes:
         cfg.nodes[nodeId].printPretty()
-    #
-    # hello = utility.generateFinalDotGraph(cfg)
-    # print(hello)
-    # cfg.dotToPng(hello, "versioned_graph")
+
 
     hello2 = utility.generateVersionedDotFile(cfg)
     #print(hello2)
