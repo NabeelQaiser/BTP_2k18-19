@@ -340,6 +340,9 @@ class McSsaForBooleanVc():
             equivalentCondition = self.getConditionalString(nodeId, currentNode.ctx.children[1])
             self.variablesForZ3 = self.variablesForZ3.union(set(currentNode.versionedLHS.values()))
             self.variablesForZ3 = self.variablesForZ3.union(set(currentNode.versionedRHS.values()))
+
+        equivalentCondition = equivalentCondition.replace("  ", " ")
+        equivalentCondition = equivalentCondition.replace(" = ", " == ").strip()
         return equivalentCondition
 
 

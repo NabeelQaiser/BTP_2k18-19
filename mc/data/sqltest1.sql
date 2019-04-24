@@ -9,3 +9,14 @@ IS
       update T set A=x-9 where A>10;
 
   END;
+
+--add_delivery_attempt.sql  not consistent se and mc    #issue - null in if
+--discount.sql    not consistent se and mc
+--add_car.sql not consistent se and mc      #issue - null in if
+
+
+
+
+
+--salary.sql --perfect example --be HAPPY
+--check.sql --perfect example --be HAPPY

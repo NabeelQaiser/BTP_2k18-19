@@ -9,7 +9,7 @@ IS
         FROM contract_type
         WHERE TYPE = a_contract_type;
       CURSOR get_max_contract_type_id IS
-        SELECT MAX(id)
+        SELECT MAX_id
         FROM contract_type;
     BEGIN
       OPEN get_contract_type_id;

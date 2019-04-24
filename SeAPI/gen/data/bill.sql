@@ -1,5 +1,3 @@
--- https://github.com/Lewan110/hotel-room-reservation-database/blob/master/proc.sql
-
 
 PROCEDURE bill (p_reservation_id IN NUMBER) IS
         n_o_visits   NUMBER;
@@ -8,7 +6,7 @@ PROCEDURE bill (p_reservation_id IN NUMBER) IS
         discount     NUMBER;
     BEGIN
         SELECT
-            COUNT(*)
+            COUNT_star
         INTO n_o_visits
         FROM
             clients
@@ -17,8 +15,7 @@ PROCEDURE bill (p_reservation_id IN NUMBER) IS
         WHERE
             status = completed;
 
-        IF
-            ( n_o_visits > 10 )
+        IF n_o_visits > 10
         THEN
             discount := 10;
         ELSE
@@ -27,7 +24,7 @@ PROCEDURE bill (p_reservation_id IN NUMBER) IS
 
 
         SELECT
-            SUM(price_per_day)
+            SUM_price_per_day
         INTO final_cost
         FROM
             rooms

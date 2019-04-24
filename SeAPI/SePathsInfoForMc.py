@@ -94,7 +94,7 @@ class SePathsInfoForMc():
                 listOfSatisfiability.append(lines[0].strip())
             else:
                 listOfSatisfiability.append("NoZ3OutputGivenForThisPath")
-                print("\t!!!!!!! Problem in SE API, No Z3 Output Given For This SE Path :", path)
+                # print("\t!!!!!!! Problem in SE API, No Z3 Output Given For This SE Path :", path)
         # clearing this file
         f = open(pwd + "SeAPI/tempSatInfo.txt", "w")
         f.close()

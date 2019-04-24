@@ -1,4 +1,5 @@
 ROUTES :: CUSTOMER_ID:NOT NULL , PRICE :NOT NULL
 LOADS:: load_id:NOT NULL
 
-constraints:: price > 0 
+assume:: price > 0 
+assert:: price > 0 

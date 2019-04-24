@@ -1,3 +1,4 @@
 client:: id:NOT NULL
 
-constraints:: id > 0
+assume:: id > 0
+assert:: id > 0

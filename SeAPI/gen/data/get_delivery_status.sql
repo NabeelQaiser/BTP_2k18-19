@@ -9,7 +9,7 @@ IS
         FROM delivery_status
         WHERE status = a_status;
       CURSOR get_max_status_id IS
-        SELECT MAX(id)
+        SELECT max_id
         FROM delivery_status;
     BEGIN
       OPEN get_status_id;
