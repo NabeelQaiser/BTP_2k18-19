@@ -1,0 +1,303 @@
+0 ctx = None
+1 ACC_NOINT
+2 AMTINT
+3 BALINT;
+4 MIN_BALINT;
+5 ASSUMETO_CORRECT_PROBLEMS_IN_SE_API>0
+6 SELECTBALANCEINTOBALFROMACCOUNTWHEREACCNO=ACC_NO
+7 MIN_BAL:=BAL-AMT
+8 AMT<10000ANDMIN_BAL>0
+9 UPDATEACCOUNTSETBALANCE=BALANCE-AMTWHEREACCNO=ACC_NO
+10 ctx = None
+11 ASSERTTO_CORRECT_PROBLEMS_IN_SE_API>0
+
+++++++++++++++++++++++	Predicates Given in SPEC file:
+( BALANCE > 0 )
+++++++++++++++++++++++
+
+
+
+
+sePathList [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11]]
+seSatInfoList ['looksgood', 'looksgood']
+********CDCDCDCDCDCDCDCD******** Entered into McExcuter ********CDCDCDCDCDCDCDCD********
+mcPathsList [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11], [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11]]
+
+
+
+__________VAVAVAVAVAVAVA__________ Working for path :  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11] _________VAVAVAVAVAVAVA__________
+
+&&&&&&&&&&&&&&&&&&&&&& mcPredList, 1  (Updated pred-list for further working)
+( BALANCE > 0 )
+
+&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs
+0 :  {0: ['skip']}
+0 :  {0: '( BALANCE > 0 )'}
+--
+1 :  {0: ['skip']}
+1 :  {0: '( BALANCE > 0 )'}
+--
+2 :  {0: ['skip']}
+2 :  {0: '( BALANCE > 0 )'}
+--
+3 :  {0: ['skip']}
+3 :  {0: '( BALANCE > 0 )'}
+--
+4 :  {0: ['skip']}
+4 :  {0: '( BALANCE > 0 )'}
+--
+5 :  {0: ['skip']}
+5 :  {0: '( BALANCE > 0 )'}
+--
+6 :  {0: ['skip']}
+6 :  {0: '( BALANCE > 0 )'}
+--
+7 :  {0: ['skip']}
+7 :  {0: '( BALANCE > 0 )'}
+--
+8 :  {0: ['skip']}
+8 :  {0: '( BALANCE > 0 )'}
+--
+9 :  {0: ['ACCNO = ACC_NO', '*', 'True']}
+9 :  {0: '( ( ( ACCNO = ACC_NO ) ^ ( ( BALANCE - AMT ) > 0 ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( BALANCE > 0 ) ) )'}
+--
+11 :  {0: ['skip']}
+11 :  {0: '( BALANCE > 0 )'}
+--
+&&&&&&&&&&&&&&&&&&&&&& toVersionizeList : [0]  (List of pred-index need to versionize)
+&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList, 1  (List of eq. predicates after versionization)
+( ( ( ( ACCNO0 == ACC_NO0 ) ) ^ ( ( BALANCE0 > 0 ) ) ) v ( ( ( ACCNO0 == ACC_NO0 ) ) ^ ( ! ( ( BALANCE0 > 0 ) ) ) ) v ( ( ! ( ( ACCNO0 == ACC_NO0 ) ) ) ^ ( ( BALANCE0 > 0 ) ) ) )
+&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList  (Versionized ORIGINAL predicates for Consequent in VC)
+( BALANCE0 > 0 )
+
+z3StringConvertorObj.wpcString---
+ ( ( ( ( ( ( ACCNO0 == ACC_NO0 ) ) ^ ( ( BALANCE0 > 0 ) ) ) v ( ( ( ACCNO0 == ACC_NO0 ) ) ^ ( ! ( ( BALANCE0 > 0 ) ) ) ) v ( ( ! ( ( ACCNO0 == ACC_NO0 ) ) ) ^ ( ( BALANCE0 > 0 ) ) ) ) ) ==> ( ( ( ( BALANCE0 > 0 ) ) == True ) ) )
+///////////////////////// Checking Spurious-ness:
+ mcOutput =  cannotsay ,	 seZ3Output =  looksgood
+------------- Entered Refine(...) fn.
+
+&&&&&&&&&&&&&&&&&&&&&& mcPredList, 3  (Updated pred-list for further working)
+( BALANCE > 0 )
+( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )
+( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )
+
+&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs
+0 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+0 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+1 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+1 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+2 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+2 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+3 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+3 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+4 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+4 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+5 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+5 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+6 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+6 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+7 :  {0: ['skip'], 1: ['skip'], 2: ['*']}
+7 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( ( BAL - AMT ) > 0 ) )'}
+--
+8 :  {0: ['skip'], 2: ['True'], 1: ['skip']}
+8 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+9 :  {0: ['ACCNO = ACC_NO', '*', 'True'], 1: ['True'], 2: ['skip']}
+9 :  {0: '( ( ( ACCNO = ACC_NO ) ^ ( ( BALANCE - AMT ) > 0 ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( BALANCE > 0 ) ) )', 1: '( ( ( ACCNO = ACC_NO ) ^ ( ( ( ( BALANCE - AMT ) == ( ( BALANCE - AMT ) - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+11 :  {0: ['skip'], 1: ['skip'], 2: ['skip']}
+11 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )'}
+--
+&&&&&&&&&&&&&&&&&&&&&& toVersionizeList : [2, 2, 1]  (List of pred-index need to versionize)
+&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList, 3  (List of eq. predicates after versionization)
+( ( AMT0 < 10000 ) ^ ( MIN_BAL0 > 0 ) )
+( ( AMT0 < 10000 ) ^ ( MIN_BAL0 > 0 ) )
+( ( ( BALANCE1 == ( BALANCE0 - AMT0 ) ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) )
+&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList  (Versionized ORIGINAL predicates for Consequent in VC)
+( BALANCE1 > 0 )
+
+z3StringConvertorObj.wpcString---
+ ( ( ( ( ( ( ( ( ( ( AMT0 < 10000 ) ^ ( MIN_BAL0 > 0 ) ) ) v ( ! ( ( ( AMT0 < 10000 ) ^ ( MIN_BAL0 > 0 ) ) ) ) ) ) ^ ( ( ( ( ( AMT0 < 10000 ) ^ ( MIN_BAL0 > 0 ) ) ) == True ) ) ) ) ^ ( ( ( ( ( ( BALANCE1 == ( BALANCE0 - AMT0 ) ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) ) ) == True ) ) ) ) ==> ( ( ( ( BALANCE1 > 0 ) ) == True ) ) )
+///////////////////////// Checking Spurious-ness:
+ mcOutput =  cannotsay ,	 seZ3Output =  looksgood
+------------- Entered Refine(...) fn.
+
+&&&&&&&&&&&&&&&&&&&&&& mcPredList, 4  (Updated pred-list for further working)
+( BALANCE > 0 )
+( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )
+( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )
+( MIN_BAL == ( BAL - AMT ) )
+
+&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs
+0 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+0 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+1 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+1 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+2 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+2 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+3 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+3 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+4 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+4 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+5 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+5 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+6 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['ACCNO = ACC_NO', '*', 'True']}
+6 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( ( ( ACCNO = ACC_NO ) ^ ( MIN_BAL == ( BALANCE - AMT ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( MIN_BAL == ( BAL - AMT ) ) ) )'}
+--
+7 :  {0: ['skip'], 1: ['skip'], 2: ['*'], 3: ['True']}
+7 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( ( BAL - AMT ) > 0 ) )', 3: '( ( BAL - AMT ) == ( BAL - AMT ) )'}
+--
+8 :  {0: ['skip'], 2: ['True'], 1: ['skip'], 3: ['skip']}
+8 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+9 :  {0: ['ACCNO = ACC_NO', '*', 'True'], 1: ['True'], 2: ['skip'], 3: ['skip']}
+9 :  {0: '( ( ( ACCNO = ACC_NO ) ^ ( ( BALANCE - AMT ) > 0 ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( BALANCE > 0 ) ) )', 1: '( ( ( ACCNO = ACC_NO ) ^ ( ( ( ( BALANCE - AMT ) == ( ( BALANCE - AMT ) - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+11 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip']}
+11 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )'}
+--
+&&&&&&&&&&&&&&&&&&&&&& toVersionizeList : [3, 3, 2, 1]  (List of pred-index need to versionize)
+&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList, 4  (List of eq. predicates after versionization)
+( MIN_BAL1 == ( BAL0 - AMT0 ) )
+( MIN_BAL2 == ( BAL0 - AMT0 ) )
+( ( AMT0 < 10000 ) ^ ( MIN_BAL2 > 0 ) )
+( ( ( BALANCE1 == ( BALANCE0 - AMT0 ) ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) )
+&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList  (Versionized ORIGINAL predicates for Consequent in VC)
+( BALANCE1 > 0 )
+
+z3StringConvertorObj.wpcString---
+ ( ( ( ( ( ( ( ( ( MIN_BAL1 == ( BAL0 - AMT0 ) ) ) ^ ( ( ( ( MIN_BAL2 == ( BAL0 - AMT0 ) ) ) == True ) ) ) ) ^ ( ( ( ( ( AMT0 < 10000 ) ^ ( MIN_BAL2 > 0 ) ) ) == True ) ) ) ) ^ ( ( ( ( ( ( BALANCE1 == ( BALANCE0 - AMT0 ) ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) ) ) == True ) ) ) ) ==> ( ( ( ( BALANCE1 > 0 ) ) == True ) ) )
+///////////////////////// Checking Spurious-ness:
+ mcOutput =  cannotsay ,	 seZ3Output =  looksgood
+------------- Entered Refine(...) fn.
+
+&&&&&&&&&&&&&&&&&&&&&& mcPredList, 5  (Updated pred-list for further working)
+( BALANCE > 0 )
+( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )
+( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )
+( MIN_BAL == ( BAL - AMT ) )
+( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )
+
+&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs
+0 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+0 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+1 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+1 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+2 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+2 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+3 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+3 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+4 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+4 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+5 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+5 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+6 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['ACCNO = ACC_NO', '*', 'True'], 4: ['True']}
+6 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( ( ( ACCNO = ACC_NO ) ^ ( MIN_BAL == ( BALANCE - AMT ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( MIN_BAL == ( BAL - AMT ) ) ) )', 4: '( ( ( ACCNO = ACC_NO ) ^ ( ( ( BALANCE == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) )'}
+--
+7 :  {0: ['skip'], 1: ['skip'], 2: ['*'], 3: ['True'], 4: ['skip']}
+7 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( ( BAL - AMT ) > 0 ) )', 3: '( ( BAL - AMT ) == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+8 :  {0: ['skip'], 2: ['True'], 1: ['skip'], 3: ['skip'], 4: ['skip']}
+8 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+9 :  {0: ['ACCNO = ACC_NO', '*', 'True'], 1: ['True'], 2: ['skip'], 3: ['skip'], 4: ['ACCNO = ACC_NO', '*', 'True']}
+9 :  {0: '( ( ( ACCNO = ACC_NO ) ^ ( ( BALANCE - AMT ) > 0 ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( BALANCE > 0 ) ) )', 1: '( ( ( ACCNO = ACC_NO ) ^ ( ( ( ( BALANCE - AMT ) == ( ( BALANCE - AMT ) - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( ACCNO = ACC_NO ) ^ ( ( ( BAL == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) v ( ( ! ( ACCNO = ACC_NO ) ) ^ ( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) ) ) )'}
+--
+11 :  {0: ['skip'], 1: ['skip'], 2: ['skip'], 3: ['skip'], 4: ['skip']}
+11 :  {0: '( BALANCE > 0 )', 1: '( ( ( BALANCE == ( BALANCE - AMT ) ) ) ^ ( ( ACCNO == ACC_NO ) ) )', 2: '( ( AMT < 10000 ) ^ ( MIN_BAL > 0 ) )', 3: '( MIN_BAL == ( BAL - AMT ) )', 4: '( ( ( BAL == BALANCE ) ) ^ ( ( ACCNO == ACC_NO ) ) )'}
+--
+&&&&&&&&&&&&&&&&&&&&&& toVersionizeList : [4, 3, 2, 1]  (List of pred-index need to versionize)
+&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList, 4  (List of eq. predicates after versionization)
+( ( ( BAL1 == BALANCE0 ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) )
+( MIN_BAL1 == ( BAL1 - AMT0 ) )
+( ( AMT0 < 10000 ) ^ ( MIN_BAL1 > 0 ) )
+( ( ( BALANCE1 == ( BALANCE0 - AMT0 ) ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) )
+&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList  (Versionized ORIGINAL predicates for Consequent in VC)
+( BALANCE1 > 0 )
+
+z3StringConvertorObj.wpcString---
+ ( ( ( ( ( ( ( ( ( ( ( ( ( BAL1 == BALANCE0 ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) ) ) == True ) ) ^ ( ( ( ( MIN_BAL1 == ( BAL1 - AMT0 ) ) ) == True ) ) ) ) ^ ( ( ( ( ( AMT0 < 10000 ) ^ ( MIN_BAL1 > 0 ) ) ) == True ) ) ) ) ^ ( ( ( ( ( ( BALANCE1 == ( BALANCE0 - AMT0 ) ) ) ^ ( ( ACCNO0 == ACC_NO0 ) ) ) ) == True ) ) ) ) ==> ( ( ( ( BALANCE1 > 0 ) ) == True ) ) )
+///////////////////////// Checking Spurious-ness:
+ mcOutput =  looksgood ,	 seZ3Output =  looksgood
+
+
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................
+%%%%%%%% No violation in path :   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11]
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+
+
+__________VAVAVAVAVAVAVA__________ Working for path :  [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11] _________VAVAVAVAVAVAVA__________
+
+&&&&&&&&&&&&&&&&&&&&&& mcPredList, 1  (Updated pred-list for further working)
+( BALANCE > 0 )
+
+&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs
+0 :  {0: ['skip']}
+0 :  {0: '( BALANCE > 0 )'}
+--
+1 :  {0: ['skip']}
+1 :  {0: '( BALANCE > 0 )'}
+--
+2 :  {0: ['skip']}
+2 :  {0: '( BALANCE > 0 )'}
+--
+3 :  {0: ['skip']}
+3 :  {0: '( BALANCE > 0 )'}
+--
+4 :  {0: ['skip']}
+4 :  {0: '( BALANCE > 0 )'}
+--
+5 :  {0: ['skip']}
+5 :  {0: '( BALANCE > 0 )'}
+--
+6 :  {0: ['skip']}
+6 :  {0: '( BALANCE > 0 )'}
+--
+7 :  {0: ['skip']}
+7 :  {0: '( BALANCE > 0 )'}
+--
+8 :  {0: ['skip']}
+8 :  {0: '( BALANCE > 0 )'}
+--
+10 :  {0: ['skip']}
+10 :  {0: '( BALANCE > 0 )'}
+--
+11 :  {0: ['skip']}
+11 :  {0: '( BALANCE > 0 )'}
+--
+&&&&&&&&&&&&&&&&&&&&&& toVersionizeList : []  (List of pred-index need to versionize)
+&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList, 0  (List of eq. predicates after versionization)
+&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList  (Versionized ORIGINAL predicates for Consequent in VC)
+( BALANCE0 > 0 )
+
+
+
+SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................
+%%%%%%%% All booleans are SKIP for path :   [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11] , And seZ3Output :  looksgood
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+********CDCDCDCDCDCDCDCD******** Exited from McExcuter ********CDCDCDCDCDCDCDCD********
+
+XXXXXXXXXXXXXXXXXXXXXXX Completed Execution for...
+ Filename: check.sql
+ Lines of Code: 10
+ Execution Time: 1.717435
