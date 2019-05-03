@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-04-24 21:04:09.937886
+# This file was generated at runtime on 2019-05-03 06:07:36.148378
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -9,16 +9,14 @@ class Z3RuntimeWpcFile():
 
 	def execute(self):
 		PRICE = Real('PRICE')
-		NUM_ITEM = Real('NUM_ITEM')
-		ITEM_ID = Real('ITEM_ID')
-		ITEM_COUNT = Real('ITEM_COUNT')
-		NO_OF_ITEM = Real('NO_OF_ITEM')
-		ITEM_PRICE = Real('ITEM_PRICE')
+		AMOUNT = Real('AMOUNT')
 		ID = Real('ID')
+		T_PRICE = Real('T_PRICE')
+		T_ID = Real('T_ID')
 
 		s = Solver()
-		s.add(And( NO_OF_ITEM > 0, ITEM_PRICE > 0 ))
-		s.add( Not( Implies( And( NO_OF_ITEM > 0, ITEM_PRICE > 0 ), Or( And( ITEM_ID == ID, Or( And( NUM_ITEM >= 1000, ( ITEM_PRICE - 0.1 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 1000 ), Or( And( NUM_ITEM >= 500, ( ITEM_PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 500 ), Or( And( And( NUM_ITEM > 99, ITEM_PRICE > 5000 ), ( ITEM_PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( And( NUM_ITEM > 99, ITEM_PRICE > 5000 ) ), ( ITEM_PRICE + 0.05 * NUM_ITEM ) > 0 ) ) ) ) ) ) ), And( Not( ITEM_ID == ID ), Or( And( NUM_ITEM >= 1000, ( PRICE - 0.1 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 1000 ), Or( And( NUM_ITEM >= 500, ( PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( NUM_ITEM >= 500 ), Or( And( And( NUM_ITEM > 99, PRICE > 5000 ), ( PRICE - 0.2 * NUM_ITEM ) > 0 ), And( Not( And( NUM_ITEM > 99, PRICE > 5000 ) ), ( PRICE + 0.05 * NUM_ITEM ) > 0 ) ) ) ) ) ) ) ) ) ) )
+		s.add(And( And( AMOUNT > 0, T_PRICE > 0 ), PRICE > 0 ))
+		s.add( Not( Implies( And( And( AMOUNT > 0, T_PRICE > 0 ), PRICE > 0 ), Or( And( T_ID == ID, Or( And( AMOUNT >= 1000, ( T_PRICE - 0.1 * AMOUNT ) > 0 ), And( Not( AMOUNT >= 1000 ), Or( And( And( AMOUNT >= 200, T_PRICE > 5000 ), ( T_PRICE - 0.2 * AMOUNT ) > 0 ), And( Not( And( AMOUNT >= 200, T_PRICE > 5000 ) ), ( T_PRICE + 0.05 * AMOUNT ) > 0 ) ) ) ) ), And( Not( T_ID == ID ), Or( And( AMOUNT >= 1000, ( PRICE - 0.1 * AMOUNT ) > 0 ), And( Not( AMOUNT >= 1000 ), Or( And( And( AMOUNT >= 200, PRICE > 5000 ), ( PRICE - 0.2 * AMOUNT ) > 0 ), And( Not( And( AMOUNT >= 200, PRICE > 5000 ) ), ( PRICE + 0.05 * AMOUNT ) > 0 ) ) ) ) ) ) ) ) )
 
 		#print("\n%%%%%%%%%% Aggregate Formula %%%%%%%%%%\n", s)
 		self.finalFormula = str(s)

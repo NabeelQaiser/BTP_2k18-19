@@ -132,9 +132,15 @@ class MySsaStringGenerator(PlSqlVisitor):
         res = res + self.getVersionedTerminalRHS(nodeId, ctx.children[3])   # considering WHERE is mandatory for UPDATE statement
         return res
 
-    def getSelect_statement(self, nodeId, ctx): #TODO: Needs to handle Aggrigate Functions (MAX,MIN,AVG,SUM,COUNT).
-
-        return self.getVersionedTerminalRHS(nodeId, ctx)
+    def getSelect_statement(self, nodeId, ctx):
+        res = ""
+        for i in range(ctx.children[0].children[0].getChildCount()):
+            ruleName = self.helper.getRuleName(ctx.children[0].children[0].children[i])
+            if ruleName == "into_clause":
+                res = res + self.getVersionedTerminalLHS(nodeId, ctx.children[0].children[0].children[i])
+            else:
+                res = res + self.getVersionedTerminalRHS(nodeId, ctx.children[0].children[0].children[i])
+        return res
 
     def getAssignment_statement(self, nodeId, ctx):
         res = ""

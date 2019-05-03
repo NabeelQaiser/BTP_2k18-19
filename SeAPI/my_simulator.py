@@ -16,10 +16,10 @@ from gen.SymbolicVcGeneration import SymbolicVcGeneration
 from gen.z3formulaofvcs import z3formulaofvcs
 from subprocess import call
 
-# this file will not run from here...
+# this file will not run from here... It is Still kept for reference, in case Imran Alam needs it...
 
-# for running this file, better create an object of equivalent class of this object in the directory where this file is...
-# and instantiate it from topmost level directory(BTP_2k18-19) and run from there
+# for running this file, a equivalent class "TesterClassForSeApi" is created in same folder...
+# and it is instantiated from topmost level directory(BTP_2k18-19) having filename : "simulator_se_api.py"
 
 
 def main(argv):

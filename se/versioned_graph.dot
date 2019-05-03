@@ -5,56 +5,30 @@ digraph G {
 	
 	0 -> 1 ;
 	
-	1[ label="ID0 IN VARCHAR "  ] ;
+	1[ label="X0 NUMBER "  ] ;
 	
 	1 -> 2 ;
 	
-	2[ label="NO_OF_ITEMS0 NUMBER "  ] ;
+	2[ label="ASSUME X0 > - 50 "  ] ;
 	
 	2 -> 3 ;
 	
-	3[ label="PRICE0 NUMBER ; "  ] ;
+	3[ label="X0 < 0 " , color=orange, shape=diamond ] ;
 	
 	3 -> 4 ;
+	3 -> 5 ;
 	
-	4[ label="SELECT ITEM_PRICE0 INTO PRICE1 FROM ITEM_TABLE WHERE ITEM_ID0 = ID0 "  ] ;
+	4[ label="X1 := - X0 "  ] ;
 	
-	4 -> 5 ;
+	4 -> 6 ;
 	
-	5[ label="NO_OF_ITEMS0 >= 1000 " , color=orange, shape=diamond ] ;
+	5[ label=""  ] ;
 	
 	5 -> 6 ;
-	5 -> 7 ;
 	
-	6[ label="PRICE2 := PRICE1 - 0.1 * NO_OF_ITEMS0 "  ] ;
-	
-	6 -> 12 ;
-	
-	7[ label="NO_OF_ITEMS0 >= 500 " , color=orange, shape=diamond ] ;
-	
-	7 -> 8 ;
-	7 -> 9 ;
-	
-	8[ label="PRICE4 := PRICE1 - 0.2 * NO_OF_ITEMS0 "  ] ;
-	
-	8 -> 12 ;
-	
-	9[ label="NO_OF_ITEMS0 > 99 AND PRICE1 > 5000 " , color=orange, shape=diamond ] ;
-	
-	9 -> 10 ;
-	9 -> 11 ;
-	
-	10[ label="PRICE5 := PRICE1 - 0.2 * NO_OF_ITEMS0 "  ] ;
-	
-	10 -> 12 ;
-	
-	11[ label="PRICE6 := PRICE1 + 0.05 * NO_OF_ITEMS0 "  ] ;
-	
-	11 -> 12 ;
-	
-	12[ label="INSERT INTO ITEM_TABLE ( ITEM_ID1 , ITEM_PRICE1 , ITEM_COUNT1 ) VALUES ( ID0 , PRICE3 , NO_OF_ITEMS0 ) "  ] ;
+	6[ label="ASSERT X2 >= 0 "  ] ;
 	
 	0[ label="START", shape=Msquare, color=green ] ;
-	12 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	6 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
 	
 }

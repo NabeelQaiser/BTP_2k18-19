@@ -1,44 +1,21 @@
--- HTTPS://GITHUB.COM/LEWAN110/HOTEL-ROOM-RESERVATION-DATABASE/BLOB/MASTER/PROC.SQL
+CREATE OR REPLACE PROCEDURE MY_ITEM(ID NUMBER, AMOUNT FLOAT)
+IS
+  BEGIN
+	ASSUME AMOUNT > 0 AND T_PRICE > 0 AND PRICE > 0 ;
 
-
-PROCEDURE BILL (P_RESERVATION_ID IN NUMBER) IS
-        N_O_VISITS   NUMBER;
-        FINAL_COST   NUMBER;
-        TO_PAY      NUMBER;
-        DISCOUNT     NUMBER;
-    BEGIN
-	ASSUME TO_PAY > 0 ;
-
-        SELECT
-            COUNT(*)
-        INTO N_O_VISITS
-        FROM
-            CLIENTS
-            JOIN CLIENT_RESERVATION ON PESEL_C = PESEL
-            JOIN RESERVATIONS ON RESERVATION_ID = RESERVATION_ID_R
-        WHERE
-            STATUS = COMPLETED;
-
-        IF
-            ( N_O_VISITS > 10 )
-        THEN
-            DISCOUNT := 10;
-        ELSE
-            DISCOUNT := 0;
-        END IF;
-
-
-        SELECT
-            SUM(PRICE_PER_DAY)
-        INTO FINAL_COST
-        FROM
-            ROOMS
-            JOIN RESERVATIONS ON ROOM_ID = ROOM_ID_R
-        WHERE
-            RESERVATION_ID_R = P_RESERVATION_ID;
-
-        TO_PAY:=FINAL_COST-FINAL_COST*(DISCOUNT/100);
-
-
-ASSERT TO_PAY > 0 ;
+      DECLARE
+          PRICE FLOAT;
+      BEGIN
+          SELECT T_PRICE INTO PRICE FROM OLDTABLE WHERE T_ID = ID;
+          IF AMOUNT >= 1000 THEN
+              PRICE := PRICE - 0.1*AMOUNT;
+          ELSIF AMOUNT >= 200 AND PRICE > 5000 THEN
+              PRICE := PRICE - 0.2*AMOUNT;
+          ELSE
+              PRICE := PRICE + 0.05*AMOUNT;
+          END IF;
+          INSERT INTO NEWTABLE(T_ID, T_PRICE, T_AMOUNT)
+                          VALUES (ID, PRICE, AMOUNT);
+      END;
+  ASSERT PRICE > 0 ;
 	END;

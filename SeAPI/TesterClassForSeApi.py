@@ -14,17 +14,21 @@ from SeAPI.gen.MySsaStringGenerator import MySsaStringGenerator
 from SeAPI.gen.SymbolicVcGeneration import SymbolicVcGeneration
 from SeAPI.gen.z3formulaofvcs import z3formulaofvcs
 
-# Do Not change anything in this file, it is required for MC module (to get listOfPaths & listOfSatisfiability) in "simulator_mc.py"
-# Also change this class's dependencies only if you Know what you are doing, it may effect MC module
-# If you want to debug SeApi Module, a separate file "TesterClassForSeApi.py" is in same folder, you can use that.
+# SeApi Debugging Class, it is used from "simulator_se_api.py"
 
-class SePathsInfoForMc():
+
+class TesterClassForSeApi():
     def __init__(self):
         pass
 
     def execute(self, data, spec, pwd):
         data = pwd + "SeAPI/gen/data/" + data
         spec = pwd + "SeAPI/specification/" + spec
+
+        f = open(data, 'r')
+        linesOfCode = len(f.readlines())
+        f.close()
+
         processor = PreProcessor(spec, data)
         tableInfo, assume, assrt, resultString = processor.start()
 
@@ -45,6 +49,8 @@ class SePathsInfoForMc():
         v = MyVisitor(parser, cfg, utility)
         v.visit(tree)
 
+        print("\nRaw CFG :", v.rawCFG)
+
         res = MyRawCfgToGraph(v.rawCFG, cfg)
         res.execute()
         utility.generateDomSet(cfg)
@@ -63,6 +69,15 @@ class SePathsInfoForMc():
         # for nodeId in cfg.nodes:
         #     cfg.nodes[nodeId].printPretty()
 
+        # cfg.dotToPng(cfg.dotGraph, pwd + "SeAPI/" + "raw_graph.dot")
+
+        # hello1 = utility.generateBeforeVersioningDotFile(cfg)
+        # cfg.dotToPng(hello1, pwd + "SeAPI/" + "before_versioning_graph.dot")
+
+        # hello4 = utility.generateDestructedPhiNodeWalaDotFile(cfg)
+        # cfg.dotToPng(hello4, pwd + "SeAPI/" + "destructed_phi_node_wala_graph.dot")
+
+
         utility.dfs(cfg.nodes[0].id, cfg)
 
         for nodeId in cfg.nodes:
@@ -74,11 +89,13 @@ class SePathsInfoForMc():
         vcs = SymbolicVcGeneration(cfg, parser)
         z3fr = z3formulaofvcs(cfg, parser)
 
-        listOfPaths = []
-        listOfSatisfiability = []
-        for path in list_of_path:
-            vc = vcs.SymbolicVc(path)
-            variableset = z3fr.z3VariableDeclarationSet(path)
+        # listOfPaths = []
+        # listOfSatisfiability = []
+
+        print("////// Paths & VCs...")
+        for i in range(len(list_of_path)):
+            vc = vcs.SymbolicVc(list_of_path[i])
+            variableset = z3fr.z3VariableDeclarationSet(list_of_path[i])
             z3fr.z3FormulaForEachPath(vc, pwd)
 
             f = open(pwd + "SeAPI/tempSatInfo.txt", "w")
@@ -87,19 +104,33 @@ class SePathsInfoForMc():
             tempStr = 'python3 ' + pwd + 'SeAPI/z3formula.py >> ' + pwd + 'SeAPI/tempSatInfo.txt'
             os.system(tempStr)
 
-            listOfPaths.append(path)
+            # listOfPaths.append(list_of_path[i])
 
             f = open(pwd + "SeAPI/tempSatInfo.txt", "r")
             lines = f.readlines()
             f.close()
 
+
+            print("Path", i+1, ":", list_of_path[i])
+            print("VC"+str(i+1)+" :", vc)
             if len(lines) > 0:
-                listOfSatisfiability.append(lines[0].strip())
+                if lines[0].strip() == "looksgood":
+                    print("Satisfiability :\tsat")
+                elif lines[0].strip() == "cannotsay":
+                    print("Satisfiability :\tviolation")
             else:
-                listOfSatisfiability.append("NoZ3OutputGivenForThisPath")
-                # print("\t!!!!!!! Problem in SE API, No Z3 Output Given For This SE Path :", path)
+                print("No Z3Output Given For the VC of This Path by SeApi!!!")
+            print("")
+
+
+            # if len(lines) > 0:
+            #     listOfSatisfiability.append(lines[0].strip())
+            # else:
+            #     listOfSatisfiability.append("NoZ3OutputGivenForThisPath")
+            #     # print("\t!!!!!!! Problem in SE API, No Z3 Output Given For This SE Path :", path)
         # clearing this file
         f = open(pwd + "SeAPI/tempSatInfo.txt", "w")
         f.close()
 
-        return listOfPaths, listOfSatisfiability
+        # return listOfPaths, listOfSatisfiability
+        return linesOfCode, len(list_of_path)

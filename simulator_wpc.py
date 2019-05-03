@@ -49,7 +49,7 @@ def executeSinglePlSqlFile(data, spec):
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-    print("\n\t", v.rawCFG, "\n")
+    print("\nRaw CFG :", v.rawCFG, "\n")
 
     # for key in v.cfg.nodes:
     #     if v.cfg.nodes[key].ctx != None:
@@ -79,7 +79,7 @@ def executeSinglePlSqlFile(data, spec):
     # done: replace " = " with " == " in algo.finalWpcString
     algo.finalWpcString = algo.finalWpcString.replace(" = ", " == ")
 
-    print("\n**** Final WPC String:\n\n", algo.finalWpcString, "\n")
+    print("\n**** Final WPC VC in Well_Bracketted_Format:\n\n", algo.finalWpcString, "\n")
 
     # print(algo.variablesForZ3)
 
@@ -91,7 +91,7 @@ def executeSinglePlSqlFile(data, spec):
     z3StringConvertor = WpcStringConverter(algo.finalWpcString)
     z3StringConvertor.execute()
     # z3StringConvertor.convertedWpc is the FINAL VC Generated...
-    print("\n**** WPC String in Z3 Format:\n\n", z3StringConvertor.convertedWpc, "\n")
+    # print("\n**** Final WPC VC in Z3 Format:\n\n", z3StringConvertor.convertedWpc, "\n")
 
     z3FileString = "# This file was generated at runtime on " + str(datetime.datetime.now()) + "\n"
     z3FileString = z3FileString + "from z3 import *\n\n"
@@ -172,10 +172,12 @@ def main(argv):
         data = "wpc/data/" + argv[1]    # given data-file must be +nt in "wpc/data/"
         spec = "wpc/spec/" + argv[2]    # given spec-file must be +nt in "wpc/spec/"
         linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(data, spec)
-        print("executionTime :", executionTime)
-        print("vcGenerated :", vcGenerated)
-        print("satisfiability :", satisfiability)
-        print("modelForViolation :", modelForViolation)
+        print("\n////// Execution completed for file :", argv[1])
+        print("* linesOfCode =", linesOfCode)
+        print("* executionTime =", executionTime)
+        print("* vcGenerated =", vcGenerated)
+        print("* satisfiability :", satisfiability)
+        print("* modelForViolation :", modelForViolation)
     elif len(argv) == 4:        # python3 simulator_wpc.py -dataset <data-folder-path> <spec-folder-path>
         # This part not working correctly (maybe because of import issue with "Z3RuntimeWpcFile.py" file generated at RunTime)
         # issue didn't properly solve even after RELOADING of that module generated at runtime. GOD knows why!!!
