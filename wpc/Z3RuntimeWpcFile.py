@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-05-03 06:07:36.148378
+# This file was generated at runtime on 2019-05-04 21:16:52.904510
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -8,15 +8,11 @@ class Z3RuntimeWpcFile():
 		self.modelForViolation = ""
 
 	def execute(self):
-		PRICE = Real('PRICE')
-		AMOUNT = Real('AMOUNT')
-		ID = Real('ID')
-		T_PRICE = Real('T_PRICE')
-		T_ID = Real('T_ID')
+		X = Real('X')
 
 		s = Solver()
-		s.add(And( And( AMOUNT > 0, T_PRICE > 0 ), PRICE > 0 ))
-		s.add( Not( Implies( And( And( AMOUNT > 0, T_PRICE > 0 ), PRICE > 0 ), Or( And( T_ID == ID, Or( And( AMOUNT >= 1000, ( T_PRICE - 0.1 * AMOUNT ) > 0 ), And( Not( AMOUNT >= 1000 ), Or( And( And( AMOUNT >= 200, T_PRICE > 5000 ), ( T_PRICE - 0.2 * AMOUNT ) > 0 ), And( Not( And( AMOUNT >= 200, T_PRICE > 5000 ) ), ( T_PRICE + 0.05 * AMOUNT ) > 0 ) ) ) ) ), And( Not( T_ID == ID ), Or( And( AMOUNT >= 1000, ( PRICE - 0.1 * AMOUNT ) > 0 ), And( Not( AMOUNT >= 1000 ), Or( And( And( AMOUNT >= 200, PRICE > 5000 ), ( PRICE - 0.2 * AMOUNT ) > 0 ), And( Not( And( AMOUNT >= 200, PRICE > 5000 ) ), ( PRICE + 0.05 * AMOUNT ) > 0 ) ) ) ) ) ) ) ) )
+		s.add(X > - 50)
+		s.add( Not( Implies( X > - 50, Or( And( X < 0, ( - X ) >= 0 ), And( Not( X < 0 ), X >= 0 ) ) ) ) )
 
 		#print("\n%%%%%%%%%% Aggregate Formula %%%%%%%%%%\n", s)
 		self.finalFormula = str(s)

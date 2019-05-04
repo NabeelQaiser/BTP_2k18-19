@@ -61,7 +61,6 @@ def executeSinglePlSqlFile(data, spec):
     # cfg.printPretty()
     # print("\n")
 
-    cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
     utility.generateVariableSet(cfg)
 
     # all properties of each node
@@ -70,7 +69,12 @@ def executeSinglePlSqlFile(data, spec):
 
 
     ssaString = MySsaStringGenerator(cfg, parser)
-    # ssaString.execute()
+    ssaString.execute()     # only for generating DOT file for "before_versioning_graph"
+
+    cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
+
+    hello1 = utility.generateBeforeVersioningDotFile(cfg)
+    cfg.dotToPng(hello1, "wpc/before_versioning_graph")
 
 
     algo = WpcGenerator(cfg, helper, ssaString)
@@ -111,10 +115,6 @@ def executeSinglePlSqlFile(data, spec):
             z3FileString = z3FileString + "\t\t" + "s.add(" + z3StringConvertor.implies_p[i] + ")\n"
             if not z3StringConvertor.convertedWpc == z3StringConvertor.implies_p_q[i]:
                 z3FileString = z3FileString + "\t\t" + "s.add(" + z3StringConvertor.implies_p_q[i] + ")\n"
-    #     if z3StringConvertor.convertedWpc not in z3StringConvertor.implies_p_q:
-    #         z3FileString = z3FileString + "\t\t" + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
-    # else:
-    #     z3FileString = z3FileString + "\t\t" + "s.add(" + z3StringConvertor.convertedWpc + ")\n"
     z3FileString = z3FileString + "\t\t" + "s.add( Not( " + z3StringConvertor.convertedWpc + " ) )\n"
 
     # z3FileString = z3FileString + "\n\t\t" + "print()"

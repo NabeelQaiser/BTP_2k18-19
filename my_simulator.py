@@ -47,14 +47,14 @@ def main(argv):
 
     print("\n\t", v.rawCFG, "\n")
 
-    for key in v.cfg.nodes:
-        if v.cfg.nodes[key].ctx != None:
-            print(key, " --> ", v.cfg.nodes[key].ctx.getText())
+    # for key in v.cfg.nodes:
+    #     if v.cfg.nodes[key].ctx != None:
+    #         print(key, " --> ", v.cfg.nodes[key].ctx.getText())
 
 
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
-    cfg.printPretty()
+    # cfg.printPretty()
     cfg.dotToPng(cfg.dotGraph, "se/raw_graph")
     utility.generateDomSet(cfg)
     # print("Dominator set ended----------->\n\n")
