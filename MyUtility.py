@@ -90,10 +90,10 @@ class MyUtility():
     def generateVariableSet(self, cfg):
         res = set()
         for nodeId in cfg.nodes:
-            cfg.nodes[nodeId].variableSet = set(self.helper.getVariableSet(cfg.nodes[nodeId].ctx))#, nodeId) )   #TODO: remove nodeId
+            cfg.nodes[nodeId].variableSet = set(self.helper.getVariableSet(cfg.nodes[nodeId].ctx))
             res = res.union(cfg.nodes[nodeId].variableSet)
-            cfg.nodes[nodeId].variableRHS = self.helper.generateRHS(cfg.nodes[nodeId].ctx)#, nodeId)   #TODO: remove nodeId
-            cfg.nodes[nodeId].variableLHS = self.helper.generateLHS(cfg.nodes[nodeId].ctx)#, nodeId)   #TODO: remove nodeId
+            cfg.nodes[nodeId].variableRHS = self.helper.generateRHS(cfg.nodes[nodeId].ctx)
+            cfg.nodes[nodeId].variableLHS = self.helper.generateLHS(cfg.nodes[nodeId].ctx)
         return res
 
 
@@ -104,7 +104,7 @@ class MyUtility():
             everOnWorklist = set()
             workList = set()
             for nodeId in cfg.nodes:
-                if self.helper.isAssignEq(cfg.nodes[nodeId].ctx) and (var in cfg.nodes[nodeId].variableLHS): #and var == self.helper.assignedVar(cfg.nodes[nodeId].ctx): #TODO change : remove nodeId from parameter, USE "LHS SET" INSTEAD OF "assignedVar"
+                if self.helper.isAssignEq(cfg.nodes[nodeId].ctx) and (var in cfg.nodes[nodeId].variableLHS): #and var == self.helper.assignedVar(cfg.nodes[nodeId].ctx): # removed nodeId from parameter, USED "LHS SET" INSTEAD OF "assignedVar"
                     everOnWorklist.add(nodeId)# = everOnWorklist.union(set(nodeId))
                     workList.add(nodeId)# = workList.union(set(nodeId))
             while not len(workList) == 0:
@@ -230,7 +230,23 @@ class MyUtility():
     #     return self.stringSsa
 
 
+    def generateBeforeVersioningDotFile(self, cfg):
+        res = "digraph G {\n\n\t"
+        flagLastNode = -1
+        for nodeId in cfg.nodes:
+            flagLastNode = nodeId
+            res = res + "\n\t" + str(nodeId) + "[ label=\"" + str(cfg.nodes[nodeId].oldString) + "\" "
+            if self.helper.getRuleName(cfg.nodes[nodeId].ctx)=="condition":
+                res = res + ", color=orange, shape=diamond"
+            res = res + " ] ;\n\t\n\t"
 
+            for child in cfg.nodes[nodeId].next:
+                res = res + str(nodeId) + " -> " + str(child) + " ;\n\t"
+        res = res + "0[ label=\"START\", shape=Msquare, color=green ]" + " ;\n\t"
+        res = res + str(flagLastNode) + " -> EXIT ;"
+        res = res + "EXIT[ shape=Msquare, color=red ]" + " ;\n\t"
+        res = res + "\n}"
+        return res
 
     def generateVersionedDotFile(self, cfg):
         res = "digraph G {\n\n\t"

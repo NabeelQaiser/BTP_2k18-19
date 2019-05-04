@@ -18,15 +18,15 @@ def main(argv):
     datafile = "se/data/"+argv[1]
     specfile = "se/spec/"+argv[2]
 
-    file = open(datafile, "r")
-    content = file.read().upper()
-    file.close()
+    # file = open(datafile, "r")
+    # content = file.read().upper()
+    # file.close()
 
     processor = PreProcessor(specfile, datafile)
     tableInfo, assumeConstraintList, assertConstraintList, resultString = processor.start()
 
     file = open('se/upper_input.sql', "w")
-    file.write(content)
+    file.write(resultString)
     file.close()
 
     input = FileStream('se/upper_input.sql')
@@ -47,14 +47,14 @@ def main(argv):
 
     print("\n\t", v.rawCFG, "\n")
 
-    for key in v.cfg.nodes:
-        if v.cfg.nodes[key].ctx != None:
-            print(key, " --> ", v.cfg.nodes[key].ctx.getText())
+    # for key in v.cfg.nodes:
+    #     if v.cfg.nodes[key].ctx != None:
+    #         print(key, " --> ", v.cfg.nodes[key].ctx.getText())
 
 
     res = MyRawCfgToGraph(v.rawCFG, cfg)
     res.execute()
-    cfg.printPretty()
+    # cfg.printPretty()
     cfg.dotToPng(cfg.dotGraph, "se/raw_graph")
     utility.generateDomSet(cfg)
     # print("Dominator set ended----------->\n\n")
@@ -78,6 +78,9 @@ def main(argv):
     for nodeId in cfg.nodes:
         cfg.nodes[nodeId].printPretty()
 
+    hello1 = utility.generateBeforeVersioningDotFile(cfg)
+    # print(hello1)
+    cfg.dotToPng(hello1, "se/before_versioning_graph")
 
     hello2 = utility.generateVersionedDotFile(cfg)
     #print(hello2)

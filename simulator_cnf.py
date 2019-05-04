@@ -51,7 +51,7 @@ def executeSinglePlSqlFile(data, spec):
     v = MyVisitor(parser, cfg, utility)
     v.visit(tree)
 
-    # print(v.rawCFG)
+    print("\nRaw CFG : ", v.rawCFG)
 
     # for key in v.cfg.nodes:
     #     if v.cfg.nodes[key].ctx != None:
@@ -80,6 +80,16 @@ def executeSinglePlSqlFile(data, spec):
     # utility.generateFinalDotGraph(cfg)
     # for nodeId in cfg.nodes:
     #     cfg.nodes[nodeId].printPretty()
+
+    # cfg.dotToPng(cfg.dotGraph, "cnf/raw_graph")
+    #
+    # hello1 = utility.generateBeforeVersioningDotFile(cfg)
+    # cfg.dotToPng(hello1, "cnf/before_versioning_graph")
+    #
+    # hello4 = utility.generateDestructedPhiNodeWalaDotFile(cfg)
+    # cfg.dotToPng(hello4, "cnf/destructed_phi_node_wala_graph")
+
+
 
     cnfUtility = CnfUtility(helper)
     iCnfCfg = cnfUtility.copyCfg(cfg)
@@ -127,9 +137,13 @@ def executeSinglePlSqlFile(data, spec):
     z3Str = z3Str.replace("  ", " ")
     z3Str = z3Str.replace(" == ", " = ")
     z3Str = z3Str.replace(" = ", " == ")
+
+    print("\n**** Final CNF VC in Well_Bracketted_Format:\n\n", z3Str, "\n")
+
     z3StringConvertor = WpcStringConverter(z3Str)
     z3StringConvertor.execute()
-    # print("\n**** WPC String in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
+
+    # print("\n**** Final CNF VC in Z3 Format:\n", z3StringConvertor.convertedWpc, "\n")
 
     z3FileString = "# This file was generated at runtime on " + str(datetime.datetime.now()) + "\n"
     z3FileString = z3FileString + "from z3 import *\n\n"
@@ -165,7 +179,7 @@ def executeSinglePlSqlFile(data, spec):
     z3FileString = z3FileString + "\n\t\t" + "if self.satisfiability == \"sat\":"
     # z3FileString = z3FileString + "\n\t\t\t" + "print()"
     # z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> Violation Occurred...\")"
-    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"Unsatisfiable\""
+    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"violation\""
     # z3FileString = z3FileString + "\n\t\t\t" + "print()"
     # z3FileString = z3FileString + "\n\t\t\t" + "print(\"%%%%%%%%%% An Instance for which Violation Occurred %%%%%%%%%%\\n\", s.model())"
     z3FileString = z3FileString + "\n\t\t\t" + "self.modelForViolation = str(s.model())"
@@ -173,7 +187,7 @@ def executeSinglePlSqlFile(data, spec):
     z3FileString = z3FileString + "\n\t\t" + "elif self.satisfiability == \"unsat\":"
     # z3FileString = z3FileString + "\n\t\t\t" + "print()"
     # z3FileString = z3FileString + "\n\t\t\t" + "print(\"-------->> NO Violation Detected so far...\")"
-    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"Satisfiable\""
+    z3FileString = z3FileString + "\n\t\t\t" + "self.satisfiability = \"sat\""
     # z3FileString = z3FileString + "\n\t\t\t" + "print()"
     # z3FileString = z3FileString + "\n\t\t" + "print()\n"
 
@@ -203,10 +217,13 @@ def main(argv):
         data = "cnf/data/" + argv[1]
         spec = "cnf/spec/" + argv[2]
         linesOfCode, executionTime, vcGenerated, satisfiability, modelForViolation = executeSinglePlSqlFile(data, spec)
-        print("\n The VC is :\n")
+        print("\n\n*** Equivalent VC :")
         print(vcGenerated)
-        print("\nsatisfibality is : \t", satisfiability, "\n\nmodel for Violation is : \t", modelForViolation, "\n")
-        # print("kuch bhi")
+        print("\n*** Satisfibality :\t", satisfiability, "\n\n*** Model for Violation :\t", modelForViolation, "\n")
+        print("\n////// Execution completed for file :", argv[1])
+        print("No. of VCs = 1")
+        print("Time Taken =", executionTime)
+        print("LinesOfCode =", linesOfCode)
     elif len(argv) == 4:
         if argv[1] == "-dataset":
             dataList = os.listdir(argv[2])

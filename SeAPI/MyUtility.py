@@ -235,6 +235,24 @@ class MyUtility():
     #     return self.stringSsa
 
 
+    def generateBeforeVersioningDotFile(self, cfg):
+        res = "digraph G {\n\n\t"
+        flagLastNode = -1
+        for nodeId in cfg.nodes:
+            flagLastNode = nodeId
+            res = res + "\n\t" + str(nodeId) + "[ label=\"" + str(cfg.nodes[nodeId].oldString) + "\" "
+            if self.helper.getRuleName(cfg.nodes[nodeId].ctx)=="condition":
+                res = res + ", color=orange, shape=diamond"
+            res = res + " ] ;\n\t\n\t"
+
+            for child in cfg.nodes[nodeId].next:
+                res = res + str(nodeId) + " -> " + str(child) + " ;\n\t"
+        res = res + "0[ label=\"START\", shape=Msquare, color=green ]" + " ;\n\t"
+        res = res + str(flagLastNode) + " -> EXIT ;"
+        res = res + "EXIT[ shape=Msquare, color=red ]" + " ;\n\t"
+        res = res + "\n}"
+        return res
+
 
 
     def generateVersionedDotFile(self, cfg):

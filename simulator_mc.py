@@ -53,8 +53,8 @@ def preprocessSinglePlSqlFileForDatasetRunning(dataFileName, specFileName, dataF
     f.close()
     processor = McPreProcessor(specFilePath, dataFilePath)
     tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString = processor.start()
-    timeTaken = execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName)
-    return linesOfCode, timeTaken
+    timeTaken, pathCount, predicateCount, spuriousCount, refinementCount = execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName)
+    return linesOfCode, timeTaken, pathCount, predicateCount, spuriousCount, refinementCount
 
 def preprocessSinglePlSqlFile(dataFileName, specFileName):
     f = open("mc/data/" + dataFileName, 'r')
@@ -62,7 +62,7 @@ def preprocessSinglePlSqlFile(dataFileName, specFileName):
     f.close()
     processor = McPreProcessor("mc/spec/" + specFileName, "mc/data/" + dataFileName)
     tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString = processor.start()
-    timeTaken = execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName)
+    timeTaken, pathCount, predicateCount, spuriousCount, refinementCount = execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName)
     return linesOfCode, timeTaken
 
 def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultString, dataFileName, specFileName):
@@ -105,15 +105,15 @@ def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultS
     # for nodeId in mcCfg.nodes:
     #     mcCfg.nodes[nodeId].printPretty()
 
-    for i in mcCfg.nodes:
-        if mcCfg.nodes[i].ctx is not None:
-            print(i, mcCfg.nodes[i].ctx.getText())
-        else:
-            print(i, "ctx = None")
-    print("\n++++++++++++++++++++++\tPredicates Given in SPEC file:")
-    for i in predicates:
-        print(i)
-    print("++++++++++++++++++++++\n")
+    # for i in mcCfg.nodes:
+    #     if mcCfg.nodes[i].ctx is not None:
+    #         print(i, mcCfg.nodes[i].ctx.getText())
+    #     else:
+    #         print(i, "ctx = None")
+    # print("\n++++++++++++++++++++++\tPredicates Given in SPEC file:")
+    # for i in predicates:
+    #     print(i)
+    # print("++++++++++++++++++++++\n")
     # mcCfg.dotToPng(cfg.dotGraph, "mc/raw_graph")
 
     mcExecutor = McExecutor()
@@ -125,23 +125,27 @@ def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultS
     pwd = pwd + "/"
     sePathsInfoForMc = SePathsInfoForMc()
     sePathList, seSatInfoList = sePathsInfoForMc.execute(dataFileName, specFileName, pwd)
-    print("sePathList", sePathList)
-    print("seSatInfoList", seSatInfoList)
+    pathCount = len(sePathList)
+    predicateCount = len(predicates)
+
+
+    # print("sePathList", sePathList)
+    # print("seSatInfoList", seSatInfoList)
     # paths = []
     # mcExecutor.getAllPaths(mcCfg, 0, [], paths)
     # print(paths)
 
     # recording startTime2
     startTime2 = datetime.datetime.now()
-    print("********CDCDCDCDCDCDCDCD******** Entered into McExcuter ********CDCDCDCDCDCDCDCD********")
-    mcExecutor.execute(mcUtility, predicates, rawPredicateContent, sePathList, seSatInfoList, tableInfo)
-    print("********CDCDCDCDCDCDCDCD******** Exited from McExcuter ********CDCDCDCDCDCDCDCD********\n")
+    # print("********CDCDCDCDCDCDCDCD******** Entered into McExcuter ********CDCDCDCDCDCDCDCD********")
+    spuriousCount, refinementCount = mcExecutor.execute(mcUtility, predicates, rawPredicateContent, sePathList, seSatInfoList, tableInfo)
+    # print("********CDCDCDCDCDCDCDCD******** Exited from McExcuter ********CDCDCDCDCDCDCDCD********\n")
     # recording endTime2
     endTime2 = datetime.datetime.now()
 
     timeForMcExcludingSe = ((endTime1 - startTime1) + (endTime2 - startTime2)).total_seconds()
 
-    return timeForMcExcludingSe
+    return timeForMcExcludingSe, pathCount, predicateCount, spuriousCount, refinementCount
 
 
 
@@ -161,13 +165,18 @@ def main(argv):
         print(" Execution Time:", timeTaken)
     elif len(argv) == 6:        # see dataset_runner_mc.py
         if argv[3] == "-data_spec_filepaths":
-            print("\n\n\n\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-            print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Running for filename :", argv[1], "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
-            linesOfCode, timeTaken = preprocessSinglePlSqlFileForDatasetRunning(argv[1], argv[2], argv[4], argv[5])
-            print("XXXXXXXXXXXXXXXXXXXXXXX Completed Execution for...")
-            print(" Filename:", argv[1])
-            print(" Lines of Code:", linesOfCode)
-            print(" Execution Time:", timeTaken)
+            # print("\n\n\n\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Running for filename :", argv[1], "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@TLTLTLTLTLTL@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n")
+            linesOfCode, timeTaken, pathCount, predicateCount, spuriousCount, refinementCount = preprocessSinglePlSqlFileForDatasetRunning(argv[1], argv[2], argv[4], argv[5])
+            # print("XXXXXXXXXXXXXXXXXXXXXXX Completed Execution for...")
+            print(argv[1], end='\t')
+            print(linesOfCode, end='\t')
+            print(timeTaken, end='\t')
+            print(pathCount, end='\t')
+            print(predicateCount, end='\t')
+            print(spuriousCount, end='\t')
+            print(refinementCount, end='\n')
+
 
 
 if __name__ == '__main__':
