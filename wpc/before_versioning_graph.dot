@@ -5,30 +5,50 @@ digraph G {
 	
 	0 -> 1 ;
 	
-	1[ label="X NUMBER "  ] ;
+	1[ label="ACC_NO INT "  ] ;
 	
 	1 -> 2 ;
 	
-	2[ label="ASSUME X > - 50 "  ] ;
+	2[ label="AMT INT "  ] ;
 	
 	2 -> 3 ;
 	
-	3[ label="X < 0 " , color=orange, shape=diamond ] ;
+	3[ label="BAL INT ; "  ] ;
 	
 	3 -> 4 ;
-	3 -> 5 ;
 	
-	4[ label="X := - X "  ] ;
+	4[ label="MIN_BAL INT ; "  ] ;
 	
-	4 -> 6 ;
+	4 -> 5 ;
 	
-	5[ label=""  ] ;
+	5[ label="ASSUME BALANCE > 0 "  ] ;
 	
 	5 -> 6 ;
 	
-	6[ label="ASSERT X >= 0 "  ] ;
+	6[ label="SELECT BALANCE INTO BAL FROM ACCOUNT WHERE ACCNO = ACC_NO "  ] ;
+	
+	6 -> 7 ;
+	
+	7[ label="MIN_BAL := BAL - AMT "  ] ;
+	
+	7 -> 8 ;
+	
+	8[ label="AMT < 10000 AND MIN_BAL > 0 " , color=orange, shape=diamond ] ;
+	
+	8 -> 9 ;
+	8 -> 10 ;
+	
+	9[ label="UPDATE ACCOUNT SET BALANCE = BALANCE - AMT WHERE ACCNO = ACC_NO "  ] ;
+	
+	9 -> 11 ;
+	
+	10[ label=""  ] ;
+	
+	10 -> 11 ;
+	
+	11[ label="ASSERT BALANCE > 0 "  ] ;
 	
 	0[ label="START", shape=Msquare, color=green ] ;
-	6 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
+	11 -> EXIT ;EXIT[ shape=Msquare, color=red ] ;
 	
 }

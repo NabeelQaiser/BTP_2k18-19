@@ -2,9 +2,11 @@
 
 ## Verification of Embedded SQL Applications using Formal Methods of Verification
 
-###-> Symbolic Execution (SE)
+##1. Symbolic Execution (SE)
 
-###-> Conditional Normal Form (CNF)
+##2. Conditional Normal Form (CNF)
 
-###-> Weakest Pre-Condition (WPC)
+##3. Weakest Pre-Condition (WPC)
+
+##4. Model Checking (MC)
 

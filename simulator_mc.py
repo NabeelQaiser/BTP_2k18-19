@@ -16,7 +16,6 @@ from MyHelper import MyHelper
 from MyRawCfgToGraph import MyRawCfgToGraph
 from MyUtility import MyUtility
 from MyVisitor import MyVisitor
-from PreProcessor import PreProcessor
 from SeAPI.SePathsInfoForMc import SePathsInfoForMc
 from WpcGenerator import WpcGenerator
 from WpcStringConverter import WpcStringConverter
@@ -105,11 +104,11 @@ def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultS
     # for nodeId in mcCfg.nodes:
     #     mcCfg.nodes[nodeId].printPretty()
 
-    # for i in mcCfg.nodes:
-    #     if mcCfg.nodes[i].ctx is not None:
-    #         print(i, mcCfg.nodes[i].ctx.getText())
-    #     else:
-    #         print(i, "ctx = None")
+    for i in mcCfg.nodes:
+        if mcCfg.nodes[i].ctx is not None:
+            print(i, mcCfg.nodes[i].ctx.getText())
+        else:
+            print(i, "ctx = None")
     # print("\n++++++++++++++++++++++\tPredicates Given in SPEC file:")
     # for i in predicates:
     #     print(i)
@@ -129,17 +128,17 @@ def execute(tableInfo, predicates, rawPredicateContent, predicateVarSet, resultS
     predicateCount = len(predicates)
 
 
-    # print("sePathList", sePathList)
-    # print("seSatInfoList", seSatInfoList)
-    # paths = []
-    # mcExecutor.getAllPaths(mcCfg, 0, [], paths)
-    # print(paths)
+    print("sePathList", sePathList)
+    print("seSatInfoList", seSatInfoList)
+    paths = []
+    mcExecutor.getAllPaths(mcCfg, 0, [], paths)
+    print("mcPaths", paths)
 
     # recording startTime2
     startTime2 = datetime.datetime.now()
-    # print("********CDCDCDCDCDCDCDCD******** Entered into McExcuter ********CDCDCDCDCDCDCDCD********")
+    print("********CDCDCDCDCDCDCDCD******** Entered into McExcuter ********CDCDCDCDCDCDCDCD********")
     spuriousCount, refinementCount = mcExecutor.execute(mcUtility, predicates, rawPredicateContent, sePathList, seSatInfoList, tableInfo)
-    # print("********CDCDCDCDCDCDCDCD******** Exited from McExcuter ********CDCDCDCDCDCDCDCD********\n")
+    print("********CDCDCDCDCDCDCDCD******** Exited from McExcuter ********CDCDCDCDCDCDCDCD********\n")
     # recording endTime2
     endTime2 = datetime.datetime.now()
 

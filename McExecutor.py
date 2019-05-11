@@ -69,7 +69,7 @@ class McExecutor():
         pathIndex = 0
         while pathIndex < len(paths):
             # rawPredicateContentList --> for generating consequents
-            # print("\n\n\n__________VAVAVAVAVAVAVA__________ Working for path : ", paths[pathIndex], "_________VAVAVAVAVAVAVA__________")
+            print("\n\n\n__________VAVAVAVAVAVAVA__________ Working for path : ", paths[pathIndex], "_________VAVAVAVAVAVAVA__________")
             tempSpurious, tempRefinement = self.executeForAPath(mcUtility, rawPredicateContentList, updatedPredList, rawPredicateContentDict, paths[pathIndex], self.getSeSatisfiability(sePathList, seSatInfoList, paths[pathIndex]), tableInfo)
             spuriousCoount = spuriousCoount + tempSpurious
             refinementCount = refinementCount + tempRefinement
@@ -156,11 +156,11 @@ class McExecutor():
         refinementCount = 0
         mcRawPredicateContentDict = dict(rawPredicateContentDict)
         if seZ3Output == 'ProblemInSeApi':
-            # print("\n!!!! NO PATH MATCHED CORRESPONDING TO : ", mcPath, " in SE provided paths !!!!\n")
-            pass
+            print("\n!!!! NO PATH MATCHED CORRESPONDING TO : ", mcPath, " in SE provided paths !!!!\n")
+            # pass
         elif seZ3Output == "NoZ3OutputGivenForThisPath":
-            # print("\n!!!! SE did'd GENERATED OUTPUT FOR PATH : ", mcPath, " in SE API module !!!!\n")
-            pass
+            print("\n!!!! SE did'd GENERATED OUTPUT FOR PATH : ", mcPath, " in SE API module !!!!\n")
+            # pass
         else:
             mcOutput = ""
             while mcOutput != seZ3Output:       # assuming it never happen that mcOutput == looksgood and seZ3Output == cannotsay
@@ -170,30 +170,30 @@ class McExecutor():
 
 
                 if len(antecedent) == 0:
-                    # print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
-                    # print("%%%%%%%% All booleans are SKIP for path :  ", mcPath, ", And seZ3Output : ", seZ3Output)
-                    # print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                    print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                    print("%%%%%%%% All booleans are SKIP for path :  ", mcPath, ", And seZ3Output : ", seZ3Output)
+                    print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     break
                 mcOutput = self.checkSatisfiability(mcUtility, antecedent, consequent, versionisedVarSet)      # here refinement may be needed
-                # print("///////////////////////// Checking Spurious-ness:\n", "mcOutput = ", mcOutput, ",\t seZ3Output = ", seZ3Output)
+                print("///////////////////////// Checking Spurious-ness:\n", "mcOutput = ", mcOutput, ",\t seZ3Output = ", seZ3Output)
                 if mcOutput == seZ3Output:
                     if mcOutput == "looksgood":
-                        pass
-                        # print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
-                        # print("%%%%%%%% No violation in path :  ", mcPath)
-                        # print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                        # pass
+                        print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                        print("%%%%%%%% No violation in path :  ", mcPath)
+                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     elif mcOutput == "cannotsay":
                         culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
-                        # print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
-                        # print("%%%%%%%% Violation in path :  ", mcPath, "\tCulprit nodes are : ", culprits)
-                        # print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                        print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                        print("%%%%%%%% Violation in path :  ", mcPath, "\tCulprit nodes are : ", culprits)
+                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                     break
                 else:           # also consider for the situation where, after saturation of refining, mcOutput and seZ3Output do not match
                     culprits = self.findCulprits(mcUtility, eqBooleanProg, mcPath)
                     if len(culprits) == 0:  # saturation attained, no culprits
-                        # print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
-                        # print("!!!! NO CULPRIT FOUND, BUT STILL SE AND MC ARE NOT CONSISTENT, FOR THE PATH : ", mcPath)     # todo : handle the situation where no culprit found
-                        # print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
+                        print("\n\nSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS Output for a PATH......................................................................................")
+                        print("!!!! NO CULPRIT FOUND, BUT STILL SE AND MC ARE NOT CONSISTENT, FOR THE PATH : ", mcPath)     # todo : handle the situation where no culprit found
+                        print("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
                         break
                     else:
                         isSpurious = 1
@@ -217,7 +217,7 @@ class McExecutor():
         return res
 
     def refine(self, mcUtility, mcPredList, mcRawPredicateContentDict, mcPath, culprits):
-        # print("------------- Entered Refine(...) fn.")
+        print("------------- Entered Refine(...) fn.")
         for nodeId in culprits:    # culprit ~ nodeId
             rawContent, assCond = self.getRawContentOfANode(nodeId, mcUtility)
             newPredicate = self.getNewBrackettedPredicate(mcUtility, nodeId)
@@ -256,7 +256,7 @@ class McExecutor():
 
 
     def printBooleans(self, mcUtility, mcPath):
-        # print("\n&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs")
+        print("\n&&&&&&&&&&&&&&&&&&&&&& BOOLEANS and WPCs")
         for nodeId in mcPath:
             print(nodeId, ": ", mcUtility.cfg.nodes[nodeId].booleans)
             print(nodeId, ": ", mcUtility.cfg.nodes[nodeId].wpcString)
@@ -267,10 +267,10 @@ class McExecutor():
         toVersionizeList = list()   # list of predicateIndex
         toVersionizeContentDict = dict()
 
-        # print("\n&&&&&&&&&&&&&&&&&&&&&& mcPredList,", len(mcPredList), " (Updated pred-list for further working)")
-        # for i in mcPredList:
-        #     print(i)
-        # self.printBooleans(mcUtility, mcPath)
+        print("\n&&&&&&&&&&&&&&&&&&&&&& mcPredList,", len(mcPredList), " (Updated pred-list for further working)")
+        for i in mcPredList:
+            print(i)
+        self.printBooleans(mcUtility, mcPath)
 
         for nodeId in mcPath:
             predicateIndex = eqBooleanProg[nodeId]
@@ -293,13 +293,13 @@ class McExecutor():
 
         # print("&&&&&&&&&&&&&&&&&&&&&& toVersionizeList :", toVersionizeList, " (List of pred-index need to versionize)")
         #
-        # print("&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList,", len(versionizedPredicateList), " (List of eq. predicates after versionization)")
-        # for i in versionizedPredicateList:
-        #     print(i)
-        # # print("&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList", " (Versionized ORIGINAL predicates for Consequent in VC)")
-        # for i in versionizedConsequentList:
-        #     print(i)
-        # print()
+        print("&&&&&&&&&&&&&&&&&&&&&& versionizedPredicateList,", len(versionizedPredicateList), " (List of eq. predicates after versionization)")
+        for i in versionizedPredicateList:
+            print(i)
+        # print("&&&&&&&&&&&&&&&&&&&&&& versionizedConsequentList", " (Versionized ORIGINAL predicates for Consequent in VC)")
+        for i in versionizedConsequentList:
+            print(i)
+        print()
 
         finalVc = ""
         finalConsequent = ""
@@ -318,8 +318,8 @@ class McExecutor():
                             temp = "( ( " + versionizedPredicateList[currIndex] + " ) == False )"
                             currIndex = currIndex + 1
                         else:
-                            pass
-                            # print("!!!! some problem occured !!!!")
+                            # pass
+                            print("!!!! some problem occured !!!!")
                     else:       # considering last node will have 0 child
                         temp = "( ( " + versionizedPredicateList[currIndex] + " ) == True )"
                         currIndex = currIndex + 1

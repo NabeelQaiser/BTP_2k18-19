@@ -1,4 +1,4 @@
-# This file was generated at runtime on 2019-05-04 21:16:52.904510
+# This file was generated at runtime on 2019-05-11 18:32:50.127509
 from z3 import *
 
 class Z3RuntimeWpcFile():
@@ -8,11 +8,16 @@ class Z3RuntimeWpcFile():
 		self.modelForViolation = ""
 
 	def execute(self):
-		X = Real('X')
+		BALANCE = Real('BALANCE')
+		MIN_BAL = Real('MIN_BAL')
+		AMT = Real('AMT')
+		ACC_NO = Real('ACC_NO')
+		BAL = Real('BAL')
+		ACCNO = Real('ACCNO')
 
 		s = Solver()
-		s.add(X > - 50)
-		s.add( Not( Implies( X > - 50, Or( And( X < 0, ( - X ) >= 0 ), And( Not( X < 0 ), X >= 0 ) ) ) ) )
+		s.add(BALANCE > 0)
+		s.add( Not( Implies( BALANCE > 0, Or( And( ACCNO == ACC_NO, Or( And( And( AMT < 10000, ( BALANCE - AMT ) > 0 ), Or( And( ACCNO == ACC_NO, ( BALANCE - AMT ) > 0 ), And( Not( ACCNO == ACC_NO ), BALANCE > 0 ) ) ), And( Not( And( AMT < 10000, ( BALANCE - AMT ) > 0 ) ), BALANCE > 0 ) ) ), And( Not( ACCNO == ACC_NO ), Or( And( And( AMT < 10000, ( BAL - AMT ) > 0 ), Or( And( ACCNO == ACC_NO, ( BALANCE - AMT ) > 0 ), And( Not( ACCNO == ACC_NO ), BALANCE > 0 ) ) ), And( Not( And( AMT < 10000, ( BAL - AMT ) > 0 ) ), BALANCE > 0 ) ) ) ) ) ) )
 
 		#print("\n%%%%%%%%%% Aggregate Formula %%%%%%%%%%\n", s)
 		self.finalFormula = str(s)
