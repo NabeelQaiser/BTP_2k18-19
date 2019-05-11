@@ -1,0 +1,81 @@
+/// This file contains detailed info of each Module of The Tool
+
+1. SE MODULE:
+    --- reflects work upto SSA generation.
+    --- run using "my_simulator.py"
+    --- command for execution : "python3 my_simulator.py <data_file>.sql <spec_file>.spec"
+    --- datafile must lie in "/se/data/", spec-file must lie in "/se/spec/"
+    --- spec format represented by : "/se/spec/my_test.spec"
+    --- involved files...(dependency)
+        -- /se/*
+        -- /gen/*
+        -- PreProcessor, MyCFG, MyUtility, MyVisitor, MyRawCfgToGraph, MyHelper, MyNode
+
+
+2. SE-API MODULE:
+    --- Symbolic Execution implementation (DEVELOPED by Imran Alam)
+    --- here incorporated as an API, so, no dependency on files outside of SeAPI module
+    --- external runner is "simulator_se_api.py"
+    --- command for execution : "python3 simulator_se_api.py <data_file>.sql <spec_file>.spec"
+    --- datafile must lie in "/SeAPI/gen/data/", spec-file must lie in "/SeAPI/specification/"
+    --- spec format represented by : "/SeAPI/specification/sqltest1.spec"
+
+
+3. CNF MODULE:
+    --- Conditional Normal Form implementation
+    --- run using "simulator_cnf.py"
+    --- command for execution : "python3 simulator_cnf.py <data_file>.sql <spec_file>.spec"
+    --- datafile must lie in "/cnf/data/", spec-file must lie in "/cnf/spec/"
+    --- spec format represented by : "/cnf/spec/sqltest10.spec"
+    --- involved files...(dependency)
+        -- /cnf/*
+        -- /gen/*
+        -- PreProcessor, MyCFG, MyUtility, MyVisitor, MyRawCfgToGraph, MyHelper, MyNode
+        -- CnfNode, CnfUtility, CnfVcGenerator, WpcStringConverter
+    --- for datasets, use "dataset_runner_cnf.py", but first modify data-file-path & spec-file-path
+    --- command for datasets : "python3 dataset_runner_cnf.py"
+
+
+4. WPC MODULE:
+    --- Weakest Pre-Condition implementation
+    --- run using "simulator_wpc.py"
+    --- command for execution : "python3 simulator_wpc.py <data_file>.sql <spec_file>.spec"
+    --- datafile must lie in "/wpc/data/", spec-file must lie in "/wpc/spec/"
+    --- spec format represented by : "/wpc/spec/sqltest1.spec"
+    --- involved files...(dependency)
+        -- /wpc/*
+        -- /gen/*
+        -- PreProcessor, MyCFG, MyUtility, MyVisitor, MyRawCfgToGraph, MyHelper, MyNode
+        -- WpcGenerator, WpcStringConverter
+    --- for datasets, use "dataset_runner_wpc.py", but first modify data-file-path & spec-file-path
+    --- command for datasets : "python3 dataset_runner_wpc.py"
+
+
+5. MC MODULE:
+    --- Model Checker implementation
+    --- run using "simulator_mc.py"
+    --- command for execution : "python3 simulator_mc.py <data_file>.sql <spec_file>.spec"
+
+    --- datafile must lie in "/mc/data/", spec-file must lie in "/mc/spec/"
+    --- BUT, NOTE: same datafile must lie in "/SeAPI/gen/data/", and corresponding spec-file in "/SeAPI/specification/"
+
+    --- ALSO, NOTE: "spec" format for both mc & SeAPI are LITTLE DIFFERENT(mc-spec has PREDICATES, but SeAPI-spec has both ASSUME & ASSERT),
+        so be cautious of copy-pasting
+
+    --- spec format of mc represented by : "/mc/spec/sqltest1.spec"
+    --- spec format of SeAPI represented by : "/SeAPI/specification/sqltest1.spec"
+    --- involved files...(dependency)
+        -- /mc/*
+        -- /SeAPI/*
+        -- /gen/*
+        -- MyCFG, MyUtility, MyVisitor, MyRawCfgToGraph, MyHelper, MyNode
+        -- WpcGenerator, WpcStringConverter
+        -- McNode, McPreProcessor, McSsaForBooleanVc, McUtility, McExecutor
+
+    --- for datasets, use "dataset_runner_mc.py", but first modify data-file-path & spec-file-path
+    --- command for datasets : "python3 dataset_runner_mc.py"
+
+
+
+NOTE: You must comment debug logs for using dataset-runners.
+Note: you can observe more step-by-step working of a Module by playing with existing debug logs.

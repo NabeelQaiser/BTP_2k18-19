@@ -34,7 +34,7 @@ def executeSinglePlSqlFile(data, spec):
     file.close()
 
     # recording startTime
-    startTime = datetime.datetime.now()
+    startTime1 = datetime.datetime.now()
 
     input = FileStream('wpc/upper_input.sql')
     lexer = PlSqlLexer(input)
@@ -71,10 +71,16 @@ def executeSinglePlSqlFile(data, spec):
     ssaString = MySsaStringGenerator(cfg, parser)
     ssaString.execute()     # only for generating DOT file for "before_versioning_graph"
 
-    cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
+    # recording finishTime
+    finishTime1 = datetime.datetime.now()
 
-    hello1 = utility.generateBeforeVersioningDotFile(cfg)
-    cfg.dotToPng(hello1, "wpc/before_versioning_graph")
+    # cfg.dotToPng(cfg.dotGraph, "wpc/raw_graph")
+    #
+    # hello1 = utility.generateBeforeVersioningDotFile(cfg)
+    # cfg.dotToPng(hello1, "wpc/before_versioning_graph")
+
+    # recording startTime
+    startTime2 = datetime.datetime.now()
 
 
     algo = WpcGenerator(cfg, helper, ssaString)
@@ -95,7 +101,7 @@ def executeSinglePlSqlFile(data, spec):
     z3StringConvertor = WpcStringConverter(algo.finalWpcString)
     z3StringConvertor.execute()
     # z3StringConvertor.convertedWpc is the FINAL VC Generated...
-    # print("\n**** Final WPC VC in Z3 Format:\n\n", z3StringConvertor.convertedWpc, "\n")
+    print("\n**** Final WPC VC in Z3 Format:\n\n", z3StringConvertor.convertedWpc, "\n")
 
     z3FileString = "# This file was generated at runtime on " + str(datetime.datetime.now()) + "\n"
     z3FileString = z3FileString + "from z3 import *\n\n"
@@ -158,8 +164,8 @@ def executeSinglePlSqlFile(data, spec):
     # print(z3Runtime.modelForViolation)
 
     # recording finishTime
-    finishTime = datetime.datetime.now()
-    timeDifference = (finishTime-startTime).total_seconds()
+    finishTime2 = datetime.datetime.now()
+    timeDifference = ( (finishTime1-startTime1) + (finishTime2-startTime2) ).total_seconds()
 
     return linesOfCode, timeDifference, z3StringConvertor.convertedWpc, z3Runtime.satisfiability, z3Runtime.modelForViolation
 
